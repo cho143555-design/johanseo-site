@@ -24,8 +24,8 @@
     .fb li { font-size:14px; color:var(--ink-soft); margin-bottom:9px; line-height:1.65; }
     .fb li b { color:var(--ink); }
     .fb-tip { margin-top:24px; padding-top:18px; border-top:1px dashed var(--line); }
-    .fb-tip p { font-size:14px; color:var(--ink-soft); line-height:1.75; margin-bottom:13px; }
-    .fb-tip p b { color:var(--ink); }
+    .fb p, .fb-tip p { font-size:14px; color:var(--ink-soft); line-height:1.75; margin-bottom:13px; }
+    .fb p b, .fb-tip p b { color:var(--ink); }
     .note-card { background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--jumuk);
       border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
       font-size:14px; line-height:1.7; color:var(--ink); }
@@ -102,7 +102,7 @@
           <div class="score-big"><span id="scoreLabel"></span></div>
           <div class="wrong-list" id="wrongList"></div>
 
-          <div class="fb">
+          <div class="fb" id="fbBox">
             <h4>국어 실력을 확실히 늘리는 태도 — 사고과정 피드백</h4>
             <ol>
               <li><b>제대로 이해되지 않은 지문 내용·선지는 무엇이었는가.</b> 해설 강의나 질문보다는 최대한 스스로 깨우치려 노력해야 한다. 일주일 넘게 고민했는데도 정 모르겠다면 질문하자!</li>
@@ -114,7 +114,7 @@
             </ol>
             <div class="fb-tip">
               <h4>사고과정 피드백 노트 작성 TIP</h4>
-              <p>정말 무엇이든 좋다. 특히 모의고사 응시 후에, 과거로 돌아가서 <b>'만약 이렇게 했다면 점수가 1점이라도 더 올랐을 것 같다'</b> 싶은 실수를 전부 적는 것이다. 나로 예를 들면, 나는 고3 때 이런 생각들을 적었다.</p>
+              <p>정말 무엇이든 좋다. 특히 모의고사 응시 후에, 과거로 돌아가서 <b>'만약 이렇게 했다면 점수가 1점이라도 더 올랐을 것 같다'</b> 싶은 실수를 전부 적는 것이다. 예를 들면, 나는 고3 때 이런 생각들을 적었다.</p>
 
               <div class="note-card"><span class="no">하나.</span>아무리 소설에 자신 있다는 생각이 들고, 내가 아는 고전소설이 나오더라도 <b>고전소설부터 풀지 말자.</b> 고전소설은 문학 중 가장 지엽적이고 치사하게 문제를 내는 구간인데, 문학을 풀기 시작할 때는 아직 뇌가 덜 데워져 있는 상태라 엄밀한 선지 판단이 종종 안 될 때가 있다.
                 <span class="aside">→ 이 피드백은 추후 '문학 푸는 순서 고정'으로 이어졌다.</span></div>
@@ -127,7 +127,7 @@
 
               <p>이렇게 노트에 사고과정을 피드백한 후, 모의고사를 풀기 전이나 기출문제 풀이를 하기 전 <b>'여기 적어놓은 실수만큼은 절대로 하지 말자'</b>를 되새기며 풀이에 임한다. 이것만 해내도 많이 성장한 것이다. 완전히 극복한 문제점이라고 생각한다면 해당 피드백을 노트에서 지워도 좋다.</p>
               <p>실제로 나는 수능 만점 수준에 도달한 이후에는 딱히 노트에 적을 만한 것이 없었다. 원래 그런 실력이었던 거 아니냐? <b>절대 아니다.</b> 국어에 재능이 있는 편임을 부정하지는 않지만, 선천적인 것으로 이뤄낸 성취가 아니었다. 이 훈련을 통해 실수를 거의 없애다시피 할 수 있었다.</p>
-              <p>나는 실전 모의고사 훈련에서 사소한 실수를 범할 때마다 피드백 노트를 한 페이지 가득 채울 만큼 국어 공부에 진심이었다. 이런 마인드로 공부하다 보면, 성적은 늘 수밖에 없다고 본다.</p>
+              <p>나는 실전 모의고사 훈련에서 사소한 실수를 범할 때마다 피드백 노트에 나에 대한 인신공격 비스무리한 욕을 한 페이지 가득 썼다. <b>그만큼 국어 공부에 진심이었다.</b> 물론 본인에게 욕을 하는 것을 권하지는 않지만, 이런 마인드로 공부하다 보면 성적은 늘 수밖에 없다고 본다.</p>
             </div>
           </div>
 
@@ -347,8 +347,47 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
+    // ---- 안내문 렌더러 (간단 문법 → 화면) ----
+    function renderGuide(text) {
+      const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      const bold = (t) => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+      const fmt = (t) => bold(esc(t));
+      let html = "";
+      text.replace(/\r/g,"").split(/\n\s*\n/).forEach(bl => {
+        const lines = bl.split("\n").map(l=>l.trim()).filter(Boolean);
+        if (!lines.length) return;
+        if (lines.length === 1 && lines[0] === "---") {
+          html += '<div style="border-top:1px dashed var(--line);margin:20px 0"></div>'; return;
+        }
+        if (lines[0].startsWith("# ")) {
+          html += `<h4>${fmt(lines[0].slice(2))}</h4>`;
+          lines.shift();
+          if (!lines.length) return;
+        }
+        if (lines[0].startsWith("카드)")) {
+          const asides = lines.filter(l=>l.startsWith(">")).map(l=>fmt(l.slice(1).trim()));
+          const body = lines.filter(l=>!l.startsWith(">")).map(l=>l.replace(/^카드\)\s*/,"")).join(" ");
+          const m = body.match(/^([가-힣]{1,3}\.)\s*([\s\S]*)$/);
+          const label = m ? m[1] : "", rest = m ? m[2] : body;
+          html += `<div class="note-card">${label?`<span class="no">${esc(label)}</span>`:""}${fmt(rest)}${asides.map(a=>`<span class="aside">${a}</span>`).join("")}</div>`;
+          return;
+        }
+        if (/^\d+\.\s/.test(lines[0])) {
+          html += "<ol>" + lines.map(l=>`<li>${fmt(l.replace(/^\d+\.\s*/,""))}</li>`).join("") + "</ol>";
+          return;
+        }
+        html += `<p>${fmt(lines.join(" "))}</p>`;
+      });
+      return html;
+    }
+    async function loadGuide() {
+      const { data, error } = await sb.from("site_content").select("content").eq("key", "result_guide").maybeSingle();
+      if (!error && data && data.content) $("fbBox").innerHTML = renderGuide(data.content);
+    }
+
     loadIndex();
     loadSets();
+    loadGuide();
   </script>
 </body>
 </html>
