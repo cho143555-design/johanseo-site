@@ -4,10 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>과제 채점 — 조한서 국어</title>
+  <link rel="icon" type="image/png" href="seal.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .tabs { display:flex; gap:8px; margin-bottom:22px; }
+    .tab {
+      padding:9px 16px; border:1.5px solid var(--line); background:var(--paper);
+      cursor:pointer; font-weight:600; font-size:14px; border-radius:var(--radius);
+      color:var(--ink-soft); font-family:var(--sans);
+    }
+    .tab.on { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+    .hint { font-size:13px; color:var(--ink-soft); margin-top:-12px; margin-bottom:18px; }
+  </style>
 </head>
 <body>
   <div class="topbar">
@@ -15,7 +26,6 @@
       <a class="brand" href="index.html">조한서 수능 · 내신 국어</a>
       <nav class="nav">
         <a href="index.html">홈</a>
-        
         <a href="index.html#contact">문의</a>
       </nav>
     </div>
@@ -31,14 +41,35 @@
           <input id="name" type="text" placeholder="이름을 입력하세요" autocomplete="off" />
         </div>
 
-        <div class="field">
-          <label for="setSelect">학습지 선택</label>
-          <select id="setSelect">
-            <option value="">불러오는 중…</option>
-          </select>
+        <div class="tabs" id="tabs" style="display:none">
+          <button type="button" class="tab on" id="tabRange">교재 범위</button>
+          <button type="button" class="tab" id="tabSet">등록된 과제</button>
         </div>
 
-        <div id="omrWrap" style="display:none">
+        <!-- 교재 범위 셀프 채점 -->
+        <div id="rangeView">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="field"><label for="mSel">교재</label><select id="mSel"></select></div>
+            <div class="field"><label for="cSel">단원</label><select id="cSel"></select></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="field"><label for="startNo">시작 번호</label><input id="startNo" type="number" min="1" inputmode="numeric" /></div>
+            <div class="field"><label for="endNo">끝 번호</label><input id="endNo" type="number" min="1" inputmode="numeric" /></div>
+          </div>
+          <p class="hint" id="rangeHint"></p>
+          <button class="btn ghost" id="loadBtn" style="width:100%">문제 불러오기</button>
+        </div>
+
+        <!-- 등록된 과제 -->
+        <div id="setView" style="display:none">
+          <div class="field">
+            <label for="setSelect">과제 선택</label>
+            <select id="setSelect"></select>
+          </div>
+        </div>
+
+        <!-- 공용: 답안 표기 + 채점 -->
+        <div id="omrWrap" style="display:none;margin-top:8px">
           <div class="field">
             <label>답안 표기 <span style="font-weight:400;color:var(--ink-soft)">— 각 문항의 답을 눌러 주세요</span></label>
             <div class="omr" id="omr"></div>
@@ -49,7 +80,7 @@
         <p class="msg err" id="err" style="display:none"></p>
 
         <div class="result" id="result">
-          <div class="score-big"><span id="scoreDenomLabel"></span></div>
+          <div class="score-big"><span id="scoreLabel"></span></div>
           <div class="wrong-list" id="wrongList"></div>
           <button class="btn ghost" id="againBtn" style="margin-top:18px">다시 풀기</button>
         </div>
@@ -57,84 +88,159 @@
     </div>
   </section>
 
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script>
     const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
-    let currentSet = null;   // {set_code, question_count, choice_count}
-    let answers = [];        // 학생 답 배열
+    const p3 = (n) => String(n).padStart(3, "0");
+    const CH_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','미니모의고사 1회','미니모의고사 2회'];
+
+    let bankIdx = {};     // { 교재: [{chapter,min_no,max_no}] }
+    let mode = "range";   // 'range' | 'set'
+    let current = null;   // 채점 대상 정보
+    let answers = [];
 
     function showErr(m) { const e = $("err"); e.textContent = m; e.style.display = m ? "block" : "none"; }
-
-    // 학습지 목록 로드
-    async function loadSets() {
-      const { data, error } = await sb
-        .from("problem_sets")
-        .select("set_code, title, question_count, choice_count")
-        .order("created_at", { ascending: false });
-      const sel = $("setSelect");
-      if (error) { sel.innerHTML = '<option value="">목록을 불러오지 못했습니다</option>'; showErr("설정(config.js)이 올바른지 확인하세요."); return; }
-      if (!data || data.length === 0) { sel.innerHTML = '<option value="">등록된 학습지가 없습니다</option>'; return; }
-      sel.innerHTML = '<option value="">— 학습지를 선택하세요 —</option>' +
-        data.map(s => `<option value="${s.set_code}" data-q="${s.question_count}" data-c="${s.choice_count}">${s.title}</option>`).join("");
+    function chSort(a, b) {
+      const ia = CH_ORDER.indexOf(a.chapter), ib = CH_ORDER.indexOf(b.chapter);
+      return (ia<0?99:ia) - (ib<0?99:ib);
     }
 
-    // OMR 격자 그리기
-    function buildOmr() {
+    // ---- 교재/단원 목록 ----
+    async function loadIndex() {
+      const { data, error } = await sb.from("answer_bank_index").select("*");
+      if (error || !data || data.length === 0) {
+        $("mSel").innerHTML = '<option value="">교재 목록을 불러오지 못했습니다</option>';
+        $("cSel").innerHTML = ''; return;
+      }
+      bankIdx = {};
+      data.forEach(r => { (bankIdx[r.material] = bankIdx[r.material] || []).push(r); });
+      Object.values(bankIdx).forEach(a => a.sort(chSort));
+      $("mSel").innerHTML = Object.keys(bankIdx).map(m => `<option value="${m}">${m}</option>`).join("");
+      fillChapters();
+    }
+    function fillChapters() {
+      const m = $("mSel").value;
+      const chs = bankIdx[m] || [];
+      $("cSel").innerHTML = chs.map(c => `<option value="${c.chapter}">${c.chapter}</option>`).join("");
+      updateHint();
+    }
+    function chInfo() {
+      const m = $("mSel").value, c = $("cSel").value;
+      return (bankIdx[m] || []).find(x => x.chapter === c);
+    }
+    function updateHint() {
+      const info = chInfo();
+      $("rangeHint").textContent = info ? `이 단원 문항: ${p3(info.min_no)} ~ ${p3(info.max_no)}` : "";
+    }
+    $("mSel").addEventListener("change", fillChapters);
+    $("cSel").addEventListener("change", updateHint);
+
+    // ---- 등록된 과제 목록 ----
+    async function loadSets() {
+      const { data } = await sb.from("problem_sets")
+        .select("set_code, title, question_count, choice_count, start_no")
+        .order("created_at", { ascending: false });
+      if (data && data.length > 0) {
+        $("tabs").style.display = "flex";
+        $("setSelect").innerHTML = '<option value="">— 과제를 선택하세요 —</option>' +
+          data.map(s => `<option value="${s.set_code}" data-q="${s.question_count}" data-c="${s.choice_count}" data-s="${s.start_no || ''}">${s.title}</option>`).join("");
+      }
+    }
+
+    // ---- 탭 전환 ----
+    function setMode(m) {
+      mode = m;
+      $("tabRange").classList.toggle("on", m === "range");
+      $("tabSet").classList.toggle("on", m === "set");
+      $("rangeView").style.display = m === "range" ? "block" : "none";
+      $("setView").style.display = m === "set" ? "block" : "none";
+      $("omrWrap").style.display = "none";
+      $("result").classList.remove("show");
+      showErr("");
+      current = null;
+    }
+    $("tabRange").addEventListener("click", () => setMode("range"));
+    $("tabSet").addEventListener("click", () => setMode("set"));
+
+    // ---- OMR ----
+    function buildOmr(count, choiceCount, startNo) {
       const omr = $("omr");
       omr.innerHTML = "";
-      answers = new Array(currentSet.question_count).fill(null);
-      for (let q = 1; q <= currentSet.question_count; q++) {
+      answers = new Array(count).fill(null);
+      for (let q = 1; q <= count; q++) {
         const row = document.createElement("div");
         row.className = "omr-row";
         const bubbles = [];
-        for (let c = 1; c <= currentSet.choice_count; c++) {
+        for (let c = 1; c <= choiceCount; c++) {
           bubbles.push(`<button type="button" class="bubble" data-q="${q}" data-c="${c}" aria-label="${q}번 ${c}번 선택">${c}</button>`);
         }
-        row.innerHTML = `<div class="qno">${q}</div><div class="bubbles">${bubbles.join("")}</div>`;
+        const label = startNo ? p3(startNo + q - 1) : q;
+        row.innerHTML = `<div class="qno">${label}</div><div class="bubbles">${bubbles.join("")}</div>`;
         omr.appendChild(row);
       }
       omr.querySelectorAll(".bubble").forEach(b => {
         b.addEventListener("click", () => {
-          const q = +b.dataset.q, c = +b.dataset.c;
-          answers[q - 1] = c;
+          answers[+b.dataset.q - 1] = +b.dataset.c;
           b.parentElement.querySelectorAll(".bubble").forEach(x => x.classList.remove("on"));
           b.classList.add("on");
         });
       });
+      $("omrWrap").style.display = "block";
+      $("result").classList.remove("show");
     }
 
-    $("setSelect").addEventListener("change", (e) => {
-      showErr(""); $("result").classList.remove("show");
-      const opt = e.target.selectedOptions[0];
-      if (!opt || !opt.value) { $("omrWrap").style.display = "none"; return; }
-      currentSet = { set_code: opt.value, question_count: +opt.dataset.q, choice_count: +opt.dataset.c };
-      buildOmr();
-      $("omrWrap").style.display = "block";
+    // 범위 모드: 문제 불러오기
+    $("loadBtn").addEventListener("click", () => {
+      showErr("");
+      const info = chInfo();
+      if (!info) return showErr("교재와 단원을 선택해 주세요.");
+      const s = +$("startNo").value, e = +$("endNo").value;
+      if (!s || !e) return showErr("시작 번호와 끝 번호를 입력해 주세요.");
+      if (s < info.min_no || e > info.max_no || s > e) {
+        return showErr(`범위를 확인해 주세요. 이 단원은 ${p3(info.min_no)}~${p3(info.max_no)}번입니다.`);
+      }
+      if (e - s + 1 > 200) return showErr("한 번에 200문항까지 채점할 수 있어요.");
+      current = { kind: "range", material: $("mSel").value, chapter: info.chapter, start: s, end: e };
+      buildOmr(e - s + 1, 5, s);
     });
 
+    // 과제 모드: 선택
+    $("setSelect").addEventListener("change", (e) => {
+      showErr("");
+      const opt = e.target.selectedOptions[0];
+      if (!opt || !opt.value) { $("omrWrap").style.display = "none"; current = null; return; }
+      current = { kind: "set", set_code: opt.value };
+      const startNo = opt.dataset.s ? +opt.dataset.s : null;
+      buildOmr(+opt.dataset.q, +opt.dataset.c, startNo);
+    });
+
+    // ---- 채점 ----
     $("submitBtn").addEventListener("click", async () => {
       showErr("");
       const name = $("name").value.trim();
       if (!name) return showErr("이름을 입력해 주세요.");
-      if (!currentSet) return showErr("학습지를 선택해 주세요.");
+      if (!current) return showErr("문제를 먼저 불러와 주세요.");
       if (answers.some(a => a === null)) return showErr("모든 문항의 답을 표기해 주세요.");
+
+      const body = current.kind === "range"
+        ? { material: current.material, chapter: current.chapter, start_no: current.start, end_no: current.end, student_name: name, answers }
+        : { set_code: current.set_code, student_name: name, answers };
 
       $("submitBtn").disabled = true; $("submitBtn").textContent = "채점 중…";
       try {
         const res = await fetch(`${window.SUPABASE_URL}/functions/v1/grade`, {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${window.SUPABASE_ANON_KEY}` },
-          body: JSON.stringify({ set_code: currentSet.set_code, student_name: name, answers })
+          body: JSON.stringify(body)
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "채점에 실패했습니다.");
 
-        $("scoreDenomLabel").innerHTML = `${json.score}<span> / ${json.total}</span>`;
+        $("scoreLabel").innerHTML = `${json.score}<span> / ${json.total}</span>`;
         $("wrongList").innerHTML = json.wrong_questions.length
-          ? `틀린 문항: <b>${json.wrong_questions.join(", ")}번</b>`
+          ? `틀린 문항: <b>${json.wrong_questions.map(p3).join(", ")}번</b>`
           : `<b>모두 정답입니다. 훌륭해요!</b>`;
         $("result").classList.add("show");
         $("result").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -147,10 +253,14 @@
 
     $("againBtn").addEventListener("click", () => {
       $("result").classList.remove("show");
-      buildOmr();
+      if (current) {
+        if (current.kind === "range") buildOmr(current.end - current.start + 1, 5, current.start);
+        else { const opt = $("setSelect").selectedOptions[0]; buildOmr(+opt.dataset.q, +opt.dataset.c, opt.dataset.s ? +opt.dataset.s : null); }
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
+    loadIndex();
     loadSets();
   </script>
 </body>
