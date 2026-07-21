@@ -8,6 +8,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    textarea { width:100%; min-height:220px; font-family:ui-monospace,Consolas,monospace; font-size:13px;
+      padding:12px 14px; border:1.5px solid var(--line); border-radius:var(--radius); background:var(--paper); color:var(--ink); }
+    textarea:focus { outline:none; border-color:var(--jumuk); }
+    .preview { font-size:14px; background:var(--paper); border:1px dashed var(--line); border-radius:var(--radius);
+      padding:14px 16px; margin-top:12px; white-space:pre-wrap; display:none; }
+    .preview.err { color:var(--jumuk-2); border-color:var(--jumuk); }
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:var(--radius);
+      font-size:14px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:99; }
+    .toast.show { opacity:1; }
+    .edit-row { display:grid; grid-template-columns:64px 1fr; align-items:center; gap:12px;
+      padding:7px 0; border-bottom:1px dashed var(--line); }
+    .edit-row .qno { font-family:var(--serif); font-weight:800; text-align:center; }
+    .mini { font-size:13px; color:var(--ink-soft); }
+  </style>
 </head>
 <body>
   <div class="topbar">
@@ -18,7 +34,7 @@
   </div>
 
   <section>
-    <div class="wrap" style="max-width:720px">
+    <div class="wrap" style="max-width:760px">
 
       <!-- 로그인 -->
       <div id="loginView">
@@ -36,7 +52,58 @@
       <div id="adminView" style="display:none">
         <div class="admin-grid">
 
-          <!-- 범위로 과제 내기 (정답 은행) -->
+          <!-- 교재 현황 -->
+          <div>
+            <p class="section-label">교재 현황</p>
+            <div id="matList" class="admin-grid"></div>
+          </div>
+
+          <!-- 대량 등록 -->
+          <div>
+            <p class="section-label">교재 등록</p>
+            <h2 class="section-title" style="margin-bottom:16px">붙여넣기로 대량 등록</h2>
+            <div class="panel">
+              <div class="field">
+                <label for="bulkText">등록 텍스트</label>
+                <textarea id="bulkText" placeholder="교재: 2028 이감으로 기출 문학
+[현대시]
+01 · 2027 6모: 3 5 5 4
+02 · 2026 6모: 5 4 3 3 | +2   ← '| +2' 는 이감+ 정답
+[사회]
+…
+
+── 범위형(마더텅식)은 이렇게 ──
+교재: 2028 고3 마더텅 문학
+[현대시]
+1: 2 4 4 3 4 2 2 2 1
+10: 3 5 5 4 5 …   ← 10번부터 이어짐"></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                <button class="btn ghost" id="previewBtn">미리보기 (검사)</button>
+                <button class="btn jumuk" id="bulkBtn" disabled>등록하기</button>
+              </div>
+              <div class="preview" id="previewBox"></div>
+            </div>
+          </div>
+
+          <!-- 정답 수정 -->
+          <div>
+            <p class="section-label">정답 수정</p>
+            <h2 class="section-title" style="margin-bottom:16px">문항 정답 고치기</h2>
+            <div class="panel">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                <div class="field"><label for="edMat">교재</label><select id="edMat"></select></div>
+                <div class="field"><label for="edCh">단원</label><select id="edCh"></select></div>
+              </div>
+              <div class="field" id="edSecWrap" style="display:none"><label for="edSec">지문 세트</label><select id="edSec"></select></div>
+              <button class="btn ghost" id="edLoadBtn" style="width:100%">정답 불러오기</button>
+              <p class="mini" style="margin-top:10px">불러온 뒤 다른 번호를 누르면 즉시 저장됩니다.</p>
+              <div class="omr" id="edOmr" style="margin-top:14px"></div>
+              <p class="msg err" id="edErr" style="display:none"></p>
+            </div>
+          </div>
+
+          <!-- 범위 과제 내기 -->
           <div>
             <p class="section-label">과제 내기</p>
             <h2 class="section-title" style="margin-bottom:16px">교재 범위로 과제 내기</h2>
@@ -46,21 +113,21 @@
                 <div class="field"><label for="bkChapter">단원</label><select id="bkChapter"></select></div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-                <div class="field"><label for="bkStart">시작 번호</label><input id="bkStart" type="number" min="1" placeholder="10" /></div>
-                <div class="field"><label for="bkEnd">끝 번호</label><input id="bkEnd" type="number" min="1" placeholder="45" /></div>
+                <div class="field"><label for="bkStart">시작 번호</label><input id="bkStart" type="number" min="1" /></div>
+                <div class="field"><label for="bkEnd">끝 번호</label><input id="bkEnd" type="number" min="1" /></div>
               </div>
-              <div class="field"><label for="bkTitle">과제 이름 <span style="font-weight:400;color:var(--ink-soft)">— 비워두면 자동</span></label><input id="bkTitle" placeholder="예: 7월 4주차 문학" /></div>
+              <div class="field"><label for="bkTitle">과제 이름 <span class="mini">— 비워두면 자동</span></label><input id="bkTitle" placeholder="예: 7월 4주차 문학" /></div>
               <button class="btn jumuk" id="bkSaveBtn" style="width:100%">과제 등록</button>
               <p class="msg" id="bkMsg" style="display:none"></p>
             </div>
           </div>
 
-          <!-- 자작 학습지 수동 등록 -->
+          <!-- 자작 학습지 -->
           <div>
             <p class="section-label">자작 학습지</p>
             <h2 class="section-title" style="margin-bottom:16px">직접 정답 입력해 등록</h2>
             <div class="panel">
-              <div class="field"><label for="setCode">학습지 코드 <span style="font-weight:400;color:var(--ink-soft)">— 영문/숫자, 겹치지 않게</span></label><input id="setCode" placeholder="igam-doksu-1" /></div>
+              <div class="field"><label for="setCode">학습지 코드 <span class="mini">— 영문/숫자, 겹치지 않게</span></label><input id="setCode" placeholder="igam-doksu-1" /></div>
               <div class="field"><label for="title">제목</label><input id="title" placeholder="이감 독서 1회" /></div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
                 <div class="field"><label for="choiceCount">선택지 수</label>
@@ -73,34 +140,69 @@
             </div>
           </div>
 
+          <!-- 학생별 리포트 -->
+          <div>
+            <p class="section-label">학생별 리포트</p>
+            <h2 class="section-title" style="margin-bottom:16px">성적 추이 보기</h2>
+            <div class="panel">
+              <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
+                <div class="field" style="margin-bottom:0"><input id="rpName" placeholder="학생 이름 (세 글자 정자)" /></div>
+                <button class="btn" id="rpBtn">리포트 보기</button>
+              </div>
+              <div id="rpBox" style="margin-top:16px"></div>
+            </div>
+          </div>
+
+          <!-- 오답 통계 -->
+          <div>
+            <p class="section-label">오답 통계</p>
+            <h2 class="section-title" style="margin-bottom:16px">많이 틀리는 문항</h2>
+            <div class="panel">
+              <div class="field"><label for="stSel">과제/세트 선택 <span class="mini">— 제출이 있는 것만 표시</span></label>
+                <select id="stSel"><option value="">불러오는 중…</option></select></div>
+              <div id="stBox"></div>
+            </div>
+          </div>
+
           <!-- 등록된 과제 -->
           <div>
-            <p class="section-label">등록됨</p>
+            <p class="section-label">등록된 과제</p>
             <div id="setList" class="admin-grid"></div>
           </div>
 
           <!-- 제출 기록 -->
           <div>
             <p class="section-label">제출 기록</p>
-            <h2 class="section-title" style="margin-bottom:16px">최근 채점 결과</h2>
+            <h2 class="section-title" style="margin-bottom:16px">채점 결과</h2>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
+              <div class="field" style="margin-bottom:0"><input id="subFilter" placeholder="학생 이름으로 검색 (비우면 전체 최근 50건)" /></div>
+              <button class="btn ghost" id="csvBtn">CSV 내보내기</button>
+            </div>
             <div id="subList" class="admin-grid"></div>
           </div>
 
         </div>
       </div>
-
     </div>
   </section>
+
+  <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script>
     const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
-    let bank = {}; // { material: [chapter, ...] }
-
-    function msg(el, text, isErr) { el.textContent = text; el.style.display = text ? "block" : "none"; el.className = "msg" + (isErr ? " err" : ""); }
+    const CH_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','미니모의고사 1회','미니모의고사 2회','인문·예술','사회','과학·기술','주제 통합','독서론','고전 시가','현대 소설','고전 산문','갈래 복합'];
+    const chCmp = (a,b) => { const i=CH_ORDER.indexOf(a), j=CH_ORDER.indexOf(b); return (i<0?99:i)-(j<0?99:j); };
     const pad3 = (n) => String(n).padStart(3, "0");
+    let idx = [];        // answer_bank_index 원본
+    let bank = {};       // 범위형 전용: material -> [chapter]
+    let full = {};       // 전체: material -> chapter -> {range, sections[]}
+    let parsed = null;   // 대량등록 파싱 결과
+
+    function msg(el, text, isErr) { el.textContent=text; el.style.display=text?"block":"none"; el.className="msg"+(isErr?" err":""); }
+    function toast(t) { const e=$("toast"); e.textContent=t; e.classList.add("show"); setTimeout(()=>e.classList.remove("show"),1800); }
 
     // ---- 로그인 ----
     $("loginBtn").addEventListener("click", async () => {
@@ -116,81 +218,264 @@
       $("adminView").style.display = "block";
       $("logoutLink").style.display = "inline";
       buildKeyOmr();
-      await loadBank();
+      await refreshIndex();
       await refreshSets();
       await refreshSubs();
+      await loadStats();
     }
 
-    // ---- 정답 은행 목록 (교재/단원 드롭다운) ----
-    async function loadBank() {
-      const { data, error } = await sb.from("answer_bank_index").select("*");
-      const CH_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','미니모의고사 1회','미니모의고사 2회'];
-      bank = {};
-      (data || []).forEach(r => { if (!r.section) (bank[r.material] = bank[r.material] || []).push(r.chapter); });
-      Object.values(bank).forEach(a => a.sort((x, y) => {
-        const ix = CH_ORDER.indexOf(x), iy = CH_ORDER.indexOf(y);
-        return (ix < 0 ? 99 : ix) - (iy < 0 ? 99 : iy);
+    // ---- 인덱스 로딩 (현황판 + 드롭다운 전부) ----
+    async function refreshIndex() {
+      const { data } = await sb.from("answer_bank_index").select("*");
+      idx = data || [];
+      bank = {}; full = {};
+      idx.forEach(r => {
+        const m = (full[r.material] = full[r.material] || {});
+        const c = (m[r.chapter] = m[r.chapter] || { range:null, sections:[] });
+        if (r.section) c.sections.push(r); else c.range = r;
+        if (!r.section) (bank[r.material] = bank[r.material] || []).push(r.chapter);
+      });
+      Object.values(full).forEach(chs => Object.values(chs).forEach(c =>
+        c.sections.sort((a,b)=>a.section.localeCompare(b.section,"ko"))));
+      Object.values(bank).forEach(a => a.sort(chCmp));
+
+      // 현황판
+      const mats = Object.keys(full).sort();
+      $("matList").innerHTML = mats.map(m => {
+        const chs = Object.keys(full[m]).sort(chCmp);
+        const q = idx.filter(r=>r.material===m).reduce((s,r)=>s+r.q_count,0);
+        const secN = idx.filter(r=>r.material===m && r.section).length;
+        const detail = chs.map(c => {
+          const info = full[m][c];
+          return info.range ? `${c} ${pad3(info.range.min_no)}~${pad3(info.range.max_no)}` : `${c} ${info.sections.length}세트`;
+        }).join(" · ");
+        return `<div class="set-item"><div>
+          <div class="code">${m} <span class="pill">${q}문항${secN?` · ${secN}세트`:""}</span></div>
+          <div class="meta">${detail}</div></div>
+          <button class="btn ghost" style="padding:8px 14px;font-size:13px" onclick="delMaterial('${m.replace(/'/g,"\\'")}')">삭제</button>
+        </div>`;
+      }).join("") || '<p class="meta">등록된 교재가 없습니다.</p>';
+
+      // 과제내기(범위형만) / 정답수정(전체) 드롭다운
+      const rmats = Object.keys(bank);
+      $("bkMaterial").innerHTML = rmats.length ? rmats.sort().map(m=>`<option>${m}</option>`).join("") : '<option value="">범위형 교재 없음</option>';
+      fillBkChapters();
+      $("edMat").innerHTML = mats.map(m=>`<option>${m}</option>`).join("");
+      fillEdChapters();
+    }
+
+    window.delMaterial = async (m) => {
+      if (!confirm(`'${m}' 교재의 정답 전체를 삭제할까요?\n(제출 기록은 남습니다)`)) return;
+      const { error } = await sb.from("answer_bank").delete().eq("material", m);
+      if (error) return alert("삭제 실패: " + error.message);
+      toast("삭제 완료"); await refreshIndex();
+    };
+
+    // ---- 대량 등록 ----
+    function parseBulk(text) {
+      const out = { material:null, rows:[], summary:[], errors:[] };
+      let ch = null, rangeQs = {}, chMode = null;
+      const flushRange = () => {
+        if (!ch || chMode!=="range") return;
+        const ns = Object.keys(rangeQs).map(Number).sort((a,b)=>a-b);
+        if (!ns.length) return;
+        const holes = []; for (let n=ns[0]; n<=ns[ns.length-1]; n++) if (!(n in rangeQs)) holes.push(n);
+        if (holes.length) out.errors.push(`[${ch}] 빠진 번호: ${holes.join(", ")}`);
+        ns.forEach(n => out.rows.push({ chapter:ch, section:null, question_no:n, correct_answer:rangeQs[n], is_plus:false }));
+        out.summary.push(`${ch}: ${pad3(ns[0])}~${pad3(ns[ns.length-1])} (${ns.length}문항)`);
+      };
+      const lines = text.split("\n");
+      let secCount = 0;
+      lines.forEach((raw, li) => {
+        const line = raw.trim();
+        if (!line || line.startsWith("──") || line.startsWith("//")) return;
+        const L = li + 1;
+        let m;
+        if ((m = line.match(/^교재\s*:\s*(.+)$/))) { out.material = m[1].trim(); return; }
+        if ((m = line.match(/^\[(.+)\]$/))) { flushRange(); ch = m[1].trim(); rangeQs = {}; chMode = null; secCount = 0; return; }
+        if (!ch) { out.errors.push(`${L}행: 단원([단원명]) 지정 전에 내용이 있습니다.`); return; }
+        const ci = line.indexOf(":");
+        if (ci < 0) { out.errors.push(`${L}행: ':' 이 없습니다 — "${line.slice(0,30)}"`); return; }
+        const head = line.slice(0, ci).trim();
+        let body = line.slice(ci + 1).replace(/←.*$/, "").trim();
+        let plus = null;
+        const pm = body.match(/[|]?\s*\+\s*([1-5])\s*$/);
+        if (pm) { plus = +pm[1]; body = body.slice(0, pm.index).replace(/[|]\s*$/, "").trim(); }
+        const digits = body.replace(/[\s,]/g, "");
+        if (!/^[1-5]+$/.test(digits)) { out.errors.push(`${L}행: 정답은 1~5만 가능합니다 — "${body}"`); return; }
+        if (/^\d+$/.test(head)) {
+          // 범위형
+          if (chMode === "set") { out.errors.push(`${L}행: [${ch}] 안에 세트형과 범위형이 섞여 있습니다.`); return; }
+          chMode = "range";
+          let n = +head;
+          for (const d of digits) {
+            if (n in rangeQs) out.errors.push(`${L}행: ${n}번이 중복 입력되었습니다.`);
+            rangeQs[n] = +d; n++;
+          }
+        } else {
+          // 세트형
+          if (chMode === "range") { out.errors.push(`${L}행: [${ch}] 안에 세트형과 범위형이 섞여 있습니다.`); return; }
+          chMode = "set"; secCount++;
+          digits.split("").forEach((d, i) => out.rows.push({ chapter:ch, section:head, question_no:i+1, correct_answer:+d, is_plus:false }));
+          if (plus !== null) out.rows.push({ chapter:ch, section:head, question_no:digits.length+1, correct_answer:plus, is_plus:true });
+          const prev = out.summary.findIndex(s => s.startsWith(ch + ":") && s.includes("세트"));
+          const label = `${ch}: ${secCount}세트`;
+          if (prev >= 0) out.summary[prev] = label; else out.summary.push(label);
+        }
+      });
+      flushRange();
+      if (!out.material) out.errors.unshift("첫 줄에 '교재: 이름' 이 필요합니다.");
+      if (!out.rows.length) out.errors.push("등록할 문항이 없습니다.");
+      // 세트 내 중복 검사
+      const seen = new Set();
+      out.rows.forEach(r => {
+        const k = `${r.chapter}|${r.section||""}|${r.question_no}`;
+        if (seen.has(k)) out.errors.push(`중복: [${r.chapter}] ${r.section||""} ${r.question_no}번`);
+        seen.add(k);
+      });
+      return out;
+    }
+
+    $("previewBtn").addEventListener("click", () => {
+      parsed = parseBulk($("bulkText").value);
+      const box = $("previewBox");
+      box.style.display = "block";
+      if (parsed.errors.length) {
+        box.className = "preview err";
+        box.textContent = "⚠ 문제 발견 — 수정 후 다시 검사하세요\n" + parsed.errors.map(e=>"· "+e).join("\n");
+        $("bulkBtn").disabled = true;
+      } else {
+        box.className = "preview";
+        box.textContent = `✓ 검사 통과\n교재: ${parsed.material}\n` + parsed.summary.map(s=>"· "+s).join("\n") + `\n총 ${parsed.rows.length}문항`;
+        $("bulkBtn").disabled = false;
+      }
+    });
+
+    $("bulkBtn").addEventListener("click", async () => {
+      if (!parsed || parsed.errors.length) return;
+      const m = parsed.material;
+      const existing = idx.filter(r => r.material === m).reduce((s,r)=>s+r.q_count,0);
+      if (existing > 0 && !confirm(`'${m}' 교재가 이미 ${existing}문항 등록되어 있습니다.\n기존 정답을 모두 지우고 새로 등록할까요?`)) return;
+      $("bulkBtn").disabled = true; $("bulkBtn").textContent = "등록 중…";
+      try {
+        if (existing > 0) {
+          const { error } = await sb.from("answer_bank").delete().eq("material", m);
+          if (error) throw error;
+        }
+        const rows = parsed.rows.map(r => ({ material:m, ...r }));
+        for (let i = 0; i < rows.length; i += 400) {
+          const { error } = await sb.from("answer_bank").insert(rows.slice(i, i+400));
+          if (error) throw error;
+        }
+        toast(`'${m}' ${rows.length}문항 등록 완료`);
+        $("bulkText").value = ""; $("previewBox").style.display = "none";
+        await refreshIndex();
+      } catch (e) {
+        alert("등록 실패: " + e.message + "\n(부분 등록되었을 수 있으니 현황판 확인 후, 필요하면 교재 삭제 후 재등록하세요)");
+      } finally {
+        $("bulkBtn").disabled = false; $("bulkBtn").textContent = "등록하기";
+      }
+    });
+
+    // ---- 정답 수정 ----
+    function fillEdChapters() {
+      const m = $("edMat").value;
+      const chs = Object.keys(full[m] || {}).sort(chCmp);
+      $("edCh").innerHTML = chs.map(c=>`<option>${c}</option>`).join("");
+      fillEdSections();
+    }
+    function fillEdSections() {
+      const m = $("edMat").value, c = $("edCh").value;
+      const info = (full[m]||{})[c];
+      $("edOmr").innerHTML = "";
+      if (info && info.sections.length) {
+        $("edSecWrap").style.display = "block";
+        $("edSec").innerHTML = info.sections.map(s=>`<option>${s.section}</option>`).join("");
+      } else {
+        $("edSecWrap").style.display = "none";
+      }
+    }
+    $("edMat").addEventListener("change", fillEdChapters);
+    $("edCh").addEventListener("change", fillEdSections);
+
+    $("edLoadBtn").addEventListener("click", async () => {
+      msg($("edErr"), "", true);
+      const m = $("edMat").value, c = $("edCh").value;
+      const info = (full[m]||{})[c];
+      if (!info) return;
+      const sec = info.sections.length ? $("edSec").value : null;
+      let q = sb.from("answer_bank").select("question_no, correct_answer, is_plus")
+        .eq("material", m).eq("chapter", c);
+      q = sec ? q.eq("section", sec) : q.is("section", null);
+      const { data, error } = await q.order("question_no");
+      if (error) return msg($("edErr"), "불러오기 실패: " + error.message, true);
+      const wrap = $("edOmr"); wrap.innerHTML = "";
+      (data||[]).forEach(r => {
+        const row = document.createElement("div");
+        row.className = "edit-row";
+        let b = "";
+        for (let i=1;i<=5;i++) b += `<button type="button" class="bubble ${r.correct_answer===i?"on":""}" data-n="${r.question_no}" data-a="${i}">${i}</button>`;
+        row.innerHTML = `<div class="qno">${r.is_plus ? "이감+" : (sec ? r.question_no : pad3(r.question_no))}</div><div class="bubbles">${b}</div>`;
+        wrap.appendChild(row);
+      });
+      wrap.querySelectorAll(".bubble").forEach(btn => btn.addEventListener("click", async () => {
+        if (btn.classList.contains("on")) return;
+        const n = +btn.dataset.n, a = +btn.dataset.a;
+        let uq = sb.from("answer_bank").update({ correct_answer: a })
+          .eq("material", m).eq("chapter", c).eq("question_no", n);
+        uq = sec ? uq.eq("section", sec) : uq.is("section", null);
+        const { error } = await uq;
+        if (error) return msg($("edErr"), "저장 실패: " + error.message, true);
+        btn.parentElement.querySelectorAll(".bubble").forEach(x=>x.classList.remove("on"));
+        btn.classList.add("on");
+        toast(`${btn.closest(".edit-row").querySelector(".qno").textContent}번 → ${a} 저장됨`);
       }));
-      const mats = Object.keys(bank);
-      $("bkMaterial").innerHTML = mats.length
-        ? mats.map(m => `<option value="${m}">${m}</option>`).join("")
-        : '<option value="">정답 은행이 비어 있습니다</option>';
-      fillChapters();
-    }
-    function fillChapters() {
-      const m = $("bkMaterial").value;
-      const chs = m && bank[m] ? bank[m] : [];
-      $("bkChapter").innerHTML = chs.map(c => `<option value="${c}">${c}</option>`).join("");
-    }
-    $("bkMaterial").addEventListener("change", fillChapters);
+    });
 
-    // ---- 범위 과제 등록 ----
+    // ---- 범위 과제 내기 ----
+    function fillBkChapters() {
+      const m = $("bkMaterial").value;
+      const chs = (m && bank[m]) ? bank[m] : [];
+      $("bkChapter").innerHTML = chs.map(c=>`<option>${c}</option>`).join("");
+    }
+    $("bkMaterial").addEventListener("change", fillBkChapters);
+
     $("bkSaveBtn").addEventListener("click", async () => {
       msg($("bkMsg"), "", false);
-      const material = $("bkMaterial").value;
-      const chapter = $("bkChapter").value;
+      const material = $("bkMaterial").value, chapter = $("bkChapter").value;
       const start = +$("bkStart").value, end = +$("bkEnd").value;
       if (!material || !chapter) return msg($("bkMsg"), "교재와 단원을 선택하세요.", true);
       if (!start || !end || start < 1 || end < start) return msg($("bkMsg"), "번호 범위를 확인하세요. (시작 ≤ 끝)", true);
       if (end - start + 1 > 200) return msg($("bkMsg"), "한 과제는 200문항 이하로 해주세요.", true);
-
-      // 은행에 해당 범위 정답이 다 있는지 미리 확인
       const { data: chk } = await sb.from("answer_bank").select("question_no")
-        .eq("material", material).eq("chapter", chapter)
+        .eq("material", material).eq("chapter", chapter).is("section", null)
         .gte("question_no", start).lte("question_no", end);
-      const found = new Set((chk || []).map(r => r.question_no));
-      const missing = [];
-      for (let n = start; n <= end; n++) if (!found.has(n)) missing.push(n);
+      const found = new Set((chk||[]).map(r=>r.question_no));
+      const missing = []; for (let n=start;n<=end;n++) if (!found.has(n)) missing.push(n);
       if (missing.length) return msg($("bkMsg"), `정답 은행에 없는 문항: ${missing.join(", ")}번`, true);
-
       const title = $("bkTitle").value.trim() || `${material} ${chapter} ${pad3(start)}~${pad3(end)}`;
-      const set_code = "hw-" + Date.now();
       const { error } = await sb.from("problem_sets").insert({
-        set_code, title, material, category: chapter,
-        question_count: end - start + 1, choice_count: 5,
-        chapter, start_no: start
-      });
+        set_code: "hw-"+Date.now(), title, material, category: chapter,
+        question_count: end-start+1, choice_count: 5, chapter, start_no: start });
       if (error) return msg($("bkMsg"), "등록 실패: " + error.message, true);
       msg($("bkMsg"), "과제 등록 완료!", false);
-      $("bkStart").value = ""; $("bkEnd").value = ""; $("bkTitle").value = "";
+      $("bkStart").value=""; $("bkEnd").value=""; $("bkTitle").value="";
       await refreshSets();
     });
 
-    // ---- 자작 학습지 (수동 정답 입력) ----
+    // ---- 자작 학습지 ----
     function buildKeyOmr() {
       const n = Math.max(1, Math.min(50, +$("qCount").value || 1));
       const c = +$("choiceCount").value;
       const wrap = $("keyOmr"); wrap.innerHTML = "";
-      for (let q = 1; q <= n; q++) {
-        const row = document.createElement("div");
-        row.className = "omr-row";
-        let b = "";
-        for (let i = 1; i <= c; i++) b += `<button type="button" class="bubble" data-q="${q}" data-c="${i}">${i}</button>`;
+      for (let q=1;q<=n;q++) {
+        const row = document.createElement("div"); row.className = "omr-row";
+        let b = ""; for (let i=1;i<=c;i++) b += `<button type="button" class="bubble" data-q="${q}" data-c="${i}">${i}</button>`;
         row.innerHTML = `<div class="qno">${q}</div><div class="bubbles">${b}</div>`;
         wrap.appendChild(row);
       }
       wrap.querySelectorAll(".bubble").forEach(btn => btn.addEventListener("click", () => {
-        btn.parentElement.querySelectorAll(".bubble").forEach(x => x.classList.remove("on"));
+        btn.parentElement.querySelectorAll(".bubble").forEach(x=>x.classList.remove("on"));
         btn.classList.add("on");
       }));
     }
@@ -199,65 +484,166 @@
 
     $("saveBtn").addEventListener("click", async () => {
       msg($("saveMsg"), "", false);
-      const set_code = $("setCode").value.trim();
-      const title = $("title").value.trim();
-      const choice_count = +$("choiceCount").value;
-      const n = +$("qCount").value;
+      const set_code = $("setCode").value.trim(), title = $("title").value.trim();
+      const choice_count = +$("choiceCount").value, n = +$("qCount").value;
       if (!set_code || !title) return msg($("saveMsg"), "코드와 제목을 입력하세요.", true);
-
       const keys = [];
-      for (let q = 1; q <= n; q++) {
+      for (let q=1;q<=n;q++) {
         const on = $("keyOmr").querySelector(`.bubble.on[data-q="${q}"]`);
         if (!on) return msg($("saveMsg"), `${q}번 정답을 표기하세요.`, true);
-        keys.push({ set_code, question_no: q, correct_answer: +on.dataset.c });
+        keys.push({ set_code, question_no:q, correct_answer:+on.dataset.c });
       }
-
       const { error: e1 } = await sb.from("problem_sets").insert({
-        set_code, title, material: "자작", category: "자작",
-        question_count: n, choice_count
-      });
+        set_code, title, material:"자작", category:"자작", question_count:n, choice_count });
       if (e1) return msg($("saveMsg"), "저장 실패: " + (e1.message.includes("duplicate") ? "이미 존재하는 코드입니다." : e1.message), true);
-
       const { error: e2 } = await sb.from("answer_keys").insert(keys);
       if (e2) return msg($("saveMsg"), "정답 저장 실패: " + e2.message, true);
-
       msg($("saveMsg"), "등록 완료!", false);
-      $("setCode").value = ""; $("title").value = "";
-      buildKeyOmr();
+      $("setCode").value=""; $("title").value=""; buildKeyOmr();
       await refreshSets();
     });
 
-    // ---- 목록 ----
+    // ---- 과제 목록 / 제출 기록 ----
     async function refreshSets() {
       const { data } = await sb.from("problem_sets").select("*").order("created_at", { ascending: false });
-      $("setList").innerHTML = (data || []).map(s => {
+      $("setList").innerHTML = (data||[]).map(s => {
         const range = (s.chapter && s.start_no)
           ? `${s.chapter} ${pad3(s.start_no)}~${pad3(s.start_no + s.question_count - 1)}`
           : `${s.category} · ${s.question_count}문항`;
-        return `
-        <div class="set-item">
-          <div>
-            <div class="code">${s.title}</div>
-            <div class="meta">${range}</div>
-          </div>
-          <button class="btn ghost" style="padding:8px 14px;font-size:13px" onclick="delSet('${s.set_code}')">삭제</button>
-        </div>`;
-      }).join("") || '<p class="meta">아직 없습니다.</p>';
-    }
-    async function refreshSubs() {
-      const { data } = await sb.from("submissions").select("*").order("created_at", { ascending: false }).limit(30);
-      $("subList").innerHTML = (data || []).map(s => `
-        <div class="set-item">
-          <div>
-            <div class="code">${s.student_name} <span class="pill">${s.score}/${s.total}</span></div>
-            <div class="meta">${s.label || s.set_code || ""} · 틀린 문항 ${s.wrong_questions.length ? s.wrong_questions.join(", ") + "번" : "없음"} · ${new Date(s.created_at).toLocaleString("ko-KR")}</div>
-          </div>
-        </div>`).join("") || '<p class="meta">아직 제출 기록이 없습니다.</p>';
+        return `<div class="set-item"><div>
+          <div class="code">${s.title}</div><div class="meta">${range}</div></div>
+          <button class="btn ghost" style="padding:8px 14px;font-size:13px" onclick="delSet('${s.set_code}')">삭제</button></div>`;
+      }).join("") || '<p class="meta">등록된 과제가 없습니다.</p>';
     }
     window.delSet = async (code) => {
       if (!confirm("이 과제를 삭제할까요? (제출 기록도 함께 삭제됩니다)")) return;
       await sb.from("problem_sets").delete().eq("set_code", code);
       await refreshSets();
+    };
+
+    // ---- 학생별 리포트 ----
+    const rate = (s) => s.total ? Math.round(s.score / s.total * 100) : 0;
+    $("rpBtn").addEventListener("click", showReport);
+    $("rpName").addEventListener("keydown", (e) => { if (e.key === "Enter") showReport(); });
+    async function showReport() {
+      const name = $("rpName").value.trim();
+      const box = $("rpBox");
+      if (!name) { box.innerHTML = '<p class="meta">이름을 입력하세요.</p>'; return; }
+      const { data } = await sb.from("submissions").select("*")
+        .ilike("student_name", `%${name}%`).order("created_at", { ascending: true }).limit(500);
+      if (!data || !data.length) { box.innerHTML = '<p class="meta">제출 기록이 없습니다.</p>'; return; }
+      const avg = Math.round(data.reduce((x, s) => x + rate(s), 0) / data.length);
+      let trend = "추이 계산에는 4회 이상 필요";
+      if (data.length >= 4) {
+        const half = Math.floor(data.length / 2);
+        const a1 = Math.round(data.slice(0, half).reduce((x, s) => x + rate(s), 0) / half);
+        const a2 = Math.round(data.slice(half).reduce((x, s) => x + rate(s), 0) / (data.length - half));
+        trend = `전반 평균 ${a1}% → 후반 평균 ${a2}% (${a2 >= a1 ? "+" : ""}${a2 - a1}%p)`;
+      }
+      const wc = {};
+      data.forEach(s => (s.wrong_questions || []).forEach(n => {
+        const k = `${s.label || s.set_code || "?"} · ${n}번`;
+        wc[k] = (wc[k] || 0) + 1;
+      }));
+      const topWrong = Object.entries(wc).filter(([,c]) => c >= 2).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const recent = data.slice(-15).reverse();
+      box.innerHTML = `
+        <div class="set-item"><div>
+          <div class="code">${name} <span class="pill">제출 ${data.length}회 · 평균 정답률 ${avg}%</span></div>
+          <div class="meta">${trend}</div></div></div>
+        ${recent.map(s => `
+          <div class="set-item"><div style="width:100%">
+            <div class="code">${s.score}/${s.total} <span class="mini">(${rate(s)}%)</span></div>
+            <div class="meta">${s.label || s.set_code || ""} · ${new Date(s.created_at).toLocaleDateString("ko-KR")}</div>
+            <div style="height:6px;background:var(--line);border-radius:3px;margin-top:6px"><div style="height:6px;width:${rate(s)}%;background:var(--jumuk);border-radius:3px"></div></div>
+          </div></div>`).join("")}
+        ${data.length > 15 ? `<p class="meta">최근 15회만 표시 (전체 ${data.length}회)</p>` : ""}
+        ${topWrong.length ? `<div class="set-item"><div><div class="code">반복해서 틀린 문항 (2회 이상)</div><div class="meta">${topWrong.map(([k, c]) => `${k} — ${c}회`).join("<br>")}</div></div></div>` : ""}`;
+    }
+
+    // ---- 오답 통계 ----
+    let statData = [];
+    async function loadStats() {
+      const { data } = await sb.from("submissions").select("label,set_code,wrong_questions")
+        .order("created_at", { ascending: false }).limit(1000);
+      statData = data || [];
+      const groups = {};
+      statData.forEach(s => { const k = s.label || s.set_code || "(무제)"; groups[k] = (groups[k] || 0) + 1; });
+      const opts = Object.entries(groups).sort((a, b) => b[1] - a[1]);
+      $("stSel").innerHTML = '<option value="">— 선택 —</option>' +
+        opts.map(([k, c]) => `<option value="${k.replace(/"/g, "&quot;")}">${k} (제출 ${c}회)</option>`).join("");
+      if (!opts.length) $("stSel").innerHTML = '<option value="">아직 제출 기록이 없습니다</option>';
+    }
+    $("stSel").addEventListener("change", () => {
+      const k = $("stSel").value, box = $("stBox");
+      if (!k) { box.innerHTML = ""; return; }
+      const subs = statData.filter(s => (s.label || s.set_code || "(무제)") === k);
+      const n = subs.length;
+      const miss = {};
+      subs.forEach(s => (s.wrong_questions || []).forEach(q => miss[q] = (miss[q] || 0) + 1));
+      const items = Object.entries(miss).map(([q, c]) => [+q, c]).sort((a, b) => b[1] - a[1] || a[0] - b[0]);
+      box.innerHTML = items.length ? items.map(([q, c]) => {
+        const pct = Math.round(c / n * 100);
+        return `<div class="edit-row"><div class="qno">${q}번</div><div style="width:100%">
+          <div class="mini">${c}/${n}명 오답 (${pct}%)</div>
+          <div style="height:6px;background:var(--line);border-radius:3px;margin-top:4px"><div style="height:6px;width:${pct}%;background:${pct >= 50 ? "var(--jumuk)" : "var(--gold)"};border-radius:3px"></div></div>
+        </div></div>`;
+      }).join("") : '<p class="meta">이 과제에서 틀린 문항이 없습니다.</p>';
+    });
+
+    // ---- CSV 내보내기 ----
+    $("csvBtn").addEventListener("click", async () => {
+      $("csvBtn").disabled = true; $("csvBtn").textContent = "내보내는 중…";
+      try {
+        let all = [], from = 0;
+        while (true) {
+          const { data, error } = await sb.from("submissions").select("*")
+            .order("created_at", { ascending: true }).range(from, from + 999);
+          if (error) throw error;
+          all = all.concat(data || []);
+          if (!data || data.length < 1000) break;
+          from += 1000;
+        }
+        const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+        const head = ["제출일시", "학생", "과제", "점수", "총문항", "정답률(%)", "틀린문항", "제출답안"];
+        const lines = [head.join(",")].concat(all.map(s => [
+          esc(new Date(s.created_at).toLocaleString("ko-KR")), esc(s.student_name),
+          esc(s.label || s.set_code || ""), s.score, s.total,
+          s.total ? Math.round(s.score / s.total * 100) : 0,
+          esc((s.wrong_questions || []).join(" ")), esc((s.answers || []).join(" "))
+        ].join(",")));
+        const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `제출기록_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click(); URL.revokeObjectURL(link.href);
+        toast(`${all.length}건 내보내기 완료`);
+      } catch (e) {
+        alert("내보내기 실패: " + e.message);
+      } finally {
+        $("csvBtn").disabled = false; $("csvBtn").textContent = "CSV 내보내기";
+      }
+    });
+
+    let subTimer = null;
+    $("subFilter").addEventListener("input", () => { clearTimeout(subTimer); subTimer = setTimeout(refreshSubs, 300); });
+    async function refreshSubs() {
+      const name = $("subFilter").value.trim();
+      let q = sb.from("submissions").select("*").order("created_at", { ascending: false }).limit(50);
+      if (name) q = q.ilike("student_name", `%${name}%`);
+      const { data } = await q;
+      $("subList").innerHTML = (data||[]).map(s => `
+        <div class="set-item"><div>
+          <div class="code">${s.student_name} <span class="pill">${s.score}/${s.total}</span></div>
+          <div class="meta">${s.label || s.set_code || ""} · 틀린 문항 ${s.wrong_questions.length ? s.wrong_questions.join(", ")+"번" : "없음"} · ${new Date(s.created_at).toLocaleString("ko-KR")}</div></div>
+          <button class="btn ghost" style="padding:8px 14px;font-size:13px" onclick="delSub('${s.id}')">삭제</button></div>`
+      ).join("") || '<p class="meta">기록이 없습니다.</p>';
+    }
+    window.delSub = async (id) => {
+      if (!confirm("이 제출 기록을 삭제할까요?")) return;
+      const { error } = await sb.from("submissions").delete().eq("id", id);
+      if (error) return alert("삭제 실패: " + error.message + "\n(setup4.sql 실행이 필요할 수 있습니다)");
+      toast("기록 삭제됨"); await refreshSubs();
     };
 
     sb.auth.getSession().then(({ data }) => { if (data.session) showAdmin(); });
