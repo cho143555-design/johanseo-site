@@ -230,7 +230,7 @@
 
       $("submitBtn").disabled = true; $("submitBtn").textContent = "채점 중…";
       try {
-        const res = await fetch(`${window.SUPABASE_URL}/functions/v1/grade`, {
+        const res = await fetch(`${window.SUPABASE_URL}/functions/v1/smooth-task`, {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${window.SUPABASE_ANON_KEY}` },
           body: JSON.stringify(body)
