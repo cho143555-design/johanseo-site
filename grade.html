@@ -18,6 +18,19 @@
     }
     .tab.on { background:var(--ink); color:var(--paper); border-color:var(--ink); }
     .hint { font-size:13px; color:var(--ink-soft); margin-top:-12px; margin-bottom:18px; }
+    .fb { margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); }
+    .fb h4 { font-family:var(--serif); font-size:17px; font-weight:800; margin-bottom:12px; }
+    .fb ol { padding-left:20px; }
+    .fb li { font-size:14px; color:var(--ink-soft); margin-bottom:9px; line-height:1.65; }
+    .fb li b { color:var(--ink); }
+    .fb-tip { margin-top:24px; padding-top:18px; border-top:1px dashed var(--line); }
+    .fb-tip p { font-size:14px; color:var(--ink-soft); line-height:1.75; margin-bottom:13px; }
+    .fb-tip p b { color:var(--ink); }
+    .note-card { background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--jumuk);
+      border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
+      font-size:14px; line-height:1.7; color:var(--ink); }
+    .note-card .no { font-family:var(--serif); font-weight:800; color:var(--jumuk); margin-right:8px; }
+    .note-card .aside { display:block; margin-top:8px; font-size:13px; color:var(--ink-soft); }
   </style>
 </head>
 <body>
@@ -88,6 +101,36 @@
         <div class="result" id="result">
           <div class="score-big"><span id="scoreLabel"></span></div>
           <div class="wrong-list" id="wrongList"></div>
+
+          <div class="fb">
+            <h4>국어 실력을 확실히 늘리는 태도 — 사고과정 피드백</h4>
+            <ol>
+              <li><b>제대로 이해되지 않은 지문 내용·선지는 무엇이었는가.</b> 해설 강의나 질문보다는 최대한 스스로 깨우치려 노력해야 한다. 일주일 넘게 고민했는데도 정 모르겠다면 질문하자!</li>
+              <li>틀렸다면 — <b>오답을 왜 고르게 되었는가.</b> 무슨 생각을 잘못했는가. 어떤 단어의 정확한 의미나 문학 개념어를 잘못 알고 있었나?</li>
+              <li>이제는 <b>다시 풀자.</b> 정답을 고르고, 정답의 근거를 적어 보자.</li>
+              <li><b>왜 처음 풀 때는 정답을 고르지 못했는가</b> — 도 셀프 피드백하자.</li>
+              <li>충분한 시간을 들여 스스로 고민해 본 후(적어도 하루 이상) 모르겠는 건 질문하자.</li>
+              <li>앞으로 <b>같은 실수를 반복하지 않는 것</b>이야말로 확실한 성장이므로, 얻어갈 것을 노트에 기록하자. <b>(사고과정 피드백 작성)</b></li>
+            </ol>
+            <div class="fb-tip">
+              <h4>사고과정 피드백 노트 작성 TIP</h4>
+              <p>정말 무엇이든 좋다. 특히 모의고사 응시 후에, 과거로 돌아가서 <b>'만약 이렇게 했다면 점수가 1점이라도 더 올랐을 것 같다'</b> 싶은 실수를 전부 적는 것이다. 나로 예를 들면, 나는 고3 때 이런 생각들을 적었다.</p>
+
+              <div class="note-card"><span class="no">하나.</span>아무리 소설에 자신 있다는 생각이 들고, 내가 아는 고전소설이 나오더라도 <b>고전소설부터 풀지 말자.</b> 고전소설은 문학 중 가장 지엽적이고 치사하게 문제를 내는 구간인데, 문학을 풀기 시작할 때는 아직 뇌가 덜 데워져 있는 상태라 엄밀한 선지 판단이 종종 안 될 때가 있다.
+                <span class="aside">→ 이 피드백은 추후 '문학 푸는 순서 고정'으로 이어졌다.</span></div>
+
+              <div class="note-card"><span class="no">둘.</span>제발 <b>한 문제에 오랜 시간 들여 고민하지 말자.</b> 지금 뒤에 안 푼 문제들이 많이 남아 있는데, 한 문제에 시간을 계속 버리는 것은 뒤의 문제를 풀 수 있는 시간까지 같이 버리는 셈이 되어 엄청난 시간 낭비다.
+                <span class="aside">(사고과정을 설명하려고 길게 쓴 것이고, 실제 노트에는 '한 문제에 오래 시간 끌기 X' — 이런 식으로 짧게 적었다.)</span></div>
+
+              <div class="note-card"><span class="no">셋.</span>넌 '상충한다'가 '상호 충돌한다'는 뜻인 걸 알고 있으면서도, 가끔 '충돌하지 않는다'는 뜻으로 머릿속에서 자연스럽게 잘못 읽을 때가 종종 있다. <b>'상충하냐'는 선지가 나오면 반드시 그 위에 '충돌한다'로 바꿔 써놓자.</b>
+                <span class="aside">(이렇게 '나'를 2인칭으로 대상화해서 써놓는 것을 추천한다.)</span></div>
+
+              <p>이렇게 노트에 사고과정을 피드백한 후, 모의고사를 풀기 전이나 기출문제 풀이를 하기 전 <b>'여기 적어놓은 실수만큼은 절대로 하지 말자'</b>를 되새기며 풀이에 임한다. 이것만 해내도 많이 성장한 것이다. 완전히 극복한 문제점이라고 생각한다면 해당 피드백을 노트에서 지워도 좋다.</p>
+              <p>실제로 나는 수능 만점 수준에 도달한 이후에는 딱히 노트에 적을 만한 것이 없었다. 원래 그런 실력이었던 거 아니냐? <b>절대 아니다.</b> 국어에 재능이 있는 편임을 부정하지는 않지만, 선천적인 것으로 이뤄낸 성취가 아니었다. 이 훈련을 통해 실수를 거의 없애다시피 할 수 있었다.</p>
+              <p>나는 실전 모의고사 훈련에서 사소한 실수를 범할 때마다 피드백 노트를 한 페이지 가득 채울 만큼 국어 공부에 진심이었다. 이런 마인드로 공부하다 보면, 성적은 늘 수밖에 없다고 본다.</p>
+            </div>
+          </div>
+
           <button class="btn ghost" id="againBtn" style="margin-top:18px">다시 풀기</button>
         </div>
       </div>
