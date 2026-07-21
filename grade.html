@@ -52,12 +52,17 @@
             <div class="field"><label for="mSel">교재</label><select id="mSel"></select></div>
             <div class="field"><label for="cSel">단원</label><select id="cSel"></select></div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-            <div class="field"><label for="startNo">시작 번호</label><input id="startNo" type="number" min="1" inputmode="numeric" /></div>
-            <div class="field"><label for="endNo">끝 번호</label><input id="endNo" type="number" min="1" inputmode="numeric" /></div>
+          <div id="rangeInputs">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="field"><label for="startNo">시작 번호</label><input id="startNo" type="number" min="1" inputmode="numeric" /></div>
+              <div class="field"><label for="endNo">끝 번호</label><input id="endNo" type="number" min="1" inputmode="numeric" /></div>
+            </div>
+            <p class="hint" id="rangeHint"></p>
+            <button class="btn ghost" id="loadBtn" style="width:100%">문제 불러오기</button>
           </div>
-          <p class="hint" id="rangeHint"></p>
-          <button class="btn ghost" id="loadBtn" style="width:100%">문제 불러오기</button>
+          <div id="sectionPick" style="display:none">
+            <div class="field"><label for="secSel">지문 세트</label><select id="secSel"></select></div>
+          </div>
         </div>
 
         <!-- 등록된 과제 -->
@@ -94,7 +99,7 @@
     const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
     const p3 = (n) => String(n).padStart(3, "0");
-    const CH_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','미니모의고사 1회','미니모의고사 2회'];
+    const CH_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','미니모의고사 1회','미니모의고사 2회','인문·예술','사회','과학·기술','주제 통합','독서론','고전 시가','현대 소설','고전 산문','갈래 복합'];
 
     let bankIdx = {};     // { 교재: [{chapter,min_no,max_no}] }
     let mode = "range";   // 'range' | 'set'
@@ -115,27 +120,56 @@
         $("cSel").innerHTML = ''; return;
       }
       bankIdx = {};
-      data.forEach(r => { (bankIdx[r.material] = bankIdx[r.material] || []).push(r); });
-      Object.values(bankIdx).forEach(a => a.sort(chSort));
-      $("mSel").innerHTML = Object.keys(bankIdx).map(m => `<option value="${m}">${m}</option>`).join("");
+      data.forEach(r => {
+        const m = (bankIdx[r.material] = bankIdx[r.material] || {});
+        const c = (m[r.chapter] = m[r.chapter] || { range: null, sections: [] });
+        if (r.section) c.sections.push(r);
+        else c.range = r;
+      });
+      Object.values(bankIdx).forEach(chs => Object.values(chs).forEach(c =>
+        c.sections.sort((a, b) => a.section.localeCompare(b.section, "ko"))));
+      $("mSel").innerHTML = Object.keys(bankIdx).sort().map(m => `<option value="${m}">${m}</option>`).join("");
       fillChapters();
     }
     function fillChapters() {
       const m = $("mSel").value;
-      const chs = bankIdx[m] || [];
-      $("cSel").innerHTML = chs.map(c => `<option value="${c.chapter}">${c.chapter}</option>`).join("");
-      updateHint();
+      const names = Object.keys(bankIdx[m] || {}).sort((a, b) => {
+        const ia = CH_ORDER.indexOf(a), ib = CH_ORDER.indexOf(b);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      });
+      $("cSel").innerHTML = names.map(c => `<option value="${c}">${c}</option>`).join("");
+      onChapter();
     }
     function chInfo() {
       const m = $("mSel").value, c = $("cSel").value;
-      return (bankIdx[m] || []).find(x => x.chapter === c);
+      return (bankIdx[m] || {})[c] || null;
     }
-    function updateHint() {
+    function onChapter() {
       const info = chInfo();
-      $("rangeHint").textContent = info ? `이 단원 문항: ${p3(info.min_no)} ~ ${p3(info.max_no)}` : "";
+      $("omrWrap").style.display = "none"; $("result").classList.remove("show"); current = null; showErr("");
+      if (info && info.sections.length > 0) {
+        $("rangeInputs").style.display = "none";
+        $("sectionPick").style.display = "block";
+        $("secSel").innerHTML = '<option value="">— 지문 세트를 선택하세요 —</option>' +
+          info.sections.map(s => `<option value="${s.section}">${s.section} (${s.q_count}문항${s.has_plus ? ", 이감+ 포함" : ""})</option>`).join("");
+      } else {
+        $("sectionPick").style.display = "none";
+        $("rangeInputs").style.display = "block";
+        $("rangeHint").textContent = (info && info.range) ? `이 단원 문항: ${p3(info.range.min_no)} ~ ${p3(info.range.max_no)}` : "";
+      }
     }
     $("mSel").addEventListener("change", fillChapters);
-    $("cSel").addEventListener("change", updateHint);
+    $("cSel").addEventListener("change", onChapter);
+    $("secSel") && document.addEventListener("change", (e) => {
+      if (e.target.id !== "secSel") return;
+      showErr("");
+      const info = chInfo();
+      const sec = info && info.sections.find(x => x.section === e.target.value);
+      if (!sec) { $("omrWrap").style.display = "none"; current = null; return; }
+      current = { kind: "section", material: $("mSel").value, chapter: $("cSel").value,
+                  section: sec.section, count: sec.q_count, has_plus: sec.has_plus };
+      buildOmr(sec.q_count, 5, null, sec.has_plus);
+    });
 
     // ---- 등록된 과제 목록 ----
     async function loadSets() {
@@ -165,7 +199,7 @@
     $("tabSet").addEventListener("click", () => setMode("set"));
 
     // ---- OMR ----
-    function buildOmr(count, choiceCount, startNo) {
+    function buildOmr(count, choiceCount, startNo, hasPlus) {
       const omr = $("omr");
       omr.innerHTML = "";
       answers = new Array(count).fill(null);
@@ -176,7 +210,8 @@
         for (let c = 1; c <= choiceCount; c++) {
           bubbles.push(`<button type="button" class="bubble" data-q="${q}" data-c="${c}" aria-label="${q}번 ${c}번 선택">${c}</button>`);
         }
-        const label = startNo ? p3(startNo + q - 1) : q;
+        let label = startNo ? p3(startNo + q - 1) : q;
+        if (hasPlus && q === count) label = "이감+";
         row.innerHTML = `<div class="qno">${label}</div><div class="bubbles">${bubbles.join("")}</div>`;
         omr.appendChild(row);
       }
@@ -195,14 +230,14 @@
     $("loadBtn").addEventListener("click", () => {
       showErr("");
       const info = chInfo();
-      if (!info) return showErr("교재와 단원을 선택해 주세요.");
+      if (!info || !info.range) return showErr("교재와 단원을 선택해 주세요.");
       const s = +$("startNo").value, e = +$("endNo").value;
       if (!s || !e) return showErr("시작 번호와 끝 번호를 입력해 주세요.");
-      if (s < info.min_no || e > info.max_no || s > e) {
-        return showErr(`범위를 확인해 주세요. 이 단원은 ${p3(info.min_no)}~${p3(info.max_no)}번입니다.`);
+      if (s < info.range.min_no || e > info.range.max_no || s > e) {
+        return showErr(`범위를 확인해 주세요. 이 단원은 ${p3(info.range.min_no)}~${p3(info.range.max_no)}번입니다.`);
       }
       if (e - s + 1 > 200) return showErr("한 번에 200문항까지 채점할 수 있어요.");
-      current = { kind: "range", material: $("mSel").value, chapter: info.chapter, start: s, end: e };
+      current = { kind: "range", material: $("mSel").value, chapter: $("cSel").value, start: s, end: e };
       buildOmr(e - s + 1, 5, s);
     });
 
@@ -224,9 +259,14 @@
       if (!current) return showErr("문제를 먼저 불러와 주세요.");
       if (answers.some(a => a === null)) return showErr("모든 문항의 답을 표기해 주세요.");
 
-      const body = current.kind === "range"
-        ? { material: current.material, chapter: current.chapter, start_no: current.start, end_no: current.end, student_name: name, answers }
-        : { set_code: current.set_code, student_name: name, answers };
+      let body;
+      if (current.kind === "range") {
+        body = { material: current.material, chapter: current.chapter, start_no: current.start, end_no: current.end, student_name: name, answers };
+      } else if (current.kind === "section") {
+        body = { material: current.material, chapter: current.chapter, section: current.section, student_name: name, answers };
+      } else {
+        body = { set_code: current.set_code, student_name: name, answers };
+      }
 
       $("submitBtn").disabled = true; $("submitBtn").textContent = "채점 중…";
       try {
@@ -239,8 +279,10 @@
         if (!res.ok) throw new Error(json.error || "채점에 실패했습니다.");
 
         $("scoreLabel").innerHTML = `${json.score}<span> / ${json.total}</span>`;
+        const fmt = (n) => (json.plus_no && n === json.plus_no) ? "이감+" :
+          (current.kind === "range" || (current.kind === "set" && current.start_no) ? p3(n) : String(n));
         $("wrongList").innerHTML = json.wrong_questions.length
-          ? `틀린 문항: <b>${json.wrong_questions.map(p3).join(", ")}번</b>`
+          ? `틀린 문항: <b>${json.wrong_questions.map(fmt).join(", ")}번</b>`
           : `<b>모두 정답입니다. 훌륭해요!</b>`;
         $("result").classList.add("show");
         $("result").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -255,6 +297,7 @@
       $("result").classList.remove("show");
       if (current) {
         if (current.kind === "range") buildOmr(current.end - current.start + 1, 5, current.start);
+        else if (current.kind === "section") buildOmr(current.count, 5, null, current.has_plus);
         else { const opt = $("setSelect").selectedOptions[0]; buildOmr(+opt.dataset.q, +opt.dataset.c, opt.dataset.s ? +opt.dataset.s : null); }
       }
       window.scrollTo({ top: 0, behavior: "smooth" });

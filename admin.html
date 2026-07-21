@@ -126,7 +126,7 @@
       const { data, error } = await sb.from("answer_bank_index").select("*");
       const CH_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','미니모의고사 1회','미니모의고사 2회'];
       bank = {};
-      (data || []).forEach(r => { (bank[r.material] = bank[r.material] || []).push(r.chapter); });
+      (data || []).forEach(r => { if (!r.section) (bank[r.material] = bank[r.material] || []).push(r.chapter); });
       Object.values(bank).forEach(a => a.sort((x, y) => {
         const ix = CH_ORDER.indexOf(x), iy = CH_ORDER.indexOf(y);
         return (ix < 0 ? 99 : ix) - (iy < 0 ? 99 : iy);
