@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>숙제 채점 — 조한서 국어과외</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <a class="brand" href="index.html"><span class="seal">한</span>조한서 국어과외</a>
+      <nav class="nav">
+        <a href="index.html">홈</a>
+        <a href="index.html#reviews">후기</a>
+        <a href="index.html#contact">문의</a>
+      </nav>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap" style="max-width:640px">
+      <p class="section-label">숙 제 채 점</p>
+      <h2 class="section-title">오늘 숙제를 채점해 봅시다</h2>
+
+      <div class="panel">
+        <div class="field">
+          <label for="name">이름</label>
+          <input id="name" type="text" placeholder="이름을 입력하세요" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="setSelect">학습지 선택</label>
+          <select id="setSelect">
+            <option value="">불러오는 중…</option>
+          </select>
+        </div>
+
+        <div id="omrWrap" style="display:none">
+          <div class="field">
+            <label>답안 표기 <span style="font-weight:400;color:var(--ink-soft)">— 각 문항의 답을 눌러 주세요</span></label>
+            <div class="omr" id="omr"></div>
+          </div>
+          <button class="btn jumuk" id="submitBtn" style="width:100%">채점하기</button>
+        </div>
+
+        <p class="msg err" id="err" style="display:none"></p>
+
+        <div class="result" id="result">
+          <div class="score-big"><span id="scoreDenomLabel"></span></div>
+          <div class="wrong-list" id="wrongList"></div>
+          <button class="btn ghost" id="againBtn" style="margin-top:18px">다시 풀기</button>
+        </div>
+      </div>
+
+      <p style="margin-top:16px;font-size:13px;color:var(--ink-soft)">
+        정답은 채점 서버에서만 확인되며 이 화면에는 전달되지 않습니다.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>조한서 국어과외</span>
+      <span>국어 · 수능 · 이감 기출</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    const $ = (id) => document.getElementById(id);
+    let currentSet = null;   // {set_code, question_count, choice_count}
+    let answers = [];        // 학생 답 배열
+
+    function showErr(m) { const e = $("err"); e.textContent = m; e.style.display = m ? "block" : "none"; }
+
+    // 학습지 목록 로드
+    async function loadSets() {
+      const { data, error } = await sb
+        .from("problem_sets")
+        .select("set_code, title, question_count, choice_count")
+        .order("created_at", { ascending: false });
+      const sel = $("setSelect");
+      if (error) { sel.innerHTML = '<option value="">목록을 불러오지 못했습니다</option>'; showErr("설정(config.js)이 올바른지 확인하세요."); return; }
+      if (!data || data.length === 0) { sel.innerHTML = '<option value="">등록된 학습지가 없습니다</option>'; return; }
+      sel.innerHTML = '<option value="">— 학습지를 선택하세요 —</option>' +
+        data.map(s => `<option value="${s.set_code}" data-q="${s.question_count}" data-c="${s.choice_count}">${s.title}</option>`).join("");
+    }
+
+    // OMR 격자 그리기
+    function buildOmr() {
+      const omr = $("omr");
+      omr.innerHTML = "";
+      answers = new Array(currentSet.question_count).fill(null);
+      for (let q = 1; q <= currentSet.question_count; q++) {
+        const row = document.createElement("div");
+        row.className = "omr-row";
+        const bubbles = [];
+        for (let c = 1; c <= currentSet.choice_count; c++) {
+          bubbles.push(`<button type="button" class="bubble" data-q="${q}" data-c="${c}" aria-label="${q}번 ${c}번 선택">${c}</button>`);
+        }
+        row.innerHTML = `<div class="qno">${q}</div><div class="bubbles">${bubbles.join("")}</div>`;
+        omr.appendChild(row);
+      }
+      omr.querySelectorAll(".bubble").forEach(b => {
+        b.addEventListener("click", () => {
+          const q = +b.dataset.q, c = +b.dataset.c;
+          answers[q - 1] = c;
+          b.parentElement.querySelectorAll(".bubble").forEach(x => x.classList.remove("on"));
+          b.classList.add("on");
+        });
+      });
+    }
+
+    $("setSelect").addEventListener("change", (e) => {
+      showErr(""); $("result").classList.remove("show");
+      const opt = e.target.selectedOptions[0];
+      if (!opt || !opt.value) { $("omrWrap").style.display = "none"; return; }
+      currentSet = { set_code: opt.value, question_count: +opt.dataset.q, choice_count: +opt.dataset.c };
+      buildOmr();
+      $("omrWrap").style.display = "block";
+    });
+
+    $("submitBtn").addEventListener("click", async () => {
+      showErr("");
+      const name = $("name").value.trim();
+      if (!name) return showErr("이름을 입력해 주세요.");
+      if (!currentSet) return showErr("학습지를 선택해 주세요.");
+      if (answers.some(a => a === null)) return showErr("모든 문항의 답을 표기해 주세요.");
+
+      $("submitBtn").disabled = true; $("submitBtn").textContent = "채점 중…";
+      try {
+        const res = await fetch(`${window.SUPABASE_URL}/functions/v1/grade`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${window.SUPABASE_ANON_KEY}` },
+          body: JSON.stringify({ set_code: currentSet.set_code, student_name: name, answers })
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "채점에 실패했습니다.");
+
+        $("scoreDenomLabel").innerHTML = `${json.score}<span> / ${json.total}</span>`;
+        $("wrongList").innerHTML = json.wrong_questions.length
+          ? `틀린 문항: <b>${json.wrong_questions.join(", ")}번</b>`
+          : `<b>모두 정답입니다. 훌륭해요!</b>`;
+        $("result").classList.add("show");
+        $("result").scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch (err) {
+        showErr(String(err.message || err));
+      } finally {
+        $("submitBtn").disabled = false; $("submitBtn").textContent = "채점하기";
+      }
+    });
+
+    $("againBtn").addEventListener("click", () => {
+      $("result").classList.remove("show");
+      buildOmr();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    loadSets();
+  </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 — 조한서 국어과외</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <a class="brand" href="index.html"><span class="seal">한</span>관리자</a>
+      <nav class="nav"><a href="index.html">홈</a><a href="#" id="logoutLink" style="display:none">로그아웃</a></nav>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap" style="max-width:720px">
+
+      <!-- 로그인 -->
+      <div id="loginView">
+        <p class="section-label">관 리 자</p>
+        <h2 class="section-title">로그인</h2>
+        <div class="panel">
+          <div class="field"><label for="email">이메일</label><input id="email" type="email" autocomplete="username" /></div>
+          <div class="field"><label for="pw">비밀번호</label><input id="pw" type="password" autocomplete="current-password" /></div>
+          <button class="btn" id="loginBtn" style="width:100%">로그인</button>
+          <p class="msg err" id="loginErr" style="display:none"></p>
+          <p style="margin-top:14px;font-size:13px;color:var(--ink-soft)">
+            계정은 Supabase 대시보드 &gt; Authentication &gt; Users 에서 미리 만들어 두세요.
+          </p>
+        </div>
+      </div>
+
+      <!-- 관리 -->
+      <div id="adminView" style="display:none">
+        <div class="admin-grid">
+
+          <!-- 새 학습지 등록 -->
+          <div>
+            <p class="section-label">새 학습지</p>
+            <h2 class="section-title" style="margin-bottom:16px">학습지 · 정답 등록</h2>
+            <div class="panel">
+              <div class="field"><label for="setCode">학습지 코드 <span style="font-weight:400;color:var(--ink-soft)">— 영문/숫자, 겹치지 않게</span></label><input id="setCode" placeholder="igam20-doksu-1" /></div>
+              <div class="field"><label for="title">제목</label><input id="title" placeholder="이감 20호 독서 1회" /></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                <div class="field"><label for="category">구분</label>
+                  <select id="category"><option value="독서">독서</option><option value="문학">문학</option></select></div>
+                <div class="field"><label for="choiceCount">선택지 수</label>
+                  <select id="choiceCount"><option value="5">5지선다</option><option value="4">4지선다</option></select></div>
+              </div>
+              <div class="field"><label for="qCount">문항 수</label><input id="qCount" type="number" min="1" max="50" value="6" /></div>
+              <div class="field"><label>정답 입력</label><div class="omr" id="keyOmr"></div></div>
+              <button class="btn jumuk" id="saveBtn" style="width:100%">등록하기</button>
+              <p class="msg" id="saveMsg" style="display:none"></p>
+            </div>
+          </div>
+
+          <!-- 등록된 학습지 -->
+          <div>
+            <p class="section-label">등록됨</p>
+            <div id="setList" class="admin-grid"></div>
+          </div>
+
+          <!-- 제출 기록 -->
+          <div>
+            <p class="section-label">제출 기록</p>
+            <h2 class="section-title" style="margin-bottom:16px">최근 채점 결과</h2>
+            <div id="subList" class="admin-grid"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer><div class="wrap"><span>조한서 국어과외 · 관리자</span></div></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    const $ = (id) => document.getElementById(id);
+    let material = "이감"; // 교재 기본값
+
+    function msg(el, text, isErr) { el.textContent = text; el.style.display = text ? "block" : "none"; el.className = "msg" + (isErr ? " err" : ""); }
+
+    // ---- 정답 입력 OMR ----
+    function buildKeyOmr() {
+      const n = Math.max(1, Math.min(50, +$("qCount").value || 1));
+      const c = +$("choiceCount").value;
+      const wrap = $("keyOmr"); wrap.innerHTML = "";
+      for (let q = 1; q <= n; q++) {
+        const row = document.createElement("div");
+        row.className = "omr-row";
+        let b = "";
+        for (let i = 1; i <= c; i++) b += `<button type="button" class="bubble" data-q="${q}" data-c="${i}">${i}</button>`;
+        row.innerHTML = `<div class="qno">${q}</div><div class="bubbles">${b}</div>`;
+        wrap.appendChild(row);
+      }
+      wrap.querySelectorAll(".bubble").forEach(btn => btn.addEventListener("click", () => {
+        btn.parentElement.querySelectorAll(".bubble").forEach(x => x.classList.remove("on"));
+        btn.classList.add("on");
+      }));
+    }
+    $("qCount").addEventListener("input", buildKeyOmr);
+    $("choiceCount").addEventListener("change", buildKeyOmr);
+
+    // ---- 로그인 ----
+    $("loginBtn").addEventListener("click", async () => {
+      msg($("loginErr"), "", true);
+      const { error } = await sb.auth.signInWithPassword({ email: $("email").value.trim(), password: $("pw").value });
+      if (error) return msg($("loginErr"), "로그인 실패: 이메일/비밀번호를 확인하세요.", true);
+      showAdmin();
+    });
+    $("logoutLink").addEventListener("click", async (e) => { e.preventDefault(); await sb.auth.signOut(); location.reload(); });
+
+    async function showAdmin() {
+      $("loginView").style.display = "none";
+      $("adminView").style.display = "block";
+      $("logoutLink").style.display = "inline";
+      buildKeyOmr();
+      await refreshSets();
+      await refreshSubs();
+    }
+
+    // ---- 학습지+정답 저장 ----
+    $("saveBtn").addEventListener("click", async () => {
+      msg($("saveMsg"), "", false);
+      const set_code = $("setCode").value.trim();
+      const title = $("title").value.trim();
+      const category = $("category").value;
+      const choice_count = +$("choiceCount").value;
+      const n = +$("qCount").value;
+      if (!set_code || !title) return msg($("saveMsg"), "코드와 제목을 입력하세요.", true);
+
+      const keys = [];
+      for (let q = 1; q <= n; q++) {
+        const on = $("keyOmr").querySelector(`.bubble.on[data-q="${q}"]`);
+        if (!on) return msg($("saveMsg"), `${q}번 정답을 표기하세요.`, true);
+        keys.push({ set_code, question_no: q, correct_answer: +on.dataset.c });
+      }
+
+      const { error: e1 } = await sb.from("problem_sets").insert({
+        set_code, title, material, category, question_count: n, choice_count
+      });
+      if (e1) return msg($("saveMsg"), "학습지 저장 실패: " + (e1.message.includes("duplicate") ? "이미 존재하는 코드입니다." : e1.message), true);
+
+      const { error: e2 } = await sb.from("answer_keys").insert(keys);
+      if (e2) return msg($("saveMsg"), "정답 저장 실패: " + e2.message, true);
+
+      msg($("saveMsg"), "등록 완료!", false);
+      $("setCode").value = ""; $("title").value = "";
+      buildKeyOmr();
+      await refreshSets();
+    });
+
+    // ---- 목록 ----
+    async function refreshSets() {
+      const { data } = await sb.from("problem_sets").select("*").order("created_at", { ascending: false });
+      $("setList").innerHTML = (data || []).map(s => `
+        <div class="set-item">
+          <div>
+            <div class="code">${s.title}</div>
+            <div class="meta">${s.set_code} · ${s.category} · ${s.question_count}문항</div>
+          </div>
+          <button class="btn ghost" style="padding:8px 14px;font-size:13px" onclick="delSet('${s.set_code}')">삭제</button>
+        </div>`).join("") || '<p class="meta">아직 없습니다.</p>';
+    }
+    async function refreshSubs() {
+      const { data } = await sb.from("submissions").select("*").order("created_at", { ascending: false }).limit(30);
+      $("subList").innerHTML = (data || []).map(s => `
+        <div class="set-item">
+          <div>
+            <div class="code">${s.student_name} <span class="pill">${s.score}/${s.total}</span></div>
+            <div class="meta">${s.set_code} · 틀린 문항 ${s.wrong_questions.length ? s.wrong_questions.join(", ")+"번" : "없음"} · ${new Date(s.created_at).toLocaleString("ko-KR")}</div>
+          </div>
+        </div>`).join("") || '<p class="meta">아직 제출 기록이 없습니다.</p>';
+    }
+    window.delSet = async (code) => {
+      if (!confirm(`'${code}' 학습지를 삭제할까요? (정답도 함께 삭제됩니다)`)) return;
+      await sb.from("problem_sets").delete().eq("set_code", code);
+      await refreshSets();
+    };
+
+    // 세션 유지 확인
+    sb.auth.getSession().then(({ data }) => { if (data.session) showAdmin(); });
+  </script>
+</body>
+</html>
