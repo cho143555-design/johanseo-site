@@ -241,3 +241,26 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 /* 접근성 */
 :focus-visible { outline: 2px solid var(--jumuk); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ---------- 선생님 소개 ---------- */
+.teacher {
+  display:grid; grid-template-columns: 280px 1fr; gap:40px; align-items:center;
+}
+@media (max-width: 680px) { .teacher { grid-template-columns: 1fr; gap:24px; } .teacher-photo { max-width:280px; } }
+.teacher-photo {
+  width:100%; display:block; border:1px solid var(--line); border-radius:var(--radius);
+}
+.teacher-name {
+  font-family:var(--serif); font-size:30px; font-weight:800; letter-spacing:-0.02em; margin-bottom:14px;
+}
+.creds { list-style:none; margin-bottom:18px; }
+.creds li {
+  font-size:15.5px; color:var(--ink); padding:7px 0; border-bottom:1px dashed var(--line);
+}
+.creds li::before { content:"—"; color:var(--jumuk); font-weight:700; margin-right:10px; }
+.teacher-catch {
+  font-family:var(--serif); font-size:clamp(21px, 3vw, 27px); font-weight:800;
+  line-height:1.5; letter-spacing:-0.02em; color:var(--ink); margin:6px 0 16px;
+}
+.teacher-why p { font-size:14px; color:var(--ink-soft); line-height:1.7; margin-bottom:7px; }
+.teacher-why b { color:var(--jumuk); font-family:var(--serif); margin-right:2px; }
