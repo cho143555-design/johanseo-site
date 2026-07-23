@@ -6,7 +6,7 @@
   <title>조한서 국어</title>
   <meta property="og:type" content="website" />
   <meta property="og:title" content="조한서 국어" />
-  <meta property="og:description" content="당황은 피할 수 없습니다. 무너짐은 피할 수 있습니다. 수능·내신 국어." />
+  <meta property="og:description" content="흔들림은 피할 수 없습니다. 무너짐은 피할 수 있습니다. 수능·내신 국어." />
   <meta property="og:image" content="https://johanseo.com/og.png" />
   <meta property="og:url" content="https://johanseo.com/" />
 
@@ -34,9 +34,9 @@
   <header class="hero">
     <div class="wongoji"></div>
     <div class="wrap">
-      <p class="eyebrow">조한서 수능 · 내신 국어</p>
-      <h1>수능날 아침,<br />당황은 피할 수 없습니다.<br />무너짐은 <span class="mark">피할 수 있습니다</span>.</h1>
-      <p class="lead">그 순간에도 버틸 수 있도록, '감'이 아니라 근거로 푸는 훈련을 합니다. 고1 노베이스에서 2026 불수능 만점까지 — 그 길을 직접 걸어봤습니다.</p>
+      <p class="eyebrow" id="heroEyebrow">조한서 수능 · 내신 국어</p>
+      <h1 id="heroH1">수능 당일,<br />흔들림은 피할 수 없습니다.<br />무너짐은 <span class="mark">피할 수 있습니다</span>.</h1>
+      <p class="lead" id="heroLead">고1 노베이스에서 2026 불국어 만점까지. 그 길을 직접 걸어봤기에, 어느 단계에 있든 다음 한 걸음을 정확히 짚습니다.</p>
       <div class="cta-row">
         <a class="btn jumuk" href="#contact">상담 문의</a>
         <a class="btn ghost" href="homework.html">과제 채점하러 가기</a>
@@ -92,7 +92,7 @@
   <section id="faq">
     <div class="wrap" style="max-width:760px">
       <p class="section-label">자주 묻는 질문</p>
-      <h2 class="section-title" style="margin-bottom:20px">수능 국어 공부</h2>
+      <h2 class="section-title" style="margin-bottom:20px">수능 국어 공부, 이런 게 궁금했다면?</h2>
       <div id="faqList">
         <details class="faq-item">
           <summary>성적이 너무 들쭉날쭉해요 — 국어에서 '감'이란 무엇인가요?</summary>
@@ -115,6 +115,26 @@
   <script src="config.js"></script>
   <script>
     (async () => {
+      const escT = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      try {
+        const sb0 = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+        const { data } = await sb0.from("site_content").select("content").eq("key", "hero").maybeSingle();
+        if (data && data.content) {
+          let eyebrow = "", titles = [], lead = "";
+          data.content.replace(/\r/g,"").split("\n").forEach(l => {
+            l = l.trim(); if (!l) return;
+            const i = l.indexOf(":"); if (i < 0) return;
+            const k = l.slice(0, i).trim(), v = l.slice(i + 1).trim();
+            if (k === "윗줄") eyebrow = v;
+            else if (k === "제목") titles.push(v);
+            else if (k === "리드") lead = v;
+          });
+          if (eyebrow) document.getElementById("heroEyebrow").textContent = eyebrow;
+          if (titles.length) document.getElementById("heroH1").innerHTML =
+            titles.map(t => escT(t).replace(/\*\*(.+?)\*\*/g, '<span class="mark">$1</span>')).join("<br />");
+          if (lead) document.getElementById("heroLead").innerHTML = escT(lead).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+        }
+      } catch (e) {}
       try {
         const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
         const { data } = await sb.from("site_content").select("content").eq("key", "teacher").maybeSingle();
