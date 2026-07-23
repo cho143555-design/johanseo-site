@@ -264,3 +264,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 }
 .teacher-why p { font-size:14px; color:var(--ink-soft); line-height:1.7; margin-bottom:7px; }
 .teacher-why b { color:var(--jumuk); font-family:var(--serif); margin-right:2px; }
+
+.teacher-strength {
+  margin-top:18px; font-size:15px; line-height:1.75; color:var(--ink);
+  background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--gold);
+  padding:12px 16px; border-radius:var(--radius);
+}

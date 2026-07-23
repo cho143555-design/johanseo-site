@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>조한서 국어 — 직접 읽고, 직접 푸는 경험만이 실력이 됩니다</title>
+  <title>조한서 국어</title>
   <meta name="description" content="고1 노베이스에서 2026 불국어 만점까지. 수능·내신 국어 밀착 지도." />
   <link rel="icon" type="image/png" href="seal.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,17 +46,20 @@
       <p class="section-label">선생님 소개</p>
       <div class="teacher">
         <img class="teacher-photo" src="profile.jpg" alt="조한서 선생님 프로필 사진" />
-        <div>
+        <div id="teacherInfo">
           <h2 class="teacher-name">조한서</h2>
           <ul class="creds">
             <li>2026학년도 수능 국어 만점</li>
             <li>중앙대학교 국어국문학과</li>
+            <li>누적 지도 학생 100명+</li>
+            <li>국어 1등급 · 만점 학생 다수 배출</li>
           </ul>
           <p class="teacher-catch">문법과 문학,<br /><span class="mark">전공자</span>에게 배우면 다릅니다.</p>
           <div class="teacher-why">
             <p><b>문학</b> — 작가와 작품을 둘러싼 폭넓은 배경지식까지 함께 다룹니다.</p>
             <p><b>문법</b> — 수많은 예외가 '왜' 그렇게 되는지, 단순 암기가 아니라 이해를 지향합니다.</p>
           </div>
+          <p class="teacher-strength">노베이스·중하위권 학생을 중상위권으로 끌어올리는 것, 그리고 상위권을 만점에 가까운 최상위권으로 완성하는 것 — 이 두 가지에 가장 자신 있습니다.</p>
         </div>
       </div>
     </div>
@@ -81,5 +84,37 @@
       <span>조한서 수능 · 내신 국어</span>
     </div>
   </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    (async () => {
+      try {
+        const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+        const { data } = await sb.from("site_content").select("content").eq("key", "teacher").maybeSingle();
+        if (!data || !data.content) return;
+        const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        const bold = (t) => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+        const mark = (t) => t.replace(/\*\*(.+?)\*\*/g, '<span class="mark">$1</span>');
+        let name = "", creds = [], catches = [], why = [], strength = [];
+        data.content.replace(/\r/g,"").split("\n").forEach(l => {
+          l = l.trim(); if (!l) return;
+          const i = l.indexOf(":"); if (i < 0) return;
+          const k = l.slice(0, i).trim(), v = l.slice(i + 1).trim();
+          if (k === "이름") name = v;
+          else if (k === "이력") creds.push(v);
+          else if (k === "캐치") catches.push(v);
+          else if (k === "설명") why.push(v);
+          else if (k === "강점") strength.push(v);
+        });
+        if (!name) return;
+        document.getElementById("teacherInfo").innerHTML =
+          `<h2 class="teacher-name">${esc(name)}</h2>`
+          + (creds.length ? `<ul class="creds">${creds.map(c => `<li>${bold(esc(c))}</li>`).join("")}</ul>` : "")
+          + (catches.length ? `<p class="teacher-catch">${catches.map(c => mark(esc(c))).join("<br />")}</p>` : "")
+          + (why.length ? `<div class="teacher-why">${why.map(w => `<p>${bold(esc(w))}</p>`).join("")}</div>` : "")
+          + (strength.length ? `<p class="teacher-strength">${strength.map(x => bold(esc(x))).join("<br />")}</p>` : "");
+      } catch (e) {}
+    })();
+  </script>
 </body>
 </html>

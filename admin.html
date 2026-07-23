@@ -133,6 +133,25 @@
             </div>
           </div>
 
+          <!-- 홈 소개 편집 -->
+          <div>
+            <p class="section-label">소개 편집</p>
+            <h2 class="section-title" style="margin-bottom:16px">홈 화면 선생님 소개 고치기</h2>
+            <div class="panel">
+              <div class="field">
+                <label for="teacherText">내용 <span class="mini">— 저장하면 홈에 즉시 반영</span></label>
+                <textarea id="teacherText" style="min-height:240px"></textarea>
+              </div>
+              <p class="mini" style="margin-bottom:12px">
+                문법: <b>이름:</b> · <b>이력:</b>(줄마다 하나) · <b>캐치:</b>(큰 문구, 줄바꿈은 캐치 두 줄) ·
+                <b>설명:</b> · <b>강점:</b> · <b>**강조**</b>
+                <br />※ 사진 교체는 GitHub에 새 사진을 <b>profile.jpg</b> 같은 이름으로 올리면 됩니다.
+              </p>
+              <button class="btn jumuk" id="teacherSaveBtn" style="width:100%">저장 (즉시 반영)</button>
+              <p class="msg" id="teacherMsg" style="display:none"></p>
+            </div>
+          </div>
+
           <!-- 학생 명단 -->
           <div>
             <p class="section-label">학생 명단</p>
@@ -274,6 +293,7 @@
       await loadStats();
       await loadGuideEditor();
       await loadStudents();
+      await loadTeacherEditor();
     }
 
     // ---- 인덱스 로딩 (현황판 + 드롭다운 전부) ----
@@ -502,6 +522,7 @@
       if (error) return msg($("stuMsg"), error.message.includes("duplicate") ? "이미 등록된 이름입니다." : "등록 실패: " + error.message, true);
       $("stuName").value = ""; toast(`${name} 추가됨`);
       await loadStudents();
+      await loadTeacherEditor();
     });
     $("stuName").addEventListener("keydown", (e) => { if (e.key === "Enter") $("stuAddBtn").click(); });
     window.delStudent = async (id, name) => {
@@ -692,6 +713,21 @@
       });
       return html;
     }
+    async function loadTeacherEditor() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "teacher").maybeSingle();
+      if (data && data.content) $("teacherText").value = data.content;
+    }
+    $("teacherSaveBtn").addEventListener("click", async () => {
+      msg($("teacherMsg"), "", false);
+      const content = $("teacherText").value;
+      if (!content.trim()) return msg($("teacherMsg"), "내용이 비어 있습니다.", true);
+      if (!/^\s*이름\s*:/m.test(content)) return msg($("teacherMsg"), "'이름:' 줄이 필요합니다.", true);
+      const { error } = await sb.from("site_content").upsert(
+        { key: "teacher", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) return msg($("teacherMsg"), "저장 실패: " + error.message, true);
+      toast("저장 완료 — 홈 화면에 즉시 반영됨");
+    });
+
     async function loadGuideEditor() {
       const { data } = await sb.from("site_content").select("content").eq("key", "result_guide").maybeSingle();
       if (data && data.content) $("guideText").value = data.content;
