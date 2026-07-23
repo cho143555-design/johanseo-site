@@ -79,6 +79,27 @@
     </div>
   </section>
 
+
+  <div class="divider"></div>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap" style="max-width:760px">
+      <p class="section-label">자주 묻는 질문</p>
+      <h2 class="section-title" style="margin-bottom:20px">국어 공부, 이런 게 궁금했다면</h2>
+      <div id="faqList">
+        <details class="faq-item">
+          <summary>성적이 너무 들쭉날쭉해요 — 국어에서 '감'이란 무엇인가요?</summary>
+          <div class="faq-body">
+            <p>어떤 날은 1등급, 어떤 날은 3등급 — 성적 편차가 크다면 대개 문제를 <b>'감'으로 풀고 있기 때문</b>입니다. '이게 제일 답 같은데?', '나머지는 다 맞는 말이니까 얘가 답'(소거법은 최후의 보루로는 괜찮습니다), '잘 모르겠지만 2번 같다' — 고1·2 때는 흔히 이렇게 풉니다. 이 습관이 교정되지 않으면 고3에서 높은 등급을 받기 어렵습니다. 반드시 '수능 국어적 논리'에 의거해서, 즉 <b>근거를 가지고 푸는 연습</b>을 해야 합니다.</p>
+            <p>그렇지만 수능 당일, 시험장에서는 '감'도 물론 중요합니다. '저 선지가 수상하다', '이 문제 틀린 것 같다' 같은 감은 문제 풀이에 분명히 기여합니다. 차이는 이것입니다 — 하위권은 잘못된 감으로 틀리고, <b>상위권은 감으로 의심하되 선택은 확실한 근거 위에서</b> 합니다.</p>
+            <p>'감'에는 글을 읽는 속도, 머리에 받아들이는 속도도 포함됩니다. 글 읽기도 다른 모든 행위와 같아서, 매일 읽던 사람이 더 잘 읽을 수밖에 없습니다. 이 감을 유지하기 위해, 고3이라면 <b>매일 기출문제를 풀기를</b> 권합니다.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <div class="wrap" style="justify-content:flex-end">
       <span>조한서 수능 · 내신 국어</span>
@@ -113,6 +134,26 @@
           + (catches.length ? `<p class="teacher-catch">${catches.map(c => mark(esc(c))).join("<br />")}</p>` : "")
           + (why.length ? `<div class="teacher-why">${why.map(w => `<p>${bold(esc(w))}</p>`).join("")}</div>` : "")
           + (strength.length ? `<p class="teacher-strength">${strength.map(x => bold(esc(x))).join("<br />")}</p>` : "");
+      } catch (e) {}
+      try {
+        const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+        const { data } = await sb.from("site_content").select("content").eq("key", "faq").maybeSingle();
+        if (!data || !data.content) return;
+        const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        const bold = (t) => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+        const items = []; let cur = null;
+        data.content.replace(/\r/g,"").split("\n").forEach(l => {
+          const t = l.trim();
+          if (t.startsWith("Q:")) { cur = { q: t.slice(2).trim(), paras: [[]] }; items.push(cur); return; }
+          if (!cur) return;
+          if (!t) { if (cur.paras[cur.paras.length-1].length) cur.paras.push([]); return; }
+          cur.paras[cur.paras.length-1].push(t);
+        });
+        if (!items.length) return;
+        document.getElementById("faqList").innerHTML = items.map(it =>
+          `<details class="faq-item"><summary>${bold(esc(it.q))}</summary><div class="faq-body">${
+            it.paras.filter(p => p.length).map(p => `<p>${bold(esc(p.join(" ")))}</p>`).join("")
+          }</div></details>`).join("");
       } catch (e) {}
     })();
   </script>
