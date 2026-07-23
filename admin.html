@@ -133,6 +133,25 @@
             </div>
           </div>
 
+          <!-- 메인 문구 편집 -->
+          <div>
+            <p class="section-label">메인 문구 편집</p>
+            <h2 class="section-title" style="margin-bottom:16px">홈 첫 화면 문구 고치기</h2>
+            <div class="panel">
+              <div class="field">
+                <label for="heroText">내용 <span class="mini">— 저장하면 홈에 즉시 반영</span></label>
+                <textarea id="heroText" style="min-height:170px" placeholder="윗줄: 조한서 수능 · 내신 국어
+제목: 수능 당일,
+제목: 흔들림은 피할 수 없습니다.
+제목: 무너짐은 **피할 수 있습니다**.
+리드: 아래 설명 문장"></textarea>
+              </div>
+              <p class="mini" style="margin-bottom:12px">문법: <b>윗줄:</b> · <b>제목:</b>(줄마다 하나 = 줄바꿈) · <b>리드:</b> · 제목의 <b>**글자**</b>는 형광 강조</p>
+              <button class="btn jumuk" id="heroSaveBtn" style="width:100%">저장 (즉시 반영)</button>
+              <p class="msg" id="heroMsg" style="display:none"></p>
+            </div>
+          </div>
+
           <!-- 홈 소개 편집 -->
           <div>
             <p class="section-label">소개 편집</p>
@@ -313,6 +332,7 @@ Q: 다음 질문
       await loadStats();
       await loadGuideEditor();
       await loadStudents();
+      await loadHeroEditor();
       await loadTeacherEditor();
       await loadFaqEditor();
     }
@@ -543,6 +563,7 @@ Q: 다음 질문
       if (error) return msg($("stuMsg"), error.message.includes("duplicate") ? "이미 등록된 이름입니다." : "등록 실패: " + error.message, true);
       $("stuName").value = ""; toast(`${name} 추가됨`);
       await loadStudents();
+      await loadHeroEditor();
       await loadTeacherEditor();
       await loadFaqEditor();
     });
@@ -735,6 +756,21 @@ Q: 다음 질문
       });
       return html;
     }
+    async function loadHeroEditor() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "hero").maybeSingle();
+      if (data && data.content) $("heroText").value = data.content;
+    }
+    $("heroSaveBtn").addEventListener("click", async () => {
+      msg($("heroMsg"), "", false);
+      const content = $("heroText").value;
+      if (!content.trim()) return msg($("heroMsg"), "내용이 비어 있습니다.", true);
+      if (!/^\s*제목\s*:/m.test(content)) return msg($("heroMsg"), "'제목:' 줄이 최소 1개 필요합니다.", true);
+      const { error } = await sb.from("site_content").upsert(
+        { key: "hero", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) return msg($("heroMsg"), "저장 실패: " + error.message, true);
+      toast("저장 완료 — 홈 첫 화면에 즉시 반영됨");
+    });
+
     async function loadTeacherEditor() {
       const { data } = await sb.from("site_content").select("content").eq("key", "teacher").maybeSingle();
       if (data && data.content) $("teacherText").value = data.content;
