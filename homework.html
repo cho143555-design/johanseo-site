@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>과제 채점 — 조한서 국어</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="과제 채점 — 조한서 국어" />
+  <meta property="og:description" content="교재·범위 고르고 답 입력하면 바로 채점됩니다." />
+  <meta property="og:image" content="https://johanseo.com/og.png" />
+  <meta property="og:url" content="https://johanseo.com/homework" />
+
   <link rel="icon" type="image/png" href="seal.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
@@ -51,7 +57,8 @@
       <div class="panel">
         <div class="field">
           <label for="name">이름</label>
-          <input id="name" type="text" placeholder="예: 조한서" autocomplete="off" />
+          <input id="name" type="text" placeholder="예: 조한서" autocomplete="off" list="nameList" />
+          <datalist id="nameList"></datalist>
           <p class="hint" style="margin:8px 0 0">이름은 세 글자 정자로 기입해 주세요.</p>
         </div>
 
@@ -125,6 +132,21 @@
     let mode = "range";   // 'range' | 'set'
     let current = null;   // 채점 대상 정보
     let answers = [];
+
+    // ---- 이름 자동완성 (입력한 글자로 시작하는 학생만 조회) ----
+    let nameTimer = null;
+    $("name").addEventListener("input", () => {
+      clearTimeout(nameTimer);
+      const v = $("name").value.trim();
+      if (!v) { $("nameList").innerHTML = ""; return; }
+      nameTimer = setTimeout(async () => {
+        try {
+          const { data } = await sb.from("student_names").select("name")
+            .ilike("name", v + "%").order("name").limit(8);
+          $("nameList").innerHTML = (data || []).map(r => `<option value="${r.name}"></option>`).join("");
+        } catch (e) {}
+      }, 180);
+    });
 
     function showErr(m) { const e = $("err"); e.textContent = m; e.style.display = m ? "block" : "none"; }
     function chSort(a, b) {
