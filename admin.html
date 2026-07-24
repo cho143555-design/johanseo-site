@@ -77,6 +77,13 @@
 [현대시]
 01 · 2027 6모: 3 5 5 4
 02 · 2026 6모: 5 4 3 3 | +2   ← '| +2' 는 이감+ 정답
+
+── 세트 안에서 교재 번호를 그대로 쓰려면(자이스토리식) ──
+교재: 2027 고1 자이스토리 비문학 독해
+[STEP 1 핵심어 찾기, 중심 문장 찾기]
+DAY 01                 ← 콜론 없는 줄 = 세트 이름
+2: 2 2 3 3 1 4 2       ← 02~08번
+10: 2 5 2 5 2 4 5 5    ← 10~17번 (서술형 09번은 자동으로 빠짐)
 [사회]
 …
 
@@ -304,7 +311,11 @@ Q: 다음 질문
     const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
     const CH_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','인문·독서','인문·예술','사회','과학','기술','과학·기술','주제 통합','예술','복합 지문','독서론','미니모의고사 1회','미니모의고사 2회','고전 시가','현대 소설','고전 산문','갈래 복합'];
-    const chCmp = (a,b) => { const i=CH_ORDER.indexOf(a), j=CH_ORDER.indexOf(b); return (i<0?99:i)-(j<0?99:j); };
+    const chCmp = (a,b) => {
+      const i=CH_ORDER.indexOf(a), j=CH_ORDER.indexOf(b);
+      const ri = i<0?99:i, rj = j<0?99:j;
+      return ri !== rj ? ri - rj : String(a).localeCompare(String(b), "ko");
+    };
     const pad3 = (n) => String(n).padStart(3, "0");
     let idx = [];        // answer_bank_index 원본
     let bank = {};       // 범위형 전용: material -> [chapter]
@@ -399,17 +410,25 @@ Q: 다음 질문
         out.summary.push(`${ch}: ${pad3(ns[0])}~${pad3(ns[ns.length-1])} (${ns.length}문항)`);
       };
       const lines = text.split("\n");
-      let secCount = 0;
+      let secCount = 0, curSec = null;
       lines.forEach((raw, li) => {
         const line = raw.trim();
         if (!line || line.startsWith("──") || line.startsWith("//")) return;
         const L = li + 1;
         let m;
         if ((m = line.match(/^교재\s*:\s*(.+)$/))) { out.material = m[1].trim(); return; }
-        if ((m = line.match(/^\[(.+)\]$/))) { flushRange(); ch = m[1].trim(); rangeQs = {}; chMode = null; secCount = 0; return; }
+        if ((m = line.match(/^\[(.+)\]$/))) { flushRange(); ch = m[1].trim(); rangeQs = {}; chMode = null; secCount = 0; curSec = null; return; }
         if (!ch) { out.errors.push(`${L}행: 단원([단원명]) 지정 전에 내용이 있습니다.`); return; }
         const ci = line.indexOf(":");
-        if (ci < 0) { out.errors.push(`${L}행: ':' 이 없습니다 — "${line.slice(0,30)}"`); return; }
+        if (ci < 0) {
+          // 콜론 없는 줄 = 세트 이름 (다음 줄부터 '번호: 답' 형식으로 채움)
+          if (chMode === "range") { out.errors.push(`${L}행: [${ch}] 안에 세트형과 범위형이 섞여 있습니다.`); return; }
+          chMode = "set"; curSec = line; secCount++;
+          const prevI = out.summary.findIndex(s => s.startsWith(ch + ":") && s.includes("세트"));
+          const lbl = `${ch}: ${secCount}세트`;
+          if (prevI >= 0) out.summary[prevI] = lbl; else out.summary.push(lbl);
+          return;
+        }
         const head = line.slice(0, ci).trim();
         let body = line.slice(ci + 1).replace(/←.*$/, "").trim();
         let plus = null;
@@ -417,6 +436,16 @@ Q: 다음 질문
         if (pm) { plus = +pm[1]; body = body.slice(0, pm.index).replace(/[|]\s*$/, "").trim(); }
         const digits = body.replace(/[\s,]/g, "");
         if (!/^[1-5]+$/.test(digits)) { out.errors.push(`${L}행: 정답은 1~5만 가능합니다 — "${body}"`); return; }
+        if (/^\d+$/.test(head) && curSec) {
+          // 세트 안의 실제 교재 번호 (예: "10: 2 5 2 5")
+          let n = +head;
+          for (const d of digits) {
+            out.rows.push({ chapter:ch, section:curSec, question_no:n, correct_answer:+d, is_plus:false });
+            n++;
+          }
+          if (plus !== null) out.rows.push({ chapter:ch, section:curSec, question_no:n, correct_answer:plus, is_plus:true });
+          return;
+        }
         if (/^\d+$/.test(head)) {
           // 범위형
           if (chMode === "set") { out.errors.push(`${L}행: [${ch}] 안에 세트형과 범위형이 섞여 있습니다.`); return; }
@@ -429,7 +458,7 @@ Q: 다음 질문
         } else {
           // 세트형
           if (chMode === "range") { out.errors.push(`${L}행: [${ch}] 안에 세트형과 범위형이 섞여 있습니다.`); return; }
-          chMode = "set"; secCount++;
+          chMode = "set"; secCount++; curSec = head;
           digits.split("").forEach((d, i) => out.rows.push({ chapter:ch, section:head, question_no:i+1, correct_answer:+d, is_plus:false }));
           if (plus !== null) out.rows.push({ chapter:ch, section:head, question_no:digits.length+1, correct_answer:plus, is_plus:true });
           const prev = out.summary.findIndex(s => s.startsWith(ch + ":") && s.includes("세트"));

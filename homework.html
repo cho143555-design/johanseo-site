@@ -177,7 +177,8 @@
       const m = $("mSel").value;
       const names = Object.keys(bankIdx[m] || {}).sort((a, b) => {
         const ia = CH_ORDER.indexOf(a), ib = CH_ORDER.indexOf(b);
-        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+        const ra = ia < 0 ? 99 : ia, rb = ib < 0 ? 99 : ib;
+        return ra !== rb ? ra - rb : a.localeCompare(b, "ko");
       });
       $("cSel").innerHTML = names.map(c => `<option value="${c}">${c}</option>`).join("");
       onChapter();
@@ -202,15 +203,18 @@
     }
     $("mSel").addEventListener("change", fillChapters);
     $("cSel").addEventListener("change", onChapter);
-    $("secSel") && document.addEventListener("change", (e) => {
+    $("secSel") && document.addEventListener("change", async (e) => {
       if (e.target.id !== "secSel") return;
       showErr("");
       const info = chInfo();
       const sec = info && info.sections.find(x => x.section === e.target.value);
       if (!sec) { $("omrWrap").style.display = "none"; current = null; return; }
-      current = { kind: "section", material: $("mSel").value, chapter: $("cSel").value,
-                  section: sec.section, count: sec.q_count, has_plus: sec.has_plus };
-      buildOmr(sec.q_count, 5, null, sec.has_plus);
+      const material = $("mSel").value, chapter = $("cSel").value;
+      const nums = await fetchNumbers(material, chapter, sec.section);
+      const list = nums.length ? nums : Array.from({ length: sec.q_count }, (_, i) => ({ question_no: i + 1, is_plus: sec.has_plus && i === sec.q_count - 1 }));
+      current = { kind: "section", material, chapter, section: sec.section,
+                  count: list.length, has_plus: sec.has_plus, nums: list };
+      buildOmrNums(list, 5);
     });
 
     // ---- 등록된 과제 목록 ----
@@ -227,7 +231,7 @@
               const info = (((bankIdx[s.material] || {})[s.chapter]) || { sections: [] }).sections.find(x => x.section === s.section);
               if (info && info.has_plus) p = "1";
             }
-            return `<option value="${s.set_code}" data-q="${s.question_count}" data-c="${s.choice_count}" data-s="${s.start_no || ''}" data-p="${p}">${s.title}</option>`;
+            return `<option value="${s.set_code}" data-q="${s.question_count}" data-c="${s.choice_count}" data-s="${s.start_no || ''}" data-p="${p}" data-mat="${s.material || ''}" data-ch="${s.chapter || ''}" data-sec="${s.section || ''}">${s.title}</option>`;
           }).join("");
       }
     }
@@ -246,6 +250,36 @@
     }
     $("tabRange").addEventListener("click", () => setMode("range"));
     $("tabSet").addEventListener("click", () => setMode("set"));
+
+    // ---- 세트의 실제 교재 문항 번호 조회 ----
+    async function fetchNumbers(material, chapter, section) {
+      const { data } = await sb.from("answer_bank_numbers")
+        .select("question_no, is_plus")
+        .eq("material", material).eq("chapter", chapter).eq("section", section)
+        .order("question_no", { ascending: true });
+      return data || [];
+    }
+    function buildOmrNums(nums, choiceCount) {
+      retryMode = false; $("retryBtn").style.display = "none";
+      const omr = $("omr"); omr.innerHTML = "";
+      answers = new Array(nums.length).fill(null);
+      nums.forEach((row, i) => {
+        const el = document.createElement("div");
+        el.className = "omr-row";
+        let b = "";
+        for (let c = 1; c <= choiceCount; c++)
+          b += `<button type="button" class="bubble" data-q="${i + 1}" data-c="${c}" aria-label="${row.question_no}번 ${c}번 선택">${c}</button>`;
+        el.innerHTML = `<div class="qno">${row.is_plus ? "이감+" : row.question_no}</div><div class="bubbles">${b}</div>`;
+        omr.appendChild(el);
+      });
+      omr.querySelectorAll(".bubble").forEach(bt => bt.addEventListener("click", () => {
+        answers[+bt.dataset.q - 1] = +bt.dataset.c;
+        bt.parentElement.querySelectorAll(".bubble").forEach(x => x.classList.remove("on"));
+        bt.classList.add("on");
+      }));
+      $("omrWrap").style.display = "block";
+      $("result").classList.remove("show");
+    }
 
     // ---- OMR ----
     function buildOmr(count, choiceCount, startNo, hasPlus) {
@@ -292,13 +326,19 @@
     });
 
     // 과제 모드: 선택
-    $("setSelect").addEventListener("change", (e) => {
+    $("setSelect").addEventListener("change", async (e) => {
       showErr("");
       const opt = e.target.selectedOptions[0];
       if (!opt || !opt.value) { $("omrWrap").style.display = "none"; current = null; return; }
       const startNo = opt.dataset.s ? +opt.dataset.s : null;
-      current = { kind: "set", set_code: opt.value, start_no: startNo, choice_count: +opt.dataset.c, has_plus: opt.dataset.p === "1" };
-      buildOmr(+opt.dataset.q, +opt.dataset.c, startNo, opt.dataset.p === "1");
+      current = { kind: "set", set_code: opt.value, start_no: startNo, choice_count: +opt.dataset.c, has_plus: opt.dataset.p === "1", section: opt.dataset.sec || null };
+      if (opt.dataset.sec) {
+        const nums = await fetchNumbers(opt.dataset.mat, opt.dataset.ch, opt.dataset.sec);
+        current.nums = nums;
+        buildOmrNums(nums.length ? nums : Array.from({ length: +opt.dataset.q }, (_, i) => ({ question_no: i + 1, is_plus: false })), +opt.dataset.c);
+      } else {
+        buildOmr(+opt.dataset.q, +opt.dataset.c, startNo, opt.dataset.p === "1");
+      }
     });
 
     // ---- 오답 재풀이 ----
@@ -384,8 +424,12 @@
       $("result").classList.remove("show");
       if (current) {
         if (current.kind === "range") buildOmr(current.end - current.start + 1, 5, current.start);
-        else if (current.kind === "section") buildOmr(current.count, 5, null, current.has_plus);
-        else { const opt = $("setSelect").selectedOptions[0]; buildOmr(+opt.dataset.q, +opt.dataset.c, opt.dataset.s ? +opt.dataset.s : null); }
+        else if (current.kind === "section") buildOmrNums(current.nums, 5);
+        else {
+          const opt = $("setSelect").selectedOptions[0];
+          if (current.nums) buildOmrNums(current.nums, +opt.dataset.c);
+          else buildOmr(+opt.dataset.q, +opt.dataset.c, opt.dataset.s ? +opt.dataset.s : null);
+        }
       }
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
