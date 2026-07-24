@@ -283,10 +283,12 @@ Q: 다음 질문
             <p class="section-label">제출 기록</p>
             <h2 class="section-title" style="margin-bottom:16px">채점 결과</h2>
             <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
-              <div class="field" style="margin-bottom:0"><input id="subFilter" placeholder="학생 이름으로 검색 (비우면 전체 최근 50건)" /></div>
+              <div class="field" style="margin-bottom:0"><input id="subFilter" placeholder="학생 이름으로 검색" /></div>
               <button class="btn ghost" id="csvBtn">CSV 내보내기</button>
             </div>
+            <div id="subChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
             <div id="subList" class="admin-grid"></div>
+            <div id="subPager" style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px"></div>
           </div>
 
         </div>
@@ -554,6 +556,7 @@ Q: 다음 질문
           <a href="#" onclick="delStudent('${s.id}','${s.name}');return false" style="color:var(--jumuk);margin-left:6px;font-weight:700">×</a></span>`
       ).join("") : '<span class="mini">아직 등록된 학생이 없습니다.</span>';
       fillBkStudents();
+      if (typeof renderChips === "function") renderChips();
     }
     $("stuAddBtn").addEventListener("click", async () => {
       msg($("stuMsg"), "", true);
@@ -904,12 +907,14 @@ Q: 다음 질문
           from += 1000;
         }
         const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-        const head = ["제출일시", "학생", "과제", "점수", "총문항", "정답률(%)", "틀린문항", "제출답안"];
+        const head = ["제출일시", "학생", "과제", "점수", "총문항", "정답률(%)", "틀린문항", "오답상세(문항:고른답→정답)", "제출답안"];
         const lines = [head.join(",")].concat(all.map(s => [
           esc(new Date(s.created_at).toLocaleString("ko-KR")), esc(s.student_name),
           esc(s.label || s.set_code || ""), s.score, s.total,
           s.total ? Math.round(s.score / s.total * 100) : 0,
-          esc((s.wrong_questions || []).join(" ")), esc((s.answers || []).join(" "))
+          esc((s.wrong_questions || []).join(" ")),
+          esc(Array.isArray(s.wrong_detail) ? s.wrong_detail.map(w => `${w.n}:${w.p}→${w.a}`).join(" ") : ""),
+          esc((s.answers || []).join(" "))
         ].join(",")));
         const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
         const link = document.createElement("a");
@@ -925,19 +930,56 @@ Q: 다음 질문
     });
 
     let subTimer = null;
-    $("subFilter").addEventListener("input", () => { clearTimeout(subTimer); subTimer = setTimeout(refreshSubs, 300); });
+    const SUB_PAGE = 20;
+    let subPage = 0, subName = "";
+    const CIRC = ["①","②","③","④","⑤"];
+
+    $("subFilter").addEventListener("input", () => {
+      clearTimeout(subTimer);
+      subTimer = setTimeout(() => { subName = $("subFilter").value.trim(); subPage = 0; refreshSubs(); }, 300);
+    });
+
+    function renderChips() {
+      const chip = (label, val) => `<button type="button" class="btn ghost" style="padding:6px 13px;font-size:13px${
+        subName === val ? ";background:var(--ink);color:var(--paper);border-color:var(--ink)" : ""}"
+        onclick="pickStudent('${val.replace(/'/g, "\\'")}')">${label}</button>`;
+      $("subChips").innerHTML = chip("전체", "") + students.map(s => chip(s.name, s.name)).join("");
+    }
+    window.pickStudent = (name) => {
+      subName = name; subPage = 0; $("subFilter").value = name; refreshSubs();
+    };
+
+    function wrongText(s) {
+      if (Array.isArray(s.wrong_detail) && s.wrong_detail.length) {
+        return s.wrong_detail.map(w =>
+          `${w.n}번 <b style="color:var(--jumuk)">${CIRC[w.p-1] || w.p}</b> → 정답 ${CIRC[w.a-1] || w.a}`).join(" · ");
+      }
+      return (s.wrong_questions && s.wrong_questions.length) ? s.wrong_questions.join(", ") + "번" : "없음";
+    }
+
     async function refreshSubs() {
-      const name = $("subFilter").value.trim();
-      let q = sb.from("submissions").select("*").order("created_at", { ascending: false }).limit(50);
-      if (name) q = q.ilike("student_name", `%${name}%`);
-      const { data } = await q;
-      $("subList").innerHTML = (data||[]).map(s => `
+      renderChips();
+      let q = sb.from("submissions").select("*", { count: "exact" }).order("created_at", { ascending: false });
+      if (subName) q = q.ilike("student_name", `%${subName}%`);
+      const { data, count } = await q.range(subPage * SUB_PAGE, subPage * SUB_PAGE + SUB_PAGE - 1);
+      const total = count || 0;
+      $("subList").innerHTML = (data || []).map(s => `
         <div class="set-item"><div>
           <div class="code">${s.student_name} <span class="pill">${s.score}/${s.total}</span></div>
-          <div class="meta">${s.label || s.set_code || ""} · 틀린 문항 ${s.wrong_questions.length ? s.wrong_questions.join(", ")+"번" : "없음"} · ${new Date(s.created_at).toLocaleString("ko-KR")}</div></div>
+          <div class="meta">${s.label || s.set_code || ""} · ${new Date(s.created_at).toLocaleString("ko-KR")}</div>
+          <div class="meta" style="margin-top:3px">틀린 문항 ${wrongText(s)}</div></div>
           <button class="btn ghost" style="padding:8px 14px;font-size:13px" onclick="delSub('${s.id}')">삭제</button></div>`
       ).join("") || '<p class="meta">기록이 없습니다.</p>';
+
+      const pages = Math.max(1, Math.ceil(total / SUB_PAGE));
+      $("subPager").innerHTML = total > SUB_PAGE
+        ? `<button class="btn ghost" style="padding:7px 14px;font-size:13px" ${subPage === 0 ? "disabled" : ""} onclick="subMove(-1)">← 이전</button>
+           <span class="mini">${subPage + 1} / ${pages} 페이지 · 총 ${total}건</span>
+           <button class="btn ghost" style="padding:7px 14px;font-size:13px" ${subPage >= pages - 1 ? "disabled" : ""} onclick="subMove(1)">다음 →</button>`
+        : (total ? `<span class="mini">총 ${total}건</span>` : "");
     }
+    window.subMove = (d) => { subPage = Math.max(0, subPage + d); refreshSubs(); window.scrollTo({ top: $("subList").offsetTop - 80, behavior: "smooth" }); };
+
     window.delSub = async (id) => {
       if (!confirm("이 제출 기록을 삭제할까요?")) return;
       const { error } = await sb.from("submissions").delete().eq("id", id);
