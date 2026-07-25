@@ -323,3 +323,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   font-size:13px; line-height:1.7; color:var(--ink-soft);
 }
 .install-note b { color:var(--ink); }
+
+/* ---------- 칼럼 ---------- */
+.col-group { margin-bottom:26px; }
+.col-group:last-child { margin-bottom:0; }
+.col-cat {
+  font-family:var(--serif); font-size:16px; font-weight:800; color:var(--ink);
+  padding-bottom:8px; margin-bottom:12px; border-bottom:1.5px solid var(--ink);
+}

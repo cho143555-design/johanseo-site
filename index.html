@@ -32,6 +32,7 @@
       <nav class="nav">
         <a href="#teacher">소개</a>
         <a href="homework.html">과제 채점</a>
+        <a href="#column">칼럼</a>
         <a href="#contact">문의</a>
       </nav>
     </div>
@@ -115,6 +116,28 @@
 
   <div class="divider"></div>
 
+  <!-- 칼럼 -->
+  <section id="column">
+    <div class="wrap" style="max-width:760px">
+      <p class="section-label">칼럼</p>
+      <h2 class="section-title" style="margin-bottom:20px">수능 국어, 이렇게 봅니다</h2>
+      <div id="columnList">
+        <div class="col-group">
+          <h3 class="col-cat">Ⅱ. 평소에 무엇을 공부할까</h3>
+          <details class="faq-item">
+            <summary>5. 불수능은 독서론·화작·언매에서 갈립니다</summary>
+            <div class="faq-body">
+              <p>불수능이 오면 늘 나오는 말이 "비문학이 고등학생 수준에 맞느냐"입니다. 심하면 뉴스에도 나오죠. 그런데 3등급 이하 학생은 그 어려운 비문학을 제대로 건드려 보지도 못합니다. 독서론이 5분 안에 안 끝나고, 9시 5분에는 끝났어야 할 화작을 9시 10분까지 붙들고 있고 — 여기서 이미 시간과 멘탈이 무너진 채 시험이 끝나 있습니다.</p>
+              <p>그래서 불수능 대비의 핵심은 어려운 비문학을 파는 것이 아니라, <b>독서론과 선택과목처럼 비교적 쉬운 파트에서 흔들리지 않는 실력을 확보하는 것</b>입니다. 기출은 기본이고, 사설 자료로도 충분히 연습해 두세요.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
   <!-- 홈 화면에 추가 -->
   <section id="install">
     <div class="wrap" style="max-width:760px">
@@ -151,9 +174,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script>
-    (async () => {
-      const escT = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-      try {
+    const escT = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const runSection = (fn) => { (async () => { try { await fn(); } catch (e) {} })(); };
+
+    runSection(async () => {
         const sb0 = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
         const { data } = await sb0.from("site_content").select("content").eq("key", "hero").maybeSingle();
         if (data && data.content) {
@@ -172,8 +196,9 @@
           if (leads.length) document.getElementById("heroLead").innerHTML =
             leads.map(x => escT(x).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")).join("<br />");
         }
-      } catch (e) {}
-      try {
+    });
+
+    runSection(async () => {
         const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
         const { data } = await sb.from("site_content").select("content").eq("key", "teacher").maybeSingle();
         if (!data || !data.content) return;
@@ -198,8 +223,9 @@
           + (catches.length ? `<p class="teacher-catch">${catches.map(c => mark(esc(c))).join("<br />")}</p>` : "")
           + (why.length ? `<div class="teacher-why">${why.map(w => `<p>${bold(esc(w))}</p>`).join("")}</div>` : "")
           + (strength.length ? `<p class="teacher-strength">${strength.map(x => bold(esc(x))).join("<br />")}</p>` : "");
-      } catch (e) {}
-      try {
+    });
+
+    runSection(async () => {
         const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
         const { data } = await sb.from("site_content").select("content").eq("key", "faq").maybeSingle();
         if (!data || !data.content) return;
@@ -218,8 +244,35 @@
           `<details class="faq-item"><summary>${bold(esc(it.q))}</summary><div class="faq-body">${
             it.paras.filter(p => p.length).map(p => `<p>${bold(esc(p.join(" ")))}</p>`).join("")
           }</div></details>`).join("");
-      } catch (e) {}
-    })();
+    });
+
+    runSection(async () => {
+        const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+        const { data } = await sb.from("site_content").select("content").eq("key", "columns").maybeSingle();
+        if (!data || !data.content) return;
+        const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        const bold = (t) => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+        const cats = []; let cat = null, item = null;
+        data.content.replace(/\r/g,"").split("\n").forEach(l => {
+          const t = l.trim();
+          if (!t) { if (item && item.paras[item.paras.length-1].length) item.paras.push([]); return; }
+          let m;
+          if ((m = t.match(/^범주\s*:\s*(.+)$/))) { cat = { name: m[1].trim(), items: [] }; cats.push(cat); item = null; return; }
+          if ((m = t.match(/^제목\s*:\s*(.+)$/))) {
+            if (!cat) { cat = { name: "", items: [] }; cats.push(cat); }
+            item = { title: m[1].trim(), paras: [[]] }; cat.items.push(item); return;
+          }
+          if (item) item.paras[item.paras.length-1].push(t);
+        });
+        const total = cats.reduce((n, c) => n + c.items.length, 0);
+        if (!total) return;
+        document.getElementById("columnList").innerHTML = cats.map(c =>
+          `<div class="col-group">${c.name ? `<h3 class="col-cat">${esc(c.name)}</h3>` : ""}${
+            c.items.map(it => `<details class="faq-item"><summary>${bold(esc(it.title))}</summary><div class="faq-body">${
+              it.paras.filter(p => p.length).map(p => `<p>${bold(esc(p.join(" ")))}</p>`).join("")
+            }</div></details>`).join("")
+          }</div>`).join("");
+    });
   </script>
   <script>
     (() => {
