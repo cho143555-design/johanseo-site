@@ -16,6 +16,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f6f1e7" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="조한서 국어" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -106,6 +113,36 @@
     </div>
   </section>
 
+  <div class="divider"></div>
+
+  <!-- 홈 화면에 추가 -->
+  <section id="install">
+    <div class="wrap" style="max-width:760px">
+      <p class="section-label">앱처럼 쓰기</p>
+      <h2 class="section-title" style="margin-bottom:18px">홈 화면에 추가하기</h2>
+      <div class="install-card">
+        <p class="install-lead">채점 페이지를 폰 <b>홈 화면에 아이콘으로 추가</b>해 두면, 앱처럼 한 번에 열 수 있습니다. 따로 설치할 것은 없습니다.</p>
+      <div class="install-tabs">
+        <button type="button" class="install-tab" data-os="ios">아이폰</button>
+        <button type="button" class="install-tab" data-os="android">안드로이드</button>
+      </div>
+      <ol class="install-steps" data-panel="ios">
+        <li><b>사파리(Safari)</b>로 <b>johanseo.com/homework</b> 를 엽니다. (크롬 등 다른 브라우저에서는 이 기능이 없을 수 있어요)</li>
+        <li>화면 아래 가운데 <b>공유 버튼</b>(사각형에서 화살표가 위로 나가는 모양)을 누릅니다.</li>
+        <li>목록을 아래로 넘겨 <b>'홈 화면에 추가'</b>를 선택합니다.</li>
+        <li>오른쪽 위 <b>'추가'</b>를 누르면 끝. 홈 화면에 인장 아이콘이 생깁니다.</li>
+      </ol>
+      <ol class="install-steps" data-panel="android">
+        <li><b>크롬(Chrome)</b>으로 <b>johanseo.com/homework</b> 를 엽니다.</li>
+        <li>오른쪽 위 <b>점 세 개(⋮)</b> 메뉴를 누릅니다.</li>
+        <li><b>'홈 화면에 추가'</b> 또는 <b>'앱 설치'</b>를 선택합니다.</li>
+        <li><b>'추가'</b>를 누르면 끝. 홈 화면에 인장 아이콘이 생깁니다.</li>
+      </ol>
+        <p class="install-note">추가한 아이콘을 누르면 <b>과제 채점 화면이 바로</b> 열립니다. 기종·브라우저에 따라 메뉴 이름이 조금씩 다를 수 있어요.</p>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <div class="wrap" style="justify-content:flex-end">
       <span>조한서 수능 · 내신 국어</span>
@@ -182,6 +219,19 @@
             it.paras.filter(p => p.length).map(p => `<p>${bold(esc(p.join(" ")))}</p>`).join("")
           }</div></details>`).join("");
       } catch (e) {}
+    })();
+  </script>
+  <script>
+    (() => {
+      const tabs = document.querySelectorAll(".install-tab");
+      const panels = document.querySelectorAll(".install-steps");
+      if (!tabs.length) return;
+      const pick = (os) => {
+        tabs.forEach(t => t.classList.toggle("on", t.dataset.os === os));
+        panels.forEach(p => p.classList.toggle("on", p.dataset.panel === os));
+      };
+      tabs.forEach(t => t.addEventListener("click", () => pick(t.dataset.os)));
+      pick(/iphone|ipad|ipod|macintosh/i.test(navigator.userAgent) ? "ios" : "android");
     })();
   </script>
 </body>
