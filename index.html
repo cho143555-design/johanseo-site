@@ -43,8 +43,16 @@
     <div class="wongoji"></div>
     <div class="wrap">
       <p class="eyebrow" id="heroEyebrow">조한서 수능 · 내신 국어</p>
-      <h1 id="heroH1">수능 당일,<br />흔들림은 피할 수 없습니다.<br />무너짐은 <span class="mark">피할 수 있습니다</span>.</h1>
-      <p class="lead" id="heroLead">고1 노베이스에서 2026 불국어 만점까지.<br />그 길을 직접 걸어봤기에, 어느 단계에 있든 다음 한 걸음을 정확히 짚습니다.</p>
+      <div>
+        <p class="hero-tag" id="satTag">수능 국어</p>
+        <h1 id="heroH1">수능 당일,<br />흔들림은 피할 수 없습니다.<br />무너짐은 <span class="mark">피할 수 있습니다</span>.</h1>
+        <p class="lead" id="heroLead">고1 노베이스에서 2026 불국어 만점까지.<br />그 길을 직접 걸어봤기에, 어느 단계에 있든 다음 한 걸음을 정확히 짚습니다.</p>
+      </div>
+      <div class="hero-naesin" id="naesinBlock">
+        <p class="hero-tag" id="naesinTag">내신 국어</p>
+        <h2 class="naesin-title" id="naesinTitle">학교 시험은, <span class="mark">범위가 있는 싸움</span>입니다.</h2>
+        <p class="lead" id="naesinLead">학교별 교과서와 프린트를 출제자의 눈으로 분석해, 범위 안에서 확실하게 준비합니다.</p>
+      </div>
       <div class="cta-row">
         <a class="btn jumuk" href="#contact">상담 문의</a>
         <a class="btn ghost" href="homework.html">과제 채점하러 가기</a>
@@ -181,20 +189,32 @@
         const sb0 = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
         const { data } = await sb0.from("site_content").select("content").eq("key", "hero").maybeSingle();
         if (data && data.content) {
-          let eyebrow = "", titles = [], leads = [];
+          let eyebrow = "", satTag = "", naeTag = "", titles = [], leads = [], nTitles = [], nLeads = [];
           data.content.replace(/\r/g,"").split("\n").forEach(l => {
             l = l.trim(); if (!l) return;
             const i = l.indexOf(":"); if (i < 0) return;
             const k = l.slice(0, i).trim(), v = l.slice(i + 1).trim();
             if (k === "윗줄") eyebrow = v;
+            else if (k === "수능라벨") satTag = v;
             else if (k === "제목") titles.push(v);
             else if (k === "리드") leads.push(v);
+            else if (k === "내신라벨") naeTag = v;
+            else if (k === "내신제목") nTitles.push(v);
+            else if (k === "내신리드") nLeads.push(v);
           });
+          const mark = (t) => escT(t).replace(/\*\*(.+?)\*\*/g, '<span class="mark">$1</span>');
+          const bold = (t) => escT(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
           if (eyebrow) document.getElementById("heroEyebrow").textContent = eyebrow;
-          if (titles.length) document.getElementById("heroH1").innerHTML =
-            titles.map(t => escT(t).replace(/\*\*(.+?)\*\*/g, '<span class="mark">$1</span>')).join("<br />");
-          if (leads.length) document.getElementById("heroLead").innerHTML =
-            leads.map(x => escT(x).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")).join("<br />");
+          if (satTag) document.getElementById("satTag").textContent = satTag;
+          if (titles.length) document.getElementById("heroH1").innerHTML = titles.map(mark).join("<br />");
+          if (leads.length) document.getElementById("heroLead").innerHTML = leads.map(bold).join("<br />");
+          if (nTitles.length || nLeads.length) {
+            if (naeTag) document.getElementById("naesinTag").textContent = naeTag;
+            if (nTitles.length) document.getElementById("naesinTitle").innerHTML = nTitles.map(mark).join("<br />");
+            if (nLeads.length) document.getElementById("naesinLead").innerHTML = nLeads.map(bold).join("<br />");
+          } else {
+            document.getElementById("naesinBlock").style.display = "none";
+          }
         }
     });
 

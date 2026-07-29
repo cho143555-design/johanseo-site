@@ -331,3 +331,16 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   font-family:var(--serif); font-size:16px; font-weight:800; color:var(--ink);
   padding-bottom:8px; margin-bottom:12px; border-bottom:1.5px solid var(--ink);
 }
+
+/* ---------- 히어로 수능/내신 이단 ---------- */
+.hero-tag {
+  font-family:var(--sans); font-size:13px; font-weight:800; letter-spacing:0.14em;
+  color:var(--jumuk); margin-bottom:10px;
+}
+.hero-naesin {
+  margin-top:34px; padding-top:28px; border-top:1px dashed var(--line);
+}
+.naesin-title {
+  font-family:var(--serif); font-size:clamp(21px, 3.4vw, 30px); font-weight:800;
+  line-height:1.5; letter-spacing:-0.02em; color:var(--ink); margin-bottom:12px;
+}
