@@ -94,8 +94,8 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 480px) { .brand-line { font-size: 13.5px; } }
 .hero h1 {
   font-family: var(--serif); font-weight: 800;
-  font-size: clamp(29px, 5.2vw, 50px);
-  line-height: 1.26; letter-spacing: -0.04em;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 1.34; letter-spacing: -0.04em;
   word-break: keep-all; text-wrap: balance;
   margin-bottom: 22px;
 }
@@ -349,9 +349,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 @media (min-width: 900px) { .hero-naesin { margin-top:96px; } }
 .naesin-title {
   font-family:var(--serif); font-weight:800;
-  font-size:clamp(20px, 3.5vw, 34px);
-  line-height:1.42; letter-spacing:-0.035em;
+  font-size:clamp(29px, 5.2vw, 50px);
+  line-height:1.26; letter-spacing:-0.04em;
   word-break:keep-all; color:var(--ink);
-  margin-bottom:18px;
+  margin-bottom:22px;
 }
 
