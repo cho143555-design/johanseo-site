@@ -230,6 +230,33 @@ Q: 다음 질문
             </div>
           </div>
 
+          <!-- 만점 축하 문구 -->
+          <div>
+            <p class="section-label">만점 축하 문구</p>
+            <h2 class="section-title" style="margin-bottom:16px">다 맞았을 때 뜨는 말 고치기</h2>
+            <div class="panel">
+              <div class="field">
+                <label for="perfText">문구 목록 <span class="mini">— 한 줄에 하나씩. 채점에서 만점이면 무작위로 하나가 뜹니다</span></label>
+                <textarea id="perfText" style="min-height:260px" placeholder="[만점]
+다 맞았네! 수고했어 👏
+만점 🎉🎉 오늘은 좀 뿌듯해해도 됨
+
+[재풀이]
+복수 성공 🔥 아까 틀린 거 싹 다 맞음"></textarea>
+              </div>
+              <p class="mini" style="margin-bottom:12px">
+                <b>[만점]</b> 아래 줄들 = 처음 채점해서 다 맞았을 때 ·
+                <b>[재풀이]</b> 아래 줄들 = 틀린 문항 다시 풀어서 다 맞았을 때
+                <br />빈 줄은 무시됩니다. 한 줄이 문구 하나입니다.
+              </p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                <button class="btn ghost" id="perfCountBtn">개수 확인</button>
+                <button class="btn jumuk" id="perfSaveBtn">저장 (즉시 반영)</button>
+              </div>
+              <p class="msg" id="perfMsg" style="display:none"></p>
+            </div>
+          </div>
+
           <!-- 학생 명단 -->
           <div>
             <p class="section-label">학생 명단</p>
@@ -381,6 +408,7 @@ Q: 다음 질문
       await loadTeacherEditor();
       await loadFaqEditor();
       await loadColumnEditor();
+      await loadPerfectEditor();
     }
 
     // ---- 인덱스 로딩 (현황판 + 드롭다운 전부) ----
@@ -818,6 +846,35 @@ Q: 다음 질문
       });
       return html;
     }
+    async function loadPerfectEditor() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "perfect_msgs").maybeSingle();
+      if (data && data.content) $("perfText").value = data.content;
+    }
+    function perfStats(text) {
+      let mode = "normal", n = 0, r = 0;
+      text.replace(/\r/g, "").split("\n").forEach(l => {
+        const t = l.trim(); if (!t) return;
+        if (/^\[재풀이\]/.test(t)) { mode = "retry"; return; }
+        if (/^\[만점\]/.test(t)) { mode = "normal"; return; }
+        if (mode === "retry") r++; else n++;
+      });
+      return { n, r };
+    }
+    $("perfCountBtn").addEventListener("click", () => {
+      const { n, r } = perfStats($("perfText").value);
+      msg($("perfMsg"), `만점 문구 ${n}개 · 재풀이 문구 ${r}개로 인식됩니다.`, n === 0);
+    });
+    $("perfSaveBtn").addEventListener("click", async () => {
+      msg($("perfMsg"), "", false);
+      const content = $("perfText").value;
+      const { n, r } = perfStats(content);
+      if (!n) return msg($("perfMsg"), "[만점] 아래에 문구가 최소 1개 필요합니다.", true);
+      const { error } = await sb.from("site_content").upsert(
+        { key: "perfect_msgs", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) return msg($("perfMsg"), "저장 실패: " + error.message, true);
+      toast(`저장 완료 — 만점 ${n}개 · 재풀이 ${r}개 반영됨`);
+    });
+
     async function loadColumnEditor() {
       const { data } = await sb.from("site_content").select("content").eq("key", "columns").maybeSingle();
       if (data && data.content) $("colText").value = data.content;

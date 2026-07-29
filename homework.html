@@ -160,6 +160,31 @@
     const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
     const p3 = (n) => String(n).padStart(3, "0");
+    // ── 만점 축하 문구 (admin에서 수정 가능. 아래는 저장본이 없을 때 쓰는 기본값) ──
+    let PERFECT_MSGS = [
+      "다 맞았네! 수고했어 👏",
+      "다 맞았네~! 구웃 👍 (쓰담쓰담)",
+      "만점 🎉🎉 오늘은 좀 뿌듯해해도 됨",
+      "틀린 문항을 찾을 수 없습니다 🔍❌",
+      "전부 정답. 채점할 게 없어서 심심하네 😌",
+      "만점자 등장 🚨 다들 비켜",
+      "오늘 컨디션 뭔데 😮 다 맞았어",
+      "완벽 ✨ 이 기세로 다음 것도 가자",
+      "ㅊㅋㅊㅋ 🎊 오답 0개",
+      "이 정도면 오늘 하루 자랑해도 됨 😎",
+      "다 맞음. 이의 없음 👑",
+      "선생님이 흐뭇하다 🏆",
+      "채점기: \"더 이상 할 일이 없습니다\" 🤖✨",
+      "전부 정답이라 할 말이 없다… 잘했어 👏👏",
+    ];
+    let RETRY_PERFECT_MSGS = [
+      "다시 풀어서 전부 정답 💪 이게 진짜 실력이지",
+      "복수 성공 🔥 아까 틀린 거 싹 다 맞음",
+      "재도전 만점 ✨ 오답 소화 완료",
+      "두 번째엔 다 맞았네 👏 이렇게 하는 거야",
+    ];
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
     const CH_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','인문·독서','인문·예술','사회','과학','기술','과학·기술','주제 통합','예술','복합 지문','독서론','미니모의고사 1회','미니모의고사 2회','고전 시가','현대 소설','고전 산문','갈래 복합'];
 
     let bankIdx = {};     // { 교재: [{chapter,min_no,max_no}] }
@@ -440,7 +465,7 @@
           (current.kind === "range" || (current.kind === "set" && current.start_no) ? p3(n) : String(n));
         $("wrongList").innerHTML = json.wrong_questions.length
           ? `틀린 문항: <b>${json.wrong_questions.map(fmt).join(", ")}번</b>`
-          : `<b>모두 정답입니다. 훌륭해요!</b>`;
+          : `<b class="perfect-msg">${pick(retryMode ? RETRY_PERFECT_MSGS : PERFECT_MSGS)}</b>`;
         lastWrong = json.wrong_questions.slice();
         lastPlus = json.plus_no || null;
         $("retryBtn").style.display = lastWrong.length ? "" : "none";
@@ -501,12 +526,27 @@
       });
       return html;
     }
+    async function loadPerfectMsgs() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "perfect_msgs").maybeSingle();
+      if (!data || !data.content) return;
+      let mode = "normal"; const normal = [], retry = [];
+      data.content.replace(/\r/g, "").split("\n").forEach(l => {
+        const t = l.trim();
+        if (!t) return;
+        if (/^\[재풀이\]/.test(t)) { mode = "retry"; return; }
+        if (/^\[만점\]/.test(t)) { mode = "normal"; return; }
+        (mode === "retry" ? retry : normal).push(t);
+      });
+      if (normal.length) PERFECT_MSGS = normal;
+      if (retry.length) RETRY_PERFECT_MSGS = retry;
+    }
+
     async function loadGuide() {
       const { data, error } = await sb.from("site_content").select("content").eq("key", "result_guide").maybeSingle();
       if (!error && data && data.content) $("fbBox").innerHTML = renderGuide(data.content);
     }
 
-    (async () => { await loadIndex(); await loadSets(); loadGuide(); })();
+    (async () => { await loadIndex(); await loadSets(); loadGuide(); loadPerfectMsgs(); })();
   </script>
   <script>
     (() => {

@@ -355,3 +355,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   margin-bottom:22px;
 }
 
+
+/* 만점 축하 문구 */
+.perfect-msg {
+  display:inline-block; font-size:17px; line-height:1.6;
+  color:var(--jumuk); letter-spacing:-0.01em;
+}
