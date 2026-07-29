@@ -94,8 +94,8 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 480px) { .brand-line { font-size: 13.5px; } }
 .hero h1 {
   font-family: var(--serif); font-weight: 800;
-  font-size: clamp(30px, 5.4vw, 52px);
-  line-height: 1.3; letter-spacing: -0.035em;
+  font-size: clamp(29px, 5.2vw, 50px);
+  line-height: 1.26; letter-spacing: -0.04em;
   word-break: keep-all; text-wrap: balance;
   margin-bottom: 22px;
 }
@@ -105,10 +105,10 @@ a { color: inherit; text-decoration: none; }
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
 .hero .lead {
-  font-size: 16px; line-height: 1.8; color: var(--ink-soft); max-width: 520px;
+  font-size: 15.5px; line-height: 1.85; color: var(--ink-soft); max-width: 480px;
   word-break: keep-all; margin-bottom: 0;
 }
-.hero .cta-row { margin-top: 32px; }
+.hero .cta-row { margin-top: 30px; }
 .hero .cta-row { display: flex; gap: 14px; flex-wrap: wrap; }
 
 /* 원고지 격자 배경 (히어로 우측) */
@@ -346,11 +346,16 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   content:""; flex:1; max-width:52px; height:1px; background:var(--line);
 }
 .hero-naesin {
-  margin-top:38px; padding-top:30px; border-top:1px solid var(--line);
+  margin-top:30px; padding:17px 19px 18px;
+  border:1px solid var(--line); border-radius:var(--radius);
+  background:rgba(255,255,255,0.34);
+  max-width:520px;
 }
+.hero-naesin .hero-tag { margin-bottom:9px; }
+.hero-naesin .hero-tag::after { max-width:34px; }
 .naesin-title {
-  font-family:var(--serif); font-size:clamp(20px, 3.2vw, 26px); font-weight:700;
-  line-height:1.55; letter-spacing:-0.03em; color:var(--ink);
-  word-break:keep-all; margin-bottom:12px;
+  font-size:15.5px; font-weight:700; line-height:1.72; letter-spacing:-0.01em;
+  color:var(--ink); word-break:keep-all; margin-bottom:0;
 }
+.hero-naesin .lead { font-size:14.5px; margin-top:7px; }
 
