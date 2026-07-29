@@ -85,15 +85,17 @@ a { color: inherit; text-decoration: none; }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
 /* ---------- 히어로 ---------- */
-.hero { padding: 64px 0 56px; position: relative; overflow: hidden; }
-.hero .eyebrow {
-  font-family: var(--serif); font-size: 13.5px; color: var(--ink-soft);
-  letter-spacing: .14em; margin-bottom: 26px; font-weight: 700;
+.hero { padding: 52px 0 56px; position: relative; overflow: hidden; }
+/* 상단바 브랜드 (히어로에 있던 브랜드 줄을 여기로) */
+.brand-line {
+  font-family: var(--serif); font-size: 15px; font-weight: 800;
+  letter-spacing: -0.01em; color: var(--ink);
 }
+@media (max-width: 480px) { .brand-line { font-size: 13.5px; } }
 .hero h1 {
   font-family: var(--serif); font-weight: 800;
-  font-size: clamp(31px, 5.6vw, 56px);
-  line-height: 1.28; letter-spacing: -0.035em;
+  font-size: clamp(30px, 5.4vw, 52px);
+  line-height: 1.3; letter-spacing: -0.035em;
   word-break: keep-all; text-wrap: balance;
   margin-bottom: 22px;
 }
@@ -103,7 +105,7 @@ a { color: inherit; text-decoration: none; }
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
 .hero .lead {
-  font-size: 16px; line-height: 1.78; color: var(--ink-soft); max-width: 520px;
+  font-size: 16px; line-height: 1.8; color: var(--ink-soft); max-width: 520px;
   word-break: keep-all; margin-bottom: 0;
 }
 .hero .cta-row { margin-top: 32px; }
@@ -347,8 +349,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   margin-top:38px; padding-top:30px; border-top:1px solid var(--line);
 }
 .naesin-title {
-  font-family:var(--serif); font-size:clamp(19px, 3.1vw, 25px); font-weight:700;
+  font-family:var(--serif); font-size:clamp(20px, 3.2vw, 26px); font-weight:700;
   line-height:1.55; letter-spacing:-0.03em; color:var(--ink);
-  word-break:keep-all; margin-bottom:10px;
+  word-break:keep-all; margin-bottom:12px;
 }
-.hero-naesin .lead { font-size:15px; }
+
