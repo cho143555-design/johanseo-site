@@ -384,3 +384,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px;
 }
 .ask-row .btn { padding: 10px 20px; font-size: 14px; }
+
+/* 첫 화면 문구 로딩 — 옛 문구가 잠깐 비치는 현상 방지 */
+.hero #satTag, .hero #heroH1, .hero #heroLead, .hero #naesinBlock {
+  transition: opacity .18s ease;
+}
+.hero.loading #satTag, .hero.loading #heroH1,
+.hero.loading #heroLead, .hero.loading #naesinBlock { opacity: 0; }
