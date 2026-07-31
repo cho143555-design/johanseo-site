@@ -257,6 +257,28 @@ Q: 다음 질문
             </div>
           </div>
 
+          <!-- 질문칸 문구 -->
+          <div>
+            <p class="section-label">질문칸 문구</p>
+            <h2 class="section-title" style="margin-bottom:16px">채점 후 질문 안내 문구 고치기</h2>
+            <div class="panel">
+              <div class="field">
+                <label for="askText2">내용 <span class="mini">— 저장하면 채점 화면에 즉시 반영</span></label>
+                <textarea id="askText2" style="min-height:200px" placeholder="제목: 혼자 해결이 안 되면, 질문 남기기
+설명: 첫 문단입니다.
+설명: 둘째 문단입니다.
+입력예시: 예) 12번 ③이 왜 틀렸는지 모르겠어요.
+완료문구: 질문이 전달됐어. 확인하고 카톡으로 답 줄게 👌"></textarea>
+              </div>
+              <p class="mini" style="margin-bottom:12px">
+                <b>제목:</b> 질문칸 제목 · <b>설명:</b> 안내 문단(줄마다 하나 = 문단 하나, <b>**강조**</b> 가능) ·
+                <b>입력예시:</b> 입력창에 흐리게 보이는 예시 · <b>완료문구:</b> 질문을 보낸 뒤 뜨는 문구
+              </p>
+              <button class="btn jumuk" id="askSaveBtn" style="width:100%">저장 (즉시 반영)</button>
+              <p class="msg" id="askMsg2" style="display:none"></p>
+            </div>
+          </div>
+
           <!-- 학생 명단 -->
           <div>
             <p class="section-label">학생 명단</p>
@@ -357,6 +379,19 @@ Q: 다음 질문
             <div id="subPager" style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px"></div>
           </div>
 
+          <!-- 학생 질문함 -->
+          <div>
+            <p class="section-label">학생 질문</p>
+            <h2 class="section-title" style="margin-bottom:16px">채점 후 남긴 질문</h2>
+            <div class="panel">
+              <p class="mini" style="margin-bottom:14px">질문이 오면 디스코드로도 알림이 갑니다. 답변은 카톡으로 하고, 처리한 질문은 [완료] 처리하세요.</p>
+              <div id="qList" class="admin-grid"></div>
+              <div style="display:flex;justify-content:center;margin-top:14px">
+                <button class="btn ghost" id="qMoreBtn" style="display:none;padding:8px 18px;font-size:13px">더 보기</button>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -409,6 +444,8 @@ Q: 다음 질문
       await loadFaqEditor();
       await loadColumnEditor();
       await loadPerfectEditor();
+      await loadQuestions();
+      await loadAskEditor();
     }
 
     // ---- 인덱스 로딩 (현황판 + 드롭다운 전부) ----
@@ -846,6 +883,52 @@ Q: 다음 질문
       });
       return html;
     }
+    let qLimit = 10;
+    async function loadAskEditor() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "ask_box").maybeSingle();
+      if (data && data.content) $("askText2").value = data.content;
+    }
+    $("askSaveBtn").addEventListener("click", async () => {
+      msg($("askMsg2"), "", false);
+      const content = $("askText2").value;
+      if (!content.trim()) return msg($("askMsg2"), "내용이 비어 있습니다.", true);
+      if (!/^\s*설명\s*:/m.test(content)) return msg($("askMsg2"), "'설명:' 줄이 최소 1개 필요합니다.", true);
+      const { error } = await sb.from("site_content").upsert(
+        { key: "ask_box", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) return msg($("askMsg2"), "저장 실패: " + error.message, true);
+      toast("저장 완료 — 채점 화면에 즉시 반영됨");
+    });
+
+    async function loadQuestions() {
+      const { data, count } = await sb.from("questions")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(0, qLimit - 1);
+      const rows = data || [];
+      $("qList").innerHTML = rows.length ? rows.map(q => `
+        <div class="set-item" style="${q.answered ? "opacity:.55" : ""}"><div>
+          <div class="code">${q.student_name}${q.answered ? ' <span class="pill">완료</span>' : ""}</div>
+          <div class="meta">${q.label || "(과제 정보 없음)"} · ${new Date(q.created_at).toLocaleString("ko-KR")}</div>
+          <div style="margin-top:7px;font-size:14.5px;line-height:1.7;white-space:pre-wrap">${
+            (q.question || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div></div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <button class="btn ghost" style="padding:7px 13px;font-size:13px" onclick="qDone('${q.id}', ${!q.answered})">${q.answered ? "되돌리기" : "완료"}</button>
+            <button class="btn ghost" style="padding:7px 13px;font-size:13px" onclick="qDel('${q.id}')">삭제</button>
+          </div></div>`).join("") : '<p class="meta">아직 들어온 질문이 없습니다.</p>';
+      $("qMoreBtn").style.display = (count || 0) > qLimit ? "" : "none";
+      $("qMoreBtn").textContent = `더 보기 (총 ${count || 0}개)`;
+    }
+    $("qMoreBtn").addEventListener("click", () => { qLimit += 10; loadQuestions(); });
+    window.qDone = async (id, val) => {
+      await sb.from("questions").update({ answered: val }).eq("id", id);
+      toast(val ? "완료 처리됨" : "완료 해제됨"); loadQuestions();
+    };
+    window.qDel = async (id) => {
+      if (!confirm("이 질문을 삭제할까요?")) return;
+      await sb.from("questions").delete().eq("id", id);
+      toast("삭제됨"); loadQuestions();
+    };
+
     async function loadPerfectEditor() {
       const { data } = await sb.from("site_content").select("content").eq("key", "perfect_msgs").maybeSingle();
       if (data && data.content) $("perfText").value = data.content;
