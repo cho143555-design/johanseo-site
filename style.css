@@ -491,3 +491,38 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 /* 히어로 리드: 한 문단이 되었으니 읽기 좋은 폭으로 */
 .hero .lead { max-width: 520px; }
+
+/* ── 채점 화면 정돈 (2026-08-01) ── */
+.hw-title{font-family:var(--serif);font-weight:800;font-size:clamp(27px,6vw,34px);
+  letter-spacing:-.03em;color:var(--ink);margin:0 0 16px}
+#habitWrap{margin:0 0 30px}
+#habitWrap .habit-core{background:transparent;border:0;border-left:3px solid var(--jumuk);
+  border-radius:0;padding:3px 2px 4px 15px}
+#habitWrap .habit-core p{font-size:13.5px;line-height:1.7}
+#habitWrap .habit-core p b{font-size:14.5px}
+#habitWrap #habitDetails{background:transparent;border:0;border-radius:0;
+  border-bottom:1px solid var(--line);margin-top:12px;box-shadow:none}
+#habitWrap #habitDetails[open]{border-color:var(--line);box-shadow:none}
+#habitWrap #habitDetails>summary{padding:13px 2px;font-size:13.5px;font-weight:700;color:var(--ink-soft)}
+#habitWrap #habitDetails[open]>summary{color:var(--jumuk)}
+body .panel{background:#fbf7ec;border:1px solid var(--line);padding:30px 26px 32px;
+  box-shadow:0 1px 0 rgba(26,23,20,.05)}
+body .field label{font-size:12.5px;font-weight:700;letter-spacing:.05em;color:var(--ink-soft)}
+body .field input,body .field select{background:#fffef9}
+body .tabs{display:inline-flex;gap:0;border:1.5px solid var(--ink);border-radius:2px;
+  overflow:hidden;background:transparent;padding:0}
+body .tabs .tab{border:0;border-radius:0;background:transparent;color:var(--ink-soft);
+  font-weight:700;font-size:14px;padding:11px 20px;margin:0}
+body .tabs .tab+.tab{border-left:1.5px solid var(--ink)}
+body .tabs .tab.on{background:var(--ink);color:var(--paper)}
+body .hint{font-size:12.5px}
+
+/* ── 데스크톱 히어로 좌우분할 (2026-08-01) ── */
+@media (min-width:1024px){
+  .hero .wrap{max-width:1080px;display:grid;grid-template-columns:1fr 1fr;gap:0 72px;align-items:start}
+  .hero-naesin{margin-top:6px;padding-left:72px;border-left:1px solid var(--line)}
+  .hero h1,.naesin-title{font-size:34px;line-height:1.34}
+  .hero .lead{font-size:15px}
+  .hero .cta-row{grid-column:1/-1;margin-top:48px}
+  .wongoji{right:3%;top:auto;bottom:-40px;opacity:.2}
+}
