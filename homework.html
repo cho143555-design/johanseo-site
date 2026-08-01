@@ -128,6 +128,42 @@
           <div class="wrong-list" id="wrongList"></div>
           <button class="btn jumuk" id="retryBtn" style="margin-top:16px;display:none">틀린 문항만 다시 풀기</button>
 
+          <!-- 기억해둘 문제 담기 -->
+          <div class="keep-box" id="keepBox" style="display:none">
+            <h4>기억해둘 문제 담기</h4>
+            <p class="keep-lead" id="keepLead">전부 담을 필요는 없어. <b>다시 만나도 또 틀릴 것 같은 문제</b>만 골라. 번호를 누르면 메모를 남길 수 있어.</p>
+            <div class="keep-chips" id="keepChips"></div>
+
+            <div class="keep-pin" id="keepPin">
+              <p class="mini" style="margin-bottom:8px">선생님께 받은 <b>4자리 번호</b>를 한 번만 입력해줘. 다음부턴 안 물어봐.</p>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="keepPinInput" type="tel" inputmode="numeric" maxlength="4" placeholder="0000" />
+                <button type="button" class="btn tiny jumuk" id="keepPinBtn">확인</button>
+              </div>
+              <p class="msg" id="keepPinMsg" style="display:none;margin-top:8px"></p>
+            </div>
+
+            <div class="keep-form" id="keepForm">
+              <textarea id="keepNote" placeholder="예) 3문단을 대충 읽었다 / '상충한다'를 반대로 읽었다 / 〈보기〉를 안 보고 풀었다"></textarea>
+              <div class="row">
+                <span class="mini" id="keepFormMsg">한 줄이면 충분해. 비워둬도 담겨.</span>
+                <button type="button" class="btn ghost tiny" id="keepCancel">취소</button>
+                <button type="button" class="btn jumuk tiny" id="keepSave">담기</button>
+              </div>
+            </div>
+
+            <details class="keep-extra">
+              <summary>맞았지만 헷갈렸던 문제도 담기</summary>
+              <p class="keep-lead" style="margin-top:9px">찍어서 맞았거나 근거 없이 맞은 문제는 틀린 문제보다 위험해. 번호를 직접 적어줘.</p>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="keepExtraNo" type="number" min="1" placeholder="번호" />
+                <button type="button" class="btn ghost tiny" id="keepExtraBtn">이 번호 담기</button>
+              </div>
+            </details>
+
+            <a class="keep-link" href="notebox.html" id="keepLink">담아둔 문제 보러 가기 →</a>
+          </div>
+
           <div class="ask-box" id="askBox">
             <h4 id="askTitle">혼자 해결이 안 되면, 질문 남기기</h4>
             <div id="askLeadBox">
@@ -150,6 +186,8 @@
 
   <section style="padding-top:0">
     <div class="wrap" style="max-width:640px">
+      <p style="margin:0 0 14px"><a class="keep-link" style="margin-top:0" href="notebox.html">기억해둘 문제 보관함 열기 →</a></p>
+
       <details class="faq-item" id="guideDetails">
         <summary>국어 실력을 늘리고 싶다면 — 사고과정 피드백</summary>
         <div class="faq-body">
@@ -505,6 +543,7 @@
           : (($("setSelect").selectedOptions[0]?.textContent || "").trim()
              || [current.material, current.chapter, current.section].filter(Boolean).join(" "));
         if (retryMode) lastLabel += " · 오답 재풀이";
+        buildKeep(json.wrong_questions, json.plus_no || null);
         $("askMsg").style.display = "none";
         $("result").classList.add("show");
         $("result").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -619,6 +658,106 @@
       });
       return html;
     }
+    // ═══ 기억해둘 문제 담기 ═══════════════════════════════
+    const NB = { pin: "", target: null, saved: new Set(), ctx: null };
+    const nbKey = (name) => "nb_pin_" + name;
+    const nbCall = (body) => fetch(`${window.SUPABASE_URL}/functions/v1/notebox`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${window.SUPABASE_ANON_KEY}` },
+      body: JSON.stringify(body)
+    }).then(async (r) => ({ ok: r.ok, data: await r.json() }));
+
+    function keepCtx() {
+      const name = $("name").value.trim();
+      let material = "", chapter = "", section = "";
+      if (!current) return null;
+      if (current.kind === "range" || current.kind === "section") {
+        material = current.material || ""; chapter = current.chapter || ""; section = current.section || "";
+      } else {
+        const o = $("setSelect").selectedOptions[0];
+        material = (o && o.dataset.mat) || ""; chapter = (o && o.dataset.ch) || "";
+        section = (o && o.dataset.sec) || "";
+        if (!material) { material = "(과제)"; chapter = current.set_code || ""; }
+      }
+      return { name, material, chapter, section, label: lastLabel || "" };
+    }
+
+    function buildKeep(wrongs, plusNo) {
+      NB.saved = new Set();
+      NB.ctx = keepCtx();
+      const box = $("keepBox");
+      if (!NB.ctx || !NB.ctx.name) { box.style.display = "none"; return; }
+      const fmt = (n) => (plusNo && n === plusNo) ? "이감+" :
+        ((current.kind === "range" || (current.kind === "set" && current.start_no)) ? p3(n) : String(n));
+      $("keepChips").innerHTML = (wrongs || []).map(n =>
+        `<button type="button" class="keep-chip" data-no="${n}">${fmt(n)}</button>`).join("");
+      $("keepChips").querySelectorAll(".keep-chip").forEach(b =>
+        b.addEventListener("click", () => openKeep(+b.dataset.no, false, b)));
+      NB.pin = localStorage.getItem(nbKey(NB.ctx.name)) || "";
+      $("keepForm").classList.remove("show");
+      $("keepPin").classList.remove("show");
+      $("keepLead").style.display = (wrongs && wrongs.length) ? "" : "none";
+      box.style.display = "";
+    }
+
+    function openKeep(no, wasCorrect, chipEl) {
+      if (NB.saved.has(no)) return;
+      NB.target = { no, wasCorrect, chipEl: chipEl || null };
+      $("keepChips").querySelectorAll(".keep-chip").forEach(x => x.classList.remove("on"));
+      if (chipEl) chipEl.classList.add("on");
+      $("keepNote").value = "";
+      $("keepFormMsg").textContent = wasCorrect
+        ? `${no}번 — 맞았지만 헷갈린 문제로 담을게.` : "한 줄이면 충분해. 비워둬도 담겨.";
+      if (!NB.pin) { $("keepPin").classList.add("show"); $("keepPinInput").focus(); }
+      else { $("keepForm").classList.add("show"); $("keepNote").focus(); }
+    }
+
+    $("keepPinBtn").addEventListener("click", async () => {
+      const v = $("keepPinInput").value.trim();
+      const m = $("keepPinMsg");
+      m.style.display = "none";
+      if (!/^\d{4}$/.test(v)) { m.style.display = ""; m.className = "msg err"; m.textContent = "숫자 4자리를 입력해줘."; return; }
+      $("keepPinBtn").disabled = true;
+      const r = await nbCall({ action: "check", student_name: NB.ctx.name, pin: v });
+      $("keepPinBtn").disabled = false;
+      if (!r.ok) { m.style.display = ""; m.className = "msg err"; m.textContent = r.data.error || "확인에 실패했어."; return; }
+      NB.pin = v; localStorage.setItem(nbKey(NB.ctx.name), v);
+      $("keepPin").classList.remove("show");
+      $("keepForm").classList.add("show"); $("keepNote").focus();
+    });
+
+    $("keepCancel").addEventListener("click", () => {
+      $("keepForm").classList.remove("show");
+      $("keepChips").querySelectorAll(".keep-chip").forEach(x => x.classList.remove("on"));
+      NB.target = null;
+    });
+
+    $("keepSave").addEventListener("click", async () => {
+      if (!NB.target || !NB.ctx) return;
+      const btn = $("keepSave"); btn.disabled = true; btn.textContent = "담는 중…";
+      const r = await nbCall({
+        action: "save", student_name: NB.ctx.name, pin: NB.pin,
+        question_no: NB.target.no,
+        material: NB.ctx.material, chapter: NB.ctx.chapter, section: NB.ctx.section,
+        source_label: NB.ctx.label, was_correct: !!NB.target.wasCorrect,
+        note: $("keepNote").value.trim()
+      });
+      btn.disabled = false; btn.textContent = "담기";
+      const m = $("keepFormMsg");
+      if (!r.ok) { m.textContent = r.data.error || "담기에 실패했어."; return; }
+      NB.saved.add(NB.target.no);
+      if (NB.target.chipEl) { NB.target.chipEl.classList.remove("on"); NB.target.chipEl.classList.add("done"); }
+      $("keepForm").classList.remove("show");
+      $("keepExtraNo").value = "";
+      NB.target = null;
+    });
+
+    $("keepExtraBtn").addEventListener("click", () => {
+      const n = parseInt($("keepExtraNo").value, 10);
+      if (!n || n < 1) return;
+      openKeep(n, true, null);
+    });
+
     async function loadHabit() {
       const { data } = await sb.from("site_content").select("content").eq("key", "habit_guide").maybeSingle();
       if (!data || !data.content) return;

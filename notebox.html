@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기억해둘 문제 보관함 — 조한서 국어</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="과제 채점 — 조한서 국어" />
+  <meta property="og:description" content="교재·범위 고르고 답 입력하면 바로 채점됩니다." />
+  <meta property="og:image" content="https://johanseo.com/og.png" />
+  <meta property="og:url" content="https://johanseo.com/homework" />
+
+  <link rel="icon" type="image/png" href="seal.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f6f1e7" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="조한서 국어" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .tabs { display:flex; gap:8px; margin-bottom:22px; }
+    .tab {
+      padding:9px 16px; border:1.5px solid var(--line); background:var(--paper);
+      cursor:pointer; font-weight:600; font-size:14px; border-radius:var(--radius);
+      color:var(--ink-soft); font-family:var(--sans);
+    }
+    .tab.on { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+    .hint { font-size:13px; color:var(--ink-soft); margin-top:-12px; margin-bottom:18px; }
+    .fb { margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); }
+    .fb h4 { font-family:var(--serif); font-size:17px; font-weight:800; margin-bottom:12px; }
+    .fb ol { padding-left:20px; }
+    .fb li { font-size:14px; color:var(--ink-soft); margin-bottom:9px; line-height:1.65; }
+    .fb li b { color:var(--ink); }
+    .fb-tip { margin-top:24px; padding-top:18px; border-top:1px dashed var(--line); }
+    .fb p, .fb-tip p { font-size:14px; color:var(--ink-soft); line-height:1.75; margin-bottom:13px; }
+    .fb p b, .fb-tip p b { color:var(--ink); }
+    .note-card { background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--jumuk);
+      border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
+      font-size:14px; line-height:1.7; color:var(--ink); }
+    .note-card .no { font-family:var(--serif); font-weight:800; color:var(--jumuk); margin-right:8px; }
+    .note-card .aside { display:block; margin-top:8px; font-size:13px; color:var(--ink-soft); }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <a class="brand" href="index.html">조한서 수능 · 내신 국어</a>
+      <nav class="nav">
+        <a href="index.html">홈</a>
+        <a href="homework.html">과제 채점</a>
+      </nav>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap" style="max-width:640px">
+      <p class="section-label">기억해둘 문제</p>
+
+      <details class="faq-item" id="nbGuideBox" style="margin-bottom:18px;display:none">
+        <summary id="nbGuideTitle">이걸 왜 모으는지 — 먼저 읽어봐</summary>
+        <div class="faq-body"><div class="fb" id="nbGuide" style="margin-top:0"></div></div>
+      </details>
+
+      <!-- 이름 + 번호 -->
+      <div class="panel nb-gate" id="nbGate">
+        <div class="field">
+          <label for="nbName">이름</label>
+          <input id="nbName" type="text" placeholder="예: 조한서" autocomplete="off" list="nbNameList" />
+          <datalist id="nbNameList"></datalist>
+        </div>
+        <div class="field">
+          <label for="nbPin">확인번호 4자리</label>
+          <input id="nbPin" type="tel" inputmode="numeric" maxlength="4" placeholder="0000" />
+          <p class="hint" style="margin:8px 0 0">선생님께 받은 번호야. 한 번 넣으면 다음부턴 안 물어봐.</p>
+        </div>
+        <button class="btn jumuk" id="nbOpen" style="width:100%">보관함 열기</button>
+        <p class="msg" id="nbMsg" style="display:none;margin-top:12px"></p>
+      </div>
+
+      <!-- 목록 -->
+      <div id="nbView" style="display:none">
+        <p class="nb-count" id="nbCount"></p>
+        <div id="nbList"></div>
+        <div style="margin-top:22px;display:flex;gap:9px;flex-wrap:wrap">
+          <a class="btn ghost" href="homework.html">채점하러 가기</a>
+          <button type="button" class="btn ghost" id="nbLogout">다른 사람으로 열기</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap" style="justify-content:flex-end"><span>조한서 수능 · 내신 국어</span></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    const esc = (t) => String(t == null ? "" : t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const nbKey = (name) => "nb_pin_" + name;
+    let ME = { name: "", pin: "" };
+
+    const call = (body) => fetch(`${window.SUPABASE_URL}/functions/v1/notebox`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${window.SUPABASE_ANON_KEY}` },
+      body: JSON.stringify(body)
+    }).then(async (r) => ({ ok: r.ok, data: await r.json() }));
+
+    function say(msg, bad) {
+      const m = $("nbMsg");
+      if (!msg) { m.style.display = "none"; return; }
+      m.style.display = ""; m.className = "msg " + (bad ? "err" : "ok"); m.textContent = msg;
+    }
+
+    // 이름 자동완성
+    (async () => {
+      try {
+        const { data } = await sb.from("student_names").select("name").order("name");
+        if (data) $("nbNameList").innerHTML = data.map(r => `<option value="${esc(r.name)}">`).join("");
+      } catch (e) {}
+    })();
+
+    // 안내문
+    (async () => {
+      try {
+        const { data } = await sb.from("site_content").select("content").eq("key", "notebox_guide").maybeSingle();
+        if (!data || !data.content) return;
+        $("nbGuide").innerHTML = renderGuide(data.content);
+        const first = data.content.split("\n").find(l => l.trim().startsWith("# "));
+        if (first) $("nbGuideTitle").textContent = first.replace(/^#\s*/, "").trim();
+        $("nbGuideBox").style.display = "";
+      } catch (e) {}
+    })();
+
+    function renderGuide(text) {
+      const bold = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+      let html = "";
+      text.replace(/\r/g,"").split(/\n\s*\n/).forEach(bl => {
+        const lines = bl.split("\n").map(l => l.trim()).filter(Boolean);
+        if (!lines.length) return;
+        if (lines.length === 1 && lines[0] === "---") {
+          html += '<div style="border-top:1px dashed var(--line);margin:20px 0"></div>'; return;
+        }
+        if (lines[0].startsWith("# ")) {
+          html += `<h4>${bold(lines[0].slice(2))}</h4>`; lines.shift();
+          if (!lines.length) return;
+        }
+        html += `<p>${bold(lines.join(" "))}</p>`;
+      });
+      return html;
+    }
+
+    // ── 열기 ──
+    async function openBox(name, pin, quiet) {
+      const r = await call({ action: "list", student_name: name, pin });
+      if (!r.ok) {
+        if (!quiet) say(r.data.error || "열지 못했어.", true);
+        localStorage.removeItem(nbKey(name));
+        return false;
+      }
+      ME = { name, pin };
+      localStorage.setItem(nbKey(name), pin);
+      $("nbGate").style.display = "none";
+      $("nbView").style.display = "";
+      render(r.data.notes || []);
+      return true;
+    }
+
+    $("nbOpen").addEventListener("click", async () => {
+      const name = $("nbName").value.trim(), pin = $("nbPin").value.trim();
+      say("");
+      if (!name) return say("이름을 입력해줘.", true);
+      if (!/^\d{4}$/.test(pin)) return say("숫자 4자리를 입력해줘.", true);
+      $("nbOpen").disabled = true; $("nbOpen").textContent = "여는 중…";
+      await openBox(name, pin);
+      $("nbOpen").disabled = false; $("nbOpen").textContent = "보관함 열기";
+    });
+    $("nbPin").addEventListener("keydown", (e) => { if (e.key === "Enter") $("nbOpen").click(); });
+
+    $("nbLogout").addEventListener("click", () => {
+      if (ME.name) localStorage.removeItem(nbKey(ME.name));
+      ME = { name: "", pin: "" };
+      $("nbView").style.display = "none"; $("nbGate").style.display = "";
+      $("nbPin").value = ""; say("");
+    });
+
+    // ── 목록 그리기 ──
+    function render(notes) {
+      const live = notes.filter(n => !n.resolved);
+      const done = notes.filter(n => n.resolved);
+      $("nbCount").innerHTML = notes.length
+        ? `아직 볼 것 <b>${live.length}개</b>${done.length ? ` · 졸업한 것 ${done.length}개` : ""}`
+        : "";
+      const card = (n) => {
+        const src = [n.material, n.chapter, n.section].filter(Boolean).join(" ");
+        const ansLine = n.was_correct
+          ? "맞았지만 헷갈렸던 문제"
+          : `정답 <b>${n.correct_answer ?? "?"}</b>번 · 내가 고른 답 <b>${n.picked_answer ?? "?"}</b>번`;
+        return `<div class="nb-item ${n.resolved ? "resolved" : ""}" data-id="${n.id}">
+          <div class="nb-head"><span class="nb-no">${n.question_no}번</span>
+            <span class="nb-src">${esc(n.source_label || src)}</span></div>
+          <div class="nb-ans">${ansLine}</div>
+          <textarea class="nb-note" placeholder="왜 틀렸는지, 뭘 배웠는지 한 줄만">${esc(n.note)}</textarea>
+          <div class="nb-acts">
+            <button type="button" class="btn ghost tiny act-save">메모 저장</button>
+            <button type="button" class="btn ghost tiny act-toggle">${n.resolved ? "다시 볼래" : "이제 맞출 수 있어"}</button>
+            <span class="grow"></span>
+            <button type="button" class="btn ghost tiny act-del">빼기</button>
+            <span class="mini act-msg"></span>
+          </div></div>`;
+      };
+      let html = "";
+      if (!notes.length) {
+        html = `<div class="nb-empty">아직 담아둔 문제가 없어.<br />채점하고 나서 <b>기억해둘 문제</b>를 골라 담아봐.</div>`;
+      } else {
+        if (live.length) html += `<div class="nb-sec">아직 볼 것</div>` + live.map(card).join("");
+        if (done.length) html += `<div class="nb-sec">이제 맞출 수 있는 것</div>` + done.map(card).join("");
+      }
+      $("nbList").innerHTML = html;
+      bind();
+    }
+
+    function bind() {
+      $("nbList").querySelectorAll(".nb-item").forEach(el => {
+        const id = el.dataset.id;
+        const msg = el.querySelector(".act-msg");
+        const flash = (t) => { msg.textContent = t; setTimeout(() => { msg.textContent = ""; }, 2200); };
+        el.querySelector(".act-save").addEventListener("click", async () => {
+          const r = await call({ action: "update", student_name: ME.name, pin: ME.pin, id,
+                                 note: el.querySelector(".nb-note").value });
+          flash(r.ok ? "저장했어" : (r.data.error || "실패"));
+        });
+        el.querySelector(".act-toggle").addEventListener("click", async () => {
+          const now = el.classList.contains("resolved");
+          const r = await call({ action: "update", student_name: ME.name, pin: ME.pin, id, resolved: !now });
+          if (r.ok) reload(); else flash(r.data.error || "실패");
+        });
+        el.querySelector(".act-del").addEventListener("click", async () => {
+          const r = await call({ action: "remove", student_name: ME.name, pin: ME.pin, id });
+          if (r.ok) reload(); else flash(r.data.error || "실패");
+        });
+      });
+    }
+
+    async function reload() {
+      const r = await call({ action: "list", student_name: ME.name, pin: ME.pin });
+      if (r.ok) render(r.data.notes || []);
+    }
+
+    // 저장된 번호가 있으면 바로 열기
+    (async () => {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith("nb_pin_")) {
+          const name = k.slice(7), pin = localStorage.getItem(k);
+          $("nbName").value = name;
+          if (await openBox(name, pin, true)) return;
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

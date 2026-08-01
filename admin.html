@@ -304,6 +304,41 @@ Q: 다음 질문
             </div>
           </div>
 
+          <!-- 학생 보관함 -->
+          <div>
+            <p class="section-label">기억해둘 문제 보관함</p>
+            <h2 class="section-title" style="margin-bottom:16px">학생이 담아둔 문제와 메모</h2>
+            <div class="panel">
+              <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;margin-bottom:14px">
+                <select id="nbAdminWho"><option value="">— 전체 —</option></select>
+                <label class="mini" style="display:flex;align-items:center;gap:6px;white-space:nowrap">
+                  <input type="checkbox" id="nbAdminLive" checked /> 아직 볼 것만
+                </label>
+                <button class="btn ghost" id="nbAdminRefresh">새로고침</button>
+              </div>
+              <p class="mini" id="nbAdminCount" style="margin-bottom:12px"></p>
+              <div id="nbAdminList"></div>
+            </div>
+          </div>
+
+          <!-- 보관함 안내 문구 -->
+          <div>
+            <p class="section-label">보관함 문구</p>
+            <h2 class="section-title" style="margin-bottom:16px">보관함 안내 문구 고치기</h2>
+            <div class="panel">
+              <div class="field">
+                <label for="nbGuideText">내용 <span class="mini">— 저장하면 보관함 화면에 즉시 반영</span></label>
+                <textarea id="nbGuideText" style="min-height:220px"></textarea>
+              </div>
+              <p class="mini" style="margin-bottom:12px">
+                '결과 안내문'과 같은 문법입니다 — <b># 제목</b> · <b>**강조**</b> · 문단은 빈 줄 · <b>---</b> 구분선.
+                맨 위 <b># 제목</b> 줄이 접이식 제목으로도 쓰입니다.
+              </p>
+              <button class="btn jumuk" id="nbGuideSaveBtn" style="width:100%">저장 (즉시 반영)</button>
+              <p class="msg" id="nbGuideMsg" style="display:none"></p>
+            </div>
+          </div>
+
           <!-- 학생 명단 -->
           <div>
             <p class="section-label">학생 명단</p>
@@ -472,6 +507,8 @@ Q: 다음 질문
       await loadQuestions();
       await loadAskEditor();
       await loadHabitEditor();
+      await loadNotebox();
+      await loadNoteboxEditor();
     }
 
     // ---- 인덱스 로딩 (현황판 + 드롭다운 전부) ----
@@ -706,6 +743,7 @@ Q: 다음 질문
       students = data || [];
       $("stuList").innerHTML = students.length ? students.map(s =>
         `<span class="pill" style="padding:6px 12px;font-size:13px">${s.name}
+          <a href="#" onclick="setPin('${s.id}','${s.name}','${s.pin || ""}');return false" title="보관함 확인번호" style="color:${s.pin ? "var(--ink-soft)" : "var(--jumuk)"};margin-left:7px;font-weight:700;letter-spacing:.08em">${s.pin || "번호없음"}</a>
           <a href="#" onclick="delStudent('${s.id}','${s.name}');return false" style="color:var(--jumuk);margin-left:6px;font-weight:700">×</a></span>`
       ).join("") : '<span class="mini">아직 등록된 학생이 없습니다.</span>';
       fillBkStudents();
@@ -923,6 +961,70 @@ Q: 다음 질문
         { key: "ask_box", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
       if (error) return msg($("askMsg2"), "저장 실패: " + error.message, true);
       toast("저장 완료 — 채점 화면에 즉시 반영됨");
+    });
+
+    window.setPin = async function (id, name, cur) {
+      const v = prompt(`${name} 학생의 보관함 확인번호 (숫자 4자리).\n비우면 번호를 지웁니다.`, cur || "");
+      if (v === null) return;
+      const pin = v.trim();
+      if (pin && !/^\d{4}$/.test(pin)) return toast("숫자 4자리로 입력해 주세요.");
+      const { error } = await sb.from("students").update({ pin: pin || null }).eq("id", id);
+      if (error) return toast("저장 실패: " + error.message);
+      toast(pin ? `${name} 번호 ${pin} 로 설정` : `${name} 번호 삭제`);
+      loadStudents();
+    };
+
+    let nbAll = [];
+    async function loadNotebox() {
+      const { data, error } = await sb.from("review_notes").select("*")
+        .order("created_at", { ascending: false });
+      if (error) { $("nbAdminList").innerHTML = `<p class="mini">불러오지 못했습니다: ${error.message}</p>`; return; }
+      nbAll = data || [];
+      const names = [...new Set(nbAll.map(n => n.student_name))].sort();
+      $("nbAdminWho").innerHTML = '<option value="">— 전체 —</option>' +
+        names.map(n => `<option value="${n}">${n}</option>`).join("");
+      renderNotebox();
+    }
+    function renderNotebox() {
+      const who = $("nbAdminWho").value;
+      const onlyLive = $("nbAdminLive").checked;
+      let rows = nbAll.filter(n => (!who || n.student_name === who) && (!onlyLive || !n.resolved));
+      $("nbAdminCount").textContent = `${rows.length}건` +
+        (nbAll.length !== rows.length ? ` (전체 ${nbAll.length}건 중)` : "");
+      if (!rows.length) { $("nbAdminList").innerHTML = '<p class="mini">아직 담아둔 문제가 없습니다.</p>'; return; }
+      const esc2 = (t) => String(t == null ? "" : t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      $("nbAdminList").innerHTML = rows.map(n => {
+        const src = esc2(n.source_label || [n.material, n.chapter, n.section].filter(Boolean).join(" "));
+        const ans = n.was_correct ? "맞았지만 헷갈림"
+          : `정답 ${n.correct_answer ?? "?"} / 고른 답 ${n.picked_answer ?? "?"}`;
+        return `<div style="border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:9px;${n.resolved ? "opacity:.6" : ""}">
+          <div style="display:flex;gap:9px;align-items:baseline;flex-wrap:wrap">
+            <b style="font-family:var(--serif);font-size:15px">${esc2(n.student_name)}</b>
+            <span style="color:var(--jumuk);font-weight:700">${n.question_no}번</span>
+            <span class="mini">${src}</span>
+            <span class="mini" style="margin-left:auto">${ans}${n.resolved ? " · 졸업" : ""}</span>
+          </div>
+          ${n.note ? `<p style="margin:8px 0 0;font-size:14px;line-height:1.6">${esc2(n.note)}</p>`
+                   : '<p class="mini" style="margin:8px 0 0">— 메모 없음 —</p>'}
+        </div>`;
+      }).join("");
+    }
+
+    async function loadNoteboxEditor() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "notebox_guide").maybeSingle();
+      if (data && data.content) $("nbGuideText").value = data.content;
+    }
+    $("nbAdminWho").addEventListener("change", renderNotebox);
+    $("nbAdminLive").addEventListener("change", renderNotebox);
+    $("nbAdminRefresh").addEventListener("click", loadNotebox);
+    $("nbGuideSaveBtn").addEventListener("click", async () => {
+      msg($("nbGuideMsg"), "", false);
+      const content = $("nbGuideText").value;
+      if (!content.trim()) return msg($("nbGuideMsg"), "내용이 비어 있습니다.", true);
+      const { error } = await sb.from("site_content").upsert(
+        { key: "notebox_guide", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) return msg($("nbGuideMsg"), "저장 실패: " + error.message, true);
+      toast("저장 완료 — 보관함 화면에 즉시 반영됨");
     });
 
     async function loadHabitEditor() {
