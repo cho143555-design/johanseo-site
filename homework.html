@@ -61,6 +61,17 @@
     <div class="wrap" style="max-width:640px">
       <p class="section-label">과제 채점</p>
 
+      <!-- 채점 습관 안내 — 문구는 admin '채점 습관 안내'에서 편집 -->
+      <div id="habitWrap" style="display:none">
+        <div class="habit-core" id="habitCore"></div>
+        <details class="faq-item" id="habitDetails">
+          <summary id="habitTitle"></summary>
+          <div class="faq-body">
+            <div class="fb" id="habitBody" style="margin-top:0"></div>
+          </div>
+        </details>
+      </div>
+
       <div class="panel">
         <div class="field">
           <label for="name">이름</label>
@@ -608,6 +619,31 @@
       });
       return html;
     }
+    async function loadHabit() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "habit_guide").maybeSingle();
+      if (!data || !data.content) return;
+      const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      const bold = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+      const lines = data.content.replace(/\r/g,"").split("\n");
+      const core = []; let title = ""; const body = []; let inBody = false;
+      lines.forEach(l => {
+        if (inBody) { body.push(l); return; }
+        const t = l.trim();
+        if (t.startsWith("핵심:")) core.push(t.slice(3).trim());
+        else if (t.startsWith("제목:")) title = t.slice(3).trim();
+        else if (t === "본문:") inBody = true;
+      });
+      if (!core.length && !(title && body.length)) return;
+      if (core.length) $("habitCore").innerHTML = core.map(c => `<p>${bold(c)}</p>`).join("");
+      else $("habitCore").style.display = "none";
+      if (title && body.length) {
+        $("habitTitle").textContent = title;
+        $("habitBody").innerHTML = renderGuide(body.join("\n"));
+      } else {
+        $("habitDetails").style.display = "none";
+      }
+      $("habitWrap").style.display = "";
+    }
     async function loadPerfectMsgs() {
       const { data } = await sb.from("site_content").select("content").eq("key", "perfect_msgs").maybeSingle();
       if (!data || !data.content) return;
@@ -628,7 +664,7 @@
       if (!error && data && data.content) $("fbBox").innerHTML = renderGuide(data.content);
     }
 
-    (async () => { await loadIndex(); await loadSets(); loadGuide(); loadPerfectMsgs(); loadAskBox(); })();
+    (async () => { await loadIndex(); await loadSets(); loadGuide(); loadPerfectMsgs(); loadAskBox(); loadHabit(); })();
   </script>
   <script>
     (() => {

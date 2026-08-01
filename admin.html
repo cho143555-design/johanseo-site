@@ -279,6 +279,31 @@ Q: 다음 질문
             </div>
           </div>
 
+          <!-- 채점 습관 안내 -->
+          <div>
+            <p class="section-label">채점 습관 안내</p>
+            <h2 class="section-title" style="margin-bottom:16px">채점 화면 맨 위 습관 안내 고치기</h2>
+            <div class="panel">
+              <div class="field">
+                <label for="habitText2">내용 <span class="mini">— 저장하면 채점 화면에 즉시 반영</span></label>
+                <textarea id="habitText2" style="min-height:260px" placeholder="핵심: 항상 보이는 첫 줄
+핵심: 항상 보이는 둘째 줄
+제목: 접이식 제목
+본문:
+# 소제목
+문단 내용 (**강조** 가능)"></textarea>
+              </div>
+              <p class="mini" style="margin-bottom:12px">
+                <b>핵심:</b> 접지 않아도 항상 보이는 줄(줄마다 하나 = 문단 하나, <b>**강조**</b> 가능) ·
+                <b>제목:</b> 접이식 제목 ·
+                <b>본문:</b> 이 줄 <u>아래부터 전부</u> 접이식 안 내용 — '결과 안내문'과 같은 문법
+                (<b># 제목</b> · <b>**강조**</b> · <b>카드) 하나.</b> · <b>&gt; 보조설명</b> · <b>---</b> 구분선 · 문단은 빈 줄)
+              </p>
+              <button class="btn jumuk" id="habitSaveBtn" style="width:100%">저장 (즉시 반영)</button>
+              <p class="msg" id="habitMsg2" style="display:none"></p>
+            </div>
+          </div>
+
           <!-- 학생 명단 -->
           <div>
             <p class="section-label">학생 명단</p>
@@ -446,6 +471,7 @@ Q: 다음 질문
       await loadPerfectEditor();
       await loadQuestions();
       await loadAskEditor();
+      await loadHabitEditor();
     }
 
     // ---- 인덱스 로딩 (현황판 + 드롭다운 전부) ----
@@ -896,6 +922,21 @@ Q: 다음 질문
       const { error } = await sb.from("site_content").upsert(
         { key: "ask_box", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
       if (error) return msg($("askMsg2"), "저장 실패: " + error.message, true);
+      toast("저장 완료 — 채점 화면에 즉시 반영됨");
+    });
+
+    async function loadHabitEditor() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "habit_guide").maybeSingle();
+      if (data && data.content) $("habitText2").value = data.content;
+    }
+    $("habitSaveBtn").addEventListener("click", async () => {
+      msg($("habitMsg2"), "", false);
+      const content = $("habitText2").value;
+      if (!content.trim()) return msg($("habitMsg2"), "내용이 비어 있습니다.", true);
+      if (!/^\s*핵심\s*:/m.test(content)) return msg($("habitMsg2"), "'핵심:' 줄이 최소 1개 필요합니다.", true);
+      const { error } = await sb.from("site_content").upsert(
+        { key: "habit_guide", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) return msg($("habitMsg2"), "저장 실패: " + error.message, true);
       toast("저장 완료 — 채점 화면에 즉시 반영됨");
     });
 
