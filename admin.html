@@ -60,6 +60,19 @@
       <div id="adminView" style="display:none">
         <div class="admin-grid">
 
+          <!-- 제출 기록 -->
+          <div>
+            <p class="section-label">제출 기록</p>
+            <h2 class="section-title" style="margin-bottom:16px">채점 결과</h2>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
+              <div class="field" style="margin-bottom:0"><input id="subFilter" placeholder="학생 이름으로 검색" /></div>
+              <button class="btn ghost" id="csvBtn">CSV 내보내기</button>
+            </div>
+            <div id="subChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
+            <div id="subList" class="admin-grid"></div>
+            <div id="subPager" style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px"></div>
+          </div>
+
           <!-- 교재 현황 -->
           <div>
             <p class="section-label">교재 현황</p>
@@ -339,6 +352,24 @@ Q: 다음 질문
             </div>
           </div>
 
+          <!-- 수업 안내 -->
+          <div>
+            <p class="section-label">수업 안내</p>
+            <h2 class="section-title" style="margin-bottom:16px">홈 화면 수업 안내 고치기</h2>
+            <div class="panel">
+              <div class="field">
+                <label for="lessonsText">내용 <span class="mini">— 저장하면 홈 화면에 즉시 반영</span></label>
+                <textarea id="lessonsText" style="min-height:260px"></textarea>
+              </div>
+              <p class="mini" style="margin-bottom:12px">
+                맨 위 <b># 제목</b> 줄이 섹션 큰 제목이 되고, 이후 <b># 소제목</b> · <b>**강조**</b> ·
+                <b>---</b> 구분선 · 문단은 빈 줄 — '결과 안내문'과 같은 문법입니다. 내용을 비우면 홈에서 섹션이 통째로 숨습니다.
+              </p>
+              <button class="btn jumuk" id="lessonsSaveBtn" style="width:100%">저장 (즉시 반영)</button>
+              <p class="msg" id="lessonsMsg" style="display:none"></p>
+            </div>
+          </div>
+
           <!-- 학생 명단 -->
           <div>
             <p class="section-label">학생 명단</p>
@@ -426,19 +457,6 @@ Q: 다음 질문
             <div id="setList" class="admin-grid"></div>
           </div>
 
-          <!-- 제출 기록 -->
-          <div>
-            <p class="section-label">제출 기록</p>
-            <h2 class="section-title" style="margin-bottom:16px">채점 결과</h2>
-            <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
-              <div class="field" style="margin-bottom:0"><input id="subFilter" placeholder="학생 이름으로 검색" /></div>
-              <button class="btn ghost" id="csvBtn">CSV 내보내기</button>
-            </div>
-            <div id="subChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
-            <div id="subList" class="admin-grid"></div>
-            <div id="subPager" style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px"></div>
-          </div>
-
           <!-- 학생 질문함 -->
           <div>
             <p class="section-label">학생 질문</p>
@@ -509,6 +527,7 @@ Q: 다음 질문
       await loadHabitEditor();
       await loadNotebox();
       await loadNoteboxEditor();
+      await loadLessonsEditor();
     }
 
     // ---- 인덱스 로딩 (현황판 + 드롭다운 전부) ----
@@ -1025,6 +1044,19 @@ Q: 다음 질문
         { key: "notebox_guide", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
       if (error) return msg($("nbGuideMsg"), "저장 실패: " + error.message, true);
       toast("저장 완료 — 보관함 화면에 즉시 반영됨");
+    });
+
+    async function loadLessonsEditor() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "lessons").maybeSingle();
+      if (data && data.content) $("lessonsText").value = data.content;
+    }
+    $("lessonsSaveBtn").addEventListener("click", async () => {
+      msg($("lessonsMsg"), "", false);
+      const content = $("lessonsText").value;
+      const { error } = await sb.from("site_content").upsert(
+        { key: "lessons", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) return msg($("lessonsMsg"), "저장 실패: " + error.message, true);
+      toast("저장 완료 — 홈 화면에 즉시 반영됨");
     });
 
     async function loadHabitEditor() {

@@ -31,6 +31,7 @@
       <span class="brand-line" id="heroEyebrow">조한서 수능 · 내신 국어</span>
       <nav class="nav">
         <a href="#teacher">소개</a>
+        <a href="#lessons" id="navLessons" style="display:none">수업 안내</a>
         <a href="homework.html">과제 채점</a>
         <a href="#column">칼럼</a>
         <a href="#contact">문의</a>
@@ -87,6 +88,17 @@
   </section>
 
   <div class="divider"></div>
+
+  <!-- 수업 안내 (문구는 admin '수업 안내'에서 편집, 비우면 숨김) -->
+  <section id="lessons" style="display:none">
+    <div class="wrap" style="max-width:760px">
+      <p class="section-label">수업 안내</p>
+      <h2 class="section-title" style="margin-bottom:20px" id="lessonsTitle"></h2>
+      <div class="fb" id="lessonsBody"></div>
+    </div>
+  </section>
+
+  <div class="divider" id="lessonsDivider" style="display:none"></div>
 
   <!-- 문의 -->
   <section id="contact">
@@ -252,6 +264,37 @@
           + (catches.length ? `<p class="teacher-catch">${catches.map(c => mark(esc(c))).join("<br />")}</p>` : "")
           + (why.length ? `<div class="teacher-why">${why.map(w => `<p>${br(bold(esc(w)))}</p>`).join("")}</div>` : "")
           + (strength.length ? `<p class="teacher-strength">${strength.map(x => bold(esc(x))).join("<br />")}</p>` : "");
+    });
+
+    runSection(async () => {
+        const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+        const { data } = await sb.from("site_content").select("content").eq("key", "lessons").maybeSingle();
+        if (!data || !data.content || !data.content.trim()) return;
+        const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        const fmt = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+        const lines = data.content.replace(/\r/g,"").split("\n");
+        let title = "";
+        const ti = lines.findIndex(l => l.trim().startsWith("# "));
+        if (ti >= 0) { title = lines[ti].trim().slice(2); lines.splice(0, ti + 1); }
+        let html = "";
+        lines.join("\n").split(/\n\s*\n/).forEach(bl => {
+          const ls = bl.split("\n").map(l=>l.trim()).filter(Boolean);
+          if (!ls.length) return;
+          if (ls.length === 1 && ls[0] === "---") {
+            html += '<div style="border-top:1px dashed var(--line);margin:24px 0"></div>'; return;
+          }
+          if (ls[0].startsWith("# ")) {
+            html += `<h4>${fmt(ls[0].slice(2))}</h4>`; ls.shift();
+            if (!ls.length) return;
+          }
+          html += `<p>${fmt(ls.join(" "))}</p>`;
+        });
+        if (!title && !html) return;
+        document.getElementById("lessonsTitle").innerHTML = fmt(title);
+        document.getElementById("lessonsBody").innerHTML = html;
+        document.getElementById("lessons").style.display = "";
+        document.getElementById("lessonsDivider").style.display = "";
+        document.getElementById("navLessons").style.display = "";
     });
 
     runSection(async () => {
