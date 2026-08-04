@@ -526,3 +526,12 @@ body .hint{font-size:12.5px}
   .hero .cta-row{grid-column:1/-1;margin-top:48px}
   .wongoji{right:3%;top:auto;bottom:-40px;opacity:.2}
 }
+
+/* ---------- 홈 화면 추가: 접이식 캡션 ---------- */
+#install { padding: 26px 0 44px; }
+.install-fold summary { list-style: none; cursor: pointer; text-align: center; font-size: 13.5px; color: #8a8172; }
+.install-fold summary::-webkit-details-marker { display: none; }
+.install-fold summary::after { content: " ▾"; }
+.install-fold[open] summary::after { content: " ▴"; }
+.install-fold[open] summary { color: var(--ink-soft); }
+.install-fold .install-card { margin-top: 16px; text-align: left; }
