@@ -93,11 +93,14 @@ a { color: inherit; text-decoration: none; }
 }
 @media (max-width: 480px) { .brand-line { font-size: 13.5px; } }
 .hero h1 {
-  font-family: var(--serif); font-weight: 800;
-  font-size: clamp(29px, 5.2vw, 50px);
+  font-family: var(--serif); font-weight: 700;
+  font-size: clamp(24.5px, 5.2vw, 50px);
   line-height: 1.26; letter-spacing: -0.04em;
   word-break: keep-all; text-wrap: balance;
   margin-bottom: 22px;
+}
+.hero h1 .mark, .naesin-title .mark {
+  font-weight: 800; background: none; padding: 0;
 }
 .mark {
   background: linear-gradient(transparent 72%, rgba(178,58,46,0.17) 72%, rgba(178,58,46,0.17) 96%, transparent 96%);
@@ -169,15 +172,6 @@ section { padding: 64px 0; }
   background: var(--paper-2); color: var(--ink);
   border: 2px solid var(--ink);
   border-radius: var(--radius); padding: 52px 44px; text-align: center;
-}
-/* 같은 원고지 격자를 종이 면 위에 — 먹 테두리 안도 같은 종이가 되도록 */
-.contact::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background-image:
-    linear-gradient(rgba(26,23,20,.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(26,23,20,.055) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse at 50% 0%, #000 10%, transparent 76%);
 }
 .contact > * { position: relative; }
 .contact h3 { font-family: var(--serif); font-size: 30px; letter-spacing: -.02em; margin-bottom: 12px; }
@@ -369,8 +363,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 .hero-naesin { margin-top:78px; }
 @media (min-width: 900px) { .hero-naesin { margin-top:96px; } }
 .naesin-title {
-  font-family:var(--serif); font-weight:800;
-  font-size:clamp(29px, 5.2vw, 50px);
+  font-family:var(--serif); font-weight:700;
+  font-size:clamp(24.5px, 5.2vw, 50px);
   line-height:1.26; letter-spacing:-0.04em;
   word-break:keep-all; color:var(--ink);
   margin-bottom:22px;
