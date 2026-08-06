@@ -285,10 +285,10 @@
         if (!data || !data.content) return;
         const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
         const bold = (t) => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
-        const cats = []; let cat = null, item = null;
+        const cats = []; let cat = null, item = null; const intro = [[]];
         data.content.replace(/\r/g,"").split("\n").forEach(l => {
           const t = l.trim();
-          if (!t) { if (item && item.paras[item.paras.length-1].length) item.paras.push([]); return; }
+          if (!t) { if (item && item.paras[item.paras.length-1].length) item.paras.push([]); else if (!cat && !item && intro[intro.length-1].length) intro.push([]); return; }
           let m;
           if ((m = t.match(/^범주\s*:\s*(.+)$/))) { cat = { name: m[1].trim(), items: [] }; cats.push(cat); item = null; return; }
           if ((m = t.match(/^제목\s*:\s*(.+)$/))) {
@@ -296,10 +296,12 @@
             item = { title: m[1].trim(), paras: [[]] }; cat.items.push(item); return;
           }
           if (item) item.paras[item.paras.length-1].push(t);
+          else if (!cat) intro[intro.length-1].push(t);
         });
         const total = cats.reduce((n, c) => n + c.items.length, 0);
         if (!total) return;
-        document.getElementById("columnList").innerHTML = cats.map(c =>
+        const introHtml = intro.filter(p => p.length).map(p => `<p>${bold(esc(p.join(" ")))}</p>`).join("");
+        document.getElementById("columnList").innerHTML = (introHtml ? `<div class="col-intro">${introHtml}</div>` : "") + cats.map(c =>
           `<div class="col-group">${c.name ? `<h3 class="col-cat">${esc(c.name)}</h3>` : ""}${
             c.items.map(it => `<details class="faq-item"><summary>${bold(esc(it.title))}</summary><div class="faq-body">${
               it.paras.filter(p => p.length).map(p => `<p>${bold(esc(p.join(" ")))}</p>`).join("")
