@@ -533,4 +533,4 @@ body .hint{font-size:12.5px}
 /* ---------- 칼럼 섹션 안내문 ---------- */
 .col-intro { margin: -4px 0 30px; }
 .col-intro p { font-size: 14.5px; line-height: 1.8; color: var(--ink-soft); word-break: keep-all; }
-.col-intro p + p { margin-top: 10px; }
+.col-intro p + p { margin-top: 13px; }
