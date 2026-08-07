@@ -321,6 +321,22 @@
       pick(/iphone|ipad|ipod|macintosh/i.test(navigator.userAgent) ? "ios" : "android");
     })();
   </script>
+
+  <script>
+    /* 홈 화면 앱(standalone)은 나갔다 들어와도 페이지를 새로 열지 않아서 옛 화면이 그대로 남는다.
+       화면이 다시 보일 때 최신 내용을 가져오게 한다. */
+    (() => {
+      const STALE_MS = 60 * 1000;   // 1분 이상 나가 있었으면 오래된 것으로 본다
+      let hiddenAt = 0;
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) { hiddenAt = Date.now(); return; }
+        if (!hiddenAt || Date.now() - hiddenAt < STALE_MS) return;
+        hiddenAt = 0;
+        try { if (window.__refreshContent) { window.__refreshContent(); return; } } catch (e) {}
+        location.reload();
+      });
+    })();
+  </script>
 </body>
 </html>
 
