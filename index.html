@@ -299,11 +299,12 @@
         });
         const total = cats.reduce((n, c) => n + c.items.length, 0);
         if (!total) return;
-        const introHtml = intro.filter(p => p.length).map(p => `<p>${bold(esc(p.join(" ")))}</p>`).join("");
+        const para = p => `<p>${bold(esc(p.join("\n"))).replace(/\n/g, "<br />")}</p>`;
+        const introHtml = intro.filter(p => p.length).map(para).join("");
         document.getElementById("columnList").innerHTML = (introHtml ? `<div class="col-intro">${introHtml}</div>` : "") + cats.map(c =>
           `<div class="col-group">${c.name ? `<h3 class="col-cat">${esc(c.name)}</h3>` : ""}${
             c.items.map(it => `<details class="faq-item"><summary>${bold(esc(it.title))}</summary><div class="faq-body">${
-              it.paras.filter(p => p.length).map(p => `<p>${bold(esc(p.join(" ")))}</p>`).join("")
+              it.paras.filter(p => p.length).map(para).join("")
             }</div></details>`).join("")
           }</div>`).join("");
     });
