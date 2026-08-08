@@ -530,6 +530,7 @@ Q: 다음 질문
       await loadLessonsEditor();
     }
 
+    let MATS = [];
     // ---- 인덱스 로딩 (현황판 + 드롭다운 전부) ----
     async function refreshIndex() {
       const { data } = await sb.from("answer_bank_index").select("*");
@@ -547,7 +548,8 @@ Q: 다음 질문
 
       // 현황판
       const mats = Object.keys(full).sort();
-      $("matList").innerHTML = mats.map(m => {
+      MATS = mats;
+      $("matList").innerHTML = mats.map((m, i) => {
         const chs = Object.keys(full[m]).sort(chCmp);
         const q = idx.filter(r=>r.material===m).reduce((s,r)=>s+r.q_count,0);
         const secN = idx.filter(r=>r.material===m && r.section).length;
@@ -555,11 +557,12 @@ Q: 다음 질문
           const info = full[m][c];
           return info.range ? `${c} ${pad3(info.range.min_no)}~${pad3(info.range.max_no)}` : `${c} ${info.sections.length}세트`;
         }).join(" · ");
-        return `<div class="set-item"><div>
-          <div class="code">${m} <span class="pill">${q}문항${secN?` · ${secN}세트`:""}</span></div>
-          <div class="meta">${detail}</div></div>
-          <button class="btn ghost" style="padding:8px 14px;font-size:13px" onclick="delMaterial('${m.replace(/'/g,"\\'")}')">삭제</button>
-        </div>`;
+        return `<div><div class="set-item">
+          <div class="mat-head" onclick="toggleAns(${i})" title="누르면 빠른정답이 펼쳐집니다">
+            <div class="code"><span class="mat-caret" id="caret${i}">▸</span> ${m} <span class="pill">${q}문항${secN?` · ${secN}세트`:""}</span></div>
+            <div class="meta">${detail}</div></div>
+          <button class="btn ghost" style="padding:8px 14px;font-size:13px" onclick="delMaterial(${i})">삭제</button>
+        </div><div class="ans-wrap" id="ansBox${i}" style="display:none"></div></div>`;
       }).join("") || '<p class="meta">등록된 교재가 없습니다.</p>';
 
       // 과제내기(범위형만) / 정답수정(전체) 드롭다운
@@ -569,11 +572,48 @@ Q: 다음 질문
       fillEdChapters();
     }
 
-    window.delMaterial = async (m) => {
+    window.delMaterial = async (i) => {
+      const m = typeof i === "number" ? MATS[i] : i;
+      if (!m) return;
       if (!confirm(`'${m}' 교재의 정답 전체를 삭제할까요?\n(제출 기록은 남습니다)`)) return;
       const { error } = await sb.from("answer_bank").delete().eq("material", m);
       if (error) return alert("삭제 실패: " + error.message);
       toast("삭제 완료"); await refreshIndex();
+    };
+
+    // ---- 교재 빠른정답 (현황판에서 교재 이름을 누르면 펼쳐짐) ----
+    const CIRCLED = ["", "①", "②", "③", "④", "⑤"];
+    window.toggleAns = async (i) => {
+      const m = MATS[i], box = $("ansBox" + i), caret = $("caret" + i);
+      if (!m || !box) return;
+      if (box.style.display !== "none") { box.style.display = "none"; if (caret) caret.textContent = "▸"; return; }
+      box.style.display = "block";
+      if (caret) caret.textContent = "▾";
+      if (box.dataset.loaded) return;
+      box.innerHTML = '<p class="meta">불러오는 중…</p>';
+      const { data, error } = await sb.from("answer_bank")
+        .select("chapter, section, question_no, correct_answer, is_plus")
+        .eq("material", m).limit(5000);
+      if (error) { box.innerHTML = '<p class="meta">불러오기 실패: ' + error.message + '</p>'; return; }
+      const byCh = {};
+      (data || []).forEach(r => {
+        const c = (byCh[r.chapter] = byCh[r.chapter] || {});
+        (c[r.section || ""] = c[r.section || ""] || []).push(r);
+      });
+      let html = "";
+      Object.keys(byCh).sort(chCmp).forEach(c => {
+        html += `<h4 class="ans-ch">${c}</h4>`;
+        Object.keys(byCh[c]).sort((a, b) => a.localeCompare(b, "ko")).forEach(secName => {
+          const rows = byCh[c][secName].sort((a, b) =>
+            (a.is_plus === b.is_plus) ? a.question_no - b.question_no : (a.is_plus ? 1 : -1));
+          if (secName) html += `<div class="ans-sec">${secName}</div>`;
+          html += '<div class="ansgrid">' + rows.map(r =>
+            `<span class="ansq"><b>${r.is_plus ? "＋" : (secName ? r.question_no : pad3(r.question_no))}</b>${CIRCLED[r.correct_answer] || r.correct_answer}</span>`
+          ).join("") + '</div>';
+        });
+      });
+      box.innerHTML = html || '<p class="meta">등록된 정답이 없습니다.</p>';
+      box.dataset.loaded = "1";
     };
 
     // ---- 대량 등록 ----

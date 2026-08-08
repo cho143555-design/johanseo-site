@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>빠른정답 — 조한서 국어</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="빠른정답 — 조한서 국어" />
+  <meta property="og:description" content="교재별 빠른정답. 채점은 채점기로 하세요." />
+  <meta property="og:image" content="https://johanseo.com/og.png?v=3" />
+  <meta property="og:url" content="https://johanseo.com/answers" />
+
+  <link rel="icon" type="image/png" href="seal.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f6f1e7" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="조한서 국어" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <a class="brand" href="index.html">조한서 수능 · 내신 국어</a>
+      <nav class="nav">
+        <a href="index.html">홈</a>
+        <a href="homework.html">과제 채점</a>
+        <a href="notebox.html">보관함</a>
+      </nav>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap" style="max-width:760px">
+      <h1 class="hw-title">빠른정답</h1>
+
+      <div class="qa-notice">
+        <p class="qa-notice-head">채점은 반드시 채점기로 해.</p>
+        <p>여기 빠른정답은 답지를 잃어버렸거나 급하게 확인해야 할 때만 쓰는 거야. 눈으로 맞춰보고 넘어가면 어떤 문제를 왜 틀렸는지가 아무 데도 안 남아. 틀린 문항 기록이 쌓여야 네 약점이 보이고, 그게 다음 수업의 재료가 돼. 재채점도 마찬가지야.</p>
+        <a class="btn jumuk" href="homework.html" style="margin-top:4px">과제 채점하러 가기</a>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px">
+        <div class="field" style="margin-bottom:0">
+          <label for="qaMat">교재</label>
+          <select id="qaMat"><option value="">불러오는 중…</option></select>
+        </div>
+      </div>
+
+      <div id="qaBox"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap" style="justify-content:flex-end"><span>조한서 수능 · 내신 국어</span></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    const CIRCLED = ["", "①", "②", "③", "④", "⑤"];
+    const pad3 = (n) => String(n).padStart(3, "0");
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const chCmp = (a, b) => a.localeCompare(b, "ko", { numeric: true });
+
+    async function loadMaterials() {
+      const { data, error } = await sb.from("answer_bank_index").select("material");
+      if (error) { $("qaMat").innerHTML = '<option value="">불러오지 못했어</option>'; return; }
+      const mats = [...new Set((data || []).map(r => r.material))].sort();
+      if (!mats.length) { $("qaMat").innerHTML = '<option value="">등록된 교재가 없어</option>'; return; }
+      $("qaMat").innerHTML = '<option value="">교재를 고르면 정답이 나와</option>'
+        + mats.map(m => `<option>${esc(m)}</option>`).join("");
+    }
+
+    async function loadAnswers(m) {
+      const box = $("qaBox");
+      if (!m) { box.innerHTML = ""; return; }
+      box.innerHTML = '<p class="meta">불러오는 중…</p>';
+      const { data, error } = await sb.from("quick_answers")
+        .select("chapter, section, question_no, correct_answer, is_plus")
+        .eq("material", m).limit(5000);
+      if (error) { box.innerHTML = '<p class="meta">불러오지 못했어. 잠시 뒤 다시 시도해줘.</p>'; return; }
+      const byCh = {};
+      (data || []).forEach(r => {
+        const c = (byCh[r.chapter] = byCh[r.chapter] || {});
+        (c[r.section || ""] = c[r.section || ""] || []).push(r);
+      });
+      let html = "";
+      Object.keys(byCh).sort(chCmp).forEach(c => {
+        html += `<h3 class="qa-ch">${esc(c)}</h3>`;
+        Object.keys(byCh[c]).sort((a, b) => a.localeCompare(b, "ko", { numeric: true })).forEach(secName => {
+          const rows = byCh[c][secName].sort((a, b) =>
+            (a.is_plus === b.is_plus) ? a.question_no - b.question_no : (a.is_plus ? 1 : -1));
+          if (secName) html += `<div class="qa-sec">${esc(secName)}</div>`;
+          html += '<div class="qa-grid">' + rows.map(r =>
+            `<span class="qa-q"><b>${r.is_plus ? "＋" : (secName ? r.question_no : pad3(r.question_no))}</b>${CIRCLED[r.correct_answer] || r.correct_answer}</span>`
+          ).join("") + '</div>';
+        });
+      });
+      box.innerHTML = html || '<p class="meta">이 교재는 등록된 정답이 없어.</p>';
+    }
+
+    $("qaMat").addEventListener("change", (e) => loadAnswers(e.target.value));
+    loadMaterials();
+  </script>
+  <script>
+    /* 홈 화면 앱(standalone)은 나갔다 들어와도 페이지를 새로 열지 않아서 옛 화면이 그대로 남는다.
+       화면이 다시 보일 때 최신 내용을 가져오게 한다. */
+    (() => {
+      const STALE_MS = 60 * 1000;   // 1분 이상 나가 있었으면 오래된 것으로 본다
+      let hiddenAt = 0;
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) { hiddenAt = Date.now(); return; }
+        if (!hiddenAt || Date.now() - hiddenAt < STALE_MS) return;
+        hiddenAt = 0;
+        try { if (window.__refreshContent) { window.__refreshContent(); return; } } catch (e) {}
+        location.reload();
+      });
+    })();
+  </script>
+</body>
+</html>

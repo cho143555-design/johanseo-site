@@ -534,3 +534,34 @@ body .hint{font-size:12.5px}
 .col-intro { margin: -4px 0 30px; }
 .col-intro p { font-size: 14.5px; line-height: 1.8; color: var(--ink-soft); word-break: keep-all; }
 .col-intro p + p { margin-top: 13px; }
+
+/* ---------- 교재 빠른정답 ---------- */
+.mat-head { cursor: pointer; flex: 1; min-width: 0; }
+.mat-head:hover .code { color: var(--jumuk); }
+.mat-caret { display: inline-block; width: 12px; font-size: 11px; color: var(--ink-soft); }
+.ans-wrap {
+  border: 1px solid var(--line); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--paper-2); padding: 16px 18px;
+}
+.ans-ch { font-family: var(--serif); font-size: 15px; font-weight: 800; margin: 16px 0 8px; }
+.ans-ch:first-child { margin-top: 0; }
+.ans-sec { font-size: 13px; color: var(--ink-soft); margin: 12px 0 6px; }
+.ansgrid { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.ansq { font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ansq b { font-weight: 600; color: var(--ink-soft); margin-right: 3px; }
+
+/* ---------- 빠른정답 페이지 ---------- */
+.qa-notice {
+  border: 1px solid var(--line); border-left: 3px solid var(--jumuk);
+  background: var(--paper-2); border-radius: var(--radius);
+  padding: 20px 22px; margin-bottom: 24px;
+}
+.qa-notice-head { font-family: var(--serif); font-size: 17px; font-weight: 800; margin-bottom: 10px; }
+.qa-notice p { font-size: 14.5px; line-height: 1.75; color: var(--ink-soft); margin-bottom: 14px; word-break: keep-all; }
+.qa-ch { font-family: var(--serif); font-size: 18px; font-weight: 800; margin: 26px 0 10px; }
+.qa-ch:first-child { margin-top: 4px; }
+.qa-sec { font-size: 13.5px; color: var(--ink-soft); margin: 14px 0 6px; }
+.qa-grid { display: flex; flex-wrap: wrap; gap: 7px 14px; }
+.qa-q { font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.qa-q b { font-weight: 600; color: var(--ink-soft); margin-right: 3px; }
