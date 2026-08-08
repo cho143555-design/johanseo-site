@@ -9,8 +9,7 @@
   --paper:     #f6f1e7;   /* 한지 크림 */
   --paper-2:   #efe7d6;
   --line:      #d8cdb8;
-  --jumук:     #b23a2e;   /* 주묵(붉은 교정) */
-  --jumuk:     #b23a2e;
+  --jumuk:     #b23a2e;   /* 주묵(붉은 교정) */
   --jumuk-2:   #8f2b21;
   --gold:      #9a7b3f;
   --ok:        #2f6b46;
@@ -513,7 +512,8 @@ body .hint{font-size:12.5px}
 
 /* ── 데스크톱 히어로 좌우분할 (2026-08-01) ── */
 @media (min-width:1024px){
-  .hero .wrap{max-width:1080px;display:grid;grid-template-columns:1fr 1fr;gap:0 72px;align-items:start}
+  .hero .wrap{max-width:1080px;display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:start}
+  .hero .wrap > div:first-of-type{padding-right:72px}
   .hero-naesin{margin-top:6px;padding-left:72px;border-left:1px solid var(--line)}
   .hero h1,.naesin-title{font-size:34px;line-height:1.34}
   .hero .lead{font-size:15px}
@@ -565,3 +565,16 @@ body .hint{font-size:12.5px}
 .qa-grid { display: flex; flex-wrap: wrap; gap: 7px 14px; }
 .qa-q { font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .qa-q b { font-weight: 600; color: var(--ink-soft); margin-right: 3px; }
+
+/* ---------- 아주 좁은 화면(320~380px) 안전 마진 ---------- */
+@media (max-width: 380px) {
+  .wrap { padding: 0 18px; }
+  .hero .lead { font-size: 14.5px; }
+  .btn.kakao { padding: 15px 20px; }
+}
+
+/* 초소형 화면(320px대: 아이폰 SE 1세대 등) */
+@media (max-width: 340px) {
+  .hero h1, .naesin-title { font-size: 22px; }
+  .hero .lead { font-size: 13.5px; }
+}
