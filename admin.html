@@ -297,9 +297,18 @@ Q: 다음 질문
 코멘트..."></textarea>
               </div>
               <p class="mini" style="margin-bottom:12px">
-                <b>곡:</b>으로 시작하는 줄 = 곡 하나의 시작 · 그 아래 줄들 = 코멘트 (빈 줄 = 문단 나눔, 엔터 = 줄바꿈)
-                <br /><b>*별표 한 개*</b>로 감싸면 <i>기울임(가사용)</i> · <b>**두 개**</b>는 굵게 · 맨 위 <b>제목:</b> 줄은 카드 라벨(선택)
+                <b>곡: 가수 – 제목</b> 줄 = 곡 하나의 시작 · 그 아래 줄들 = 코멘트 (빈 줄 = 문단 나눔, 문단 안 줄들은 줄글로 이어짐)
+                <br /><b>*별표 한 개*</b>로 줄 전체를 감싸면 <i>가사 줄</i>(줄바꿈 유지) · <b>**두 개**</b>는 굵게 · 맨 위 <b>제목:</b> 줄은 카드 라벨(선택)
               </p>
+              <div class="field" style="margin-top:2px">
+                <label>카드 미리보기 <span class="mini">— 실제 채점 만점 화면에 뜨는 모습, 입력하면 바로 갱신</span></label>
+                <div id="songPrev"></div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+                  <button type="button" class="btn ghost tiny" id="songPrevBack">◀ 이전 곡</button>
+                  <button type="button" class="btn ghost tiny" id="songPrevNext">다음 곡 ▶</button>
+                  <span class="mini" id="songPrevIdx"></span>
+                </div>
+              </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
                 <button class="btn ghost" id="songCountBtn">개수 확인</button>
                 <button class="btn jumuk" id="songSaveBtn">저장 (즉시 반영)</button>
@@ -1229,6 +1238,7 @@ Q: 다음 질문
     async function loadSongEditor() {
       const { data } = await sb.from("site_content").select("content").eq("key", "song_requests").maybeSingle();
       if (data && data.content) $("songText").value = data.content;
+      spRefresh();
     }
     function songCount(text) {
       return text.replace(/\r/g, "").split("\n").filter(l => /^곡\s*:/.test(l.trim())).length;
@@ -1247,6 +1257,57 @@ Q: 다음 질문
       if (error) return msg($("songMsg"), "저장 실패: " + error.message, true);
       toast(`저장 완료 — ${n}곡 반영됨`);
     });
+
+    // ── 오노추 카드 미리보기 ──
+    let SP_SONGS = [], SP_I = 0, SP_LABEL = "오노추";
+    function spParse(text) {
+      const songs = []; let label = ""; let cur = null;
+      text.replace(/\r/g, "").split("\n").forEach(l => {
+        const t = l.trim(); let m;
+        if (!cur && (m = t.match(/^제목\s*:\s*(.+)$/))) { label = m[1].trim(); return; }
+        if ((m = t.match(/^곡\s*:\s*(.+)$/))) {
+          const raw = m[1].trim();
+          const sm = raw.match(/^(.*?)\s[–—-]\s(.+)$/);
+          cur = { artist: sm ? sm[1].trim() : "", title: sm ? sm[2].trim() : raw, lines: [] };
+          songs.push(cur); return;
+        }
+        if (cur) cur.lines.push(l);
+      });
+      return { label, songs: songs.filter(s => s.title) };
+    }
+    function spRender() {
+      const box = $("songPrev");
+      if (!SP_SONGS.length) { box.innerHTML = '<p class="mini" style="margin:0">곡이 없습니다 — 위 칸에 입력하면 바로 보입니다.</p>'; $("songPrevIdx").textContent = ""; return; }
+      SP_I = ((SP_I % SP_SONGS.length) + SP_SONGS.length) % SP_SONGS.length;
+      const s = SP_SONGS[SP_I];
+      const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      const fmt = (t) => esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\*(.+?)\*/g,"<i>$1</i>")
+        .replace(/\(([^()<>]{1,28})\)/g, '<span class="nw">($1)</span>');
+      const paras = []; let p = [];
+      s.lines.forEach(l => { if (!l.trim()) { if (p.length) { paras.push(p); p = []; } } else p.push(l.trim()); });
+      if (p.length) paras.push(p);
+      const lyric = (l) => /^\*[^*].*\*$/.test(l);
+      const body = paras.map(pp =>
+        pp.some(lyric)
+          ? `<p>${pp.map(l => `<span class="ln">${fmt(l)}</span>`).join("")}</p>`
+          : `<p>${fmt(pp.join(" "))}</p>`
+      ).join("");
+      box.innerHTML = `<div class="song-card" style="margin-top:0;max-width:352px">
+        <div class="song-head"><span class="song-label">${esc(SP_LABEL)}</span><span class="song-note">♪</span></div>
+        <p class="song-title">${esc(s.title)}</p>
+        ${s.artist ? `<p class="song-artist">${esc(s.artist)}</p>` : ""}
+        <div class="song-rule"></div>
+        <div class="song-body">${body}</div></div>`;
+      const t = box.querySelector(".song-title");
+      if (t.clientWidth) { let px = 22; t.style.fontSize = px + "px";
+        while (t.scrollWidth > t.clientWidth + 1 && px > 12.5) { px -= 0.5; t.style.fontSize = px + "px"; } }
+      $("songPrevIdx").textContent = `${SP_I + 1} / ${SP_SONGS.length}곡`;
+    }
+    function spRefresh() { const r = spParse($("songText").value); SP_SONGS = r.songs; SP_LABEL = r.label || "오노추"; spRender(); }
+    $("songText").addEventListener("input", spRefresh);
+    $("songPrevBack").addEventListener("click", () => { SP_I--; spRender(); });
+    $("songPrevNext").addEventListener("click", () => { SP_I++; spRender(); });
+    (() => { const f = $("songPrev").closest("details"); if (f) f.addEventListener("toggle", () => { if (f.open) spRefresh(); }); })();
 
     async function loadColumnEditor() {
       const { data } = await sb.from("site_content").select("content").eq("key", "columns").maybeSingle();

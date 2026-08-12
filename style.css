@@ -578,3 +578,26 @@ body .hint{font-size:12.5px}
   .hero h1, .naesin-title { font-size: 22px; }
   .hero .lead { font-size: 13.5px; }
 }
+
+/* ── 오노추 카드 (채점 만점 보상 · admin 미리보기 공용) ── */
+.song-card { margin-top:22px; padding:24px 22px 22px; border-radius:14px; overflow:hidden; position:relative;
+  background:linear-gradient(140deg, #191512 0%, #241813 55%, #3a221a 100%); color:#f6f1e7; }
+.song-card::before { content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(circle at 85% 12%, rgba(232,146,124,.16), transparent 55%); }
+.song-head { display:flex; align-items:center; gap:10px; margin-bottom:18px; position:relative; }
+.song-label { font-size:10.5px; font-weight:800; letter-spacing:.3em; color:#e8927c; }
+.song-head::after { content:""; flex:1; height:1px; background:rgba(246,241,231,.2); }
+.song-note { font-size:13px; color:rgba(232,146,124,.75); }
+.song-title { font-family:var(--serif); font-weight:800; font-size:22px; line-height:1.25;
+  color:#f6f1e7; margin:0 0 5px; white-space:nowrap; overflow:hidden; position:relative; }
+.song-artist { font-size:12px; letter-spacing:.08em; color:rgba(246,241,231,.58);
+  margin:0 0 16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:relative; }
+.song-rule { width:34px; height:3px; background:#e8927c; margin-bottom:14px; position:relative; }
+.song-body { position:relative; }
+.song-body p { font-size:13.5px; line-height:1.8; color:rgba(246,241,231,.8); margin:0 0 10px;
+  word-break:keep-all; overflow-wrap:break-word; }
+.song-body p:last-child { margin-bottom:0; }
+.song-body .ln { display:block; padding-left:13px; text-indent:-13px; }
+.song-body i { color:#f6f1e7; opacity:.92; }
+.song-body b { color:#fff; }
+.song-card .nw { white-space:nowrap; }

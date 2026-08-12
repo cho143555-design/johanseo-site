@@ -47,20 +47,6 @@
     /* 채점 전 접이식 질문 칸: 상자 속 상자가 되지 않게 껍데기 제거 */
     #askFoldBody .ask-box { margin-top:0; padding:0; border:none; background:none; }
     #askFoldBody .ask-box h4 { display:none; }
-    /* 채점 후 노래 추천 카드 */
-    .song-card { margin-top:22px; padding:16px 18px 15px;
-      border:1px solid var(--line); border-left:3px solid var(--jumuk);
-      border-radius:var(--radius); background:rgba(255,255,255,0.4); }
-    .song-label { font-size:11.5px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
-      color:var(--jumuk); margin:0 0 8px; }
-    .song-title { font-family:var(--serif); font-size:15.5px; font-weight:800; color:var(--ink); margin:0 0 8px; }
-    .song-body p { font-size:13.5px; line-height:1.75; color:var(--ink-soft); margin:0 0 10px; }
-    .song-body p:last-child { margin-bottom:0; }
-    .song-body .ln { display:block; padding-left:13px; text-indent:-13px;
-      word-break:keep-all; overflow-wrap:break-word; }
-    .song-title { word-break:keep-all; }
-    .song-body i { color:var(--ink); opacity:.85; }
-    .song-body b { color:var(--ink); }
     /* 결과 화면 정리: 담기도 다른 카드와 같은 상자, 카드 간격 통일 */
     .keep-box { margin-top:22px; padding:16px 18px 15px; border:1px solid var(--line);
       border-radius:var(--radius); background:rgba(255,255,255,0.4); }
@@ -189,8 +175,10 @@
 
           <!-- 채점 후 노래 추천 — admin '오노추'에서 편집 -->
           <div class="song-card" id="songCard" style="display:none">
-            <p class="song-label" id="songLabel">오노추</p>
+            <div class="song-head"><span class="song-label" id="songLabel">오노추</span><span class="song-note">♪</span></div>
             <p class="song-title" id="songTitle"></p>
+            <p class="song-artist" id="songArtist"></p>
+            <div class="song-rule"></div>
             <div class="song-body" id="songBody"></div>
           </div>
 
@@ -870,7 +858,12 @@
       data.content.replace(/\r/g, "").split("\n").forEach(l => {
         const t = l.trim(); let m;
         if (!cur && (m = t.match(/^제목\s*:\s*(.+)$/))) { label = m[1].trim(); return; }
-        if ((m = t.match(/^곡\s*:\s*(.+)$/))) { cur = { title: m[1].trim(), lines: [] }; songs.push(cur); return; }
+        if ((m = t.match(/^곡\s*:\s*(.+)$/))) {
+          const raw = m[1].trim();
+          const sm = raw.match(/^(.*?)\s[–—-]\s(.+)$/);
+          cur = { artist: sm ? sm[1].trim() : "", title: sm ? sm[2].trim() : raw, lines: [] };
+          songs.push(cur); return;
+        }
         if (cur) cur.lines.push(l);
       });
       SONGS = songs.filter(s => s.title);
@@ -888,8 +881,25 @@
       if (p.length) paras.push(p);
       $("songLabel").textContent = SONG_LABEL;
       $("songTitle").textContent = s.title;
-      $("songBody").innerHTML = paras.map(pp => `<p>${pp.map(l => `<span class="ln">${fmt(l)}</span>`).join("")}</p>`).join("");
+      $("songArtist").textContent = s.artist || "";
+      $("songArtist").style.display = s.artist ? "" : "none";
+      // 가사(*줄 전체 기울임*) 문단만 줄 단위 유지, 나머지는 흐르는 줄글로
+      const lyric = (l) => /^\*[^*].*\*$/.test(l);
+      $("songBody").innerHTML = paras.map(pp =>
+        pp.some(lyric)
+          ? `<p>${pp.map(l => `<span class="ln">${fmt(l)}</span>`).join("")}</p>`
+          : `<p>${fmt(pp.join(" "))}</p>`
+      ).join("");
       box.style.display = "";
+      $("songTitle").style.fontSize = "";
+      let tries = 60;
+      const fitNow = () => {
+        const el = $("songTitle");
+        if (!el.clientWidth) { if (tries--) requestAnimationFrame(fitNow); return; }
+        let px = 21; el.style.fontSize = px + "px";
+        while (el.scrollWidth > el.clientWidth + 1 && px > 12.5) { px -= 0.5; el.style.fontSize = px + "px"; }
+      };
+      requestAnimationFrame(fitNow);
     }
 
     async function loadGuide() {
