@@ -142,13 +142,6 @@
           <div class="wrong-list" id="wrongList"></div>
           <button class="btn jumuk" id="retryBtn" style="margin-top:16px;display:none">틀린 문항만 다시 풀기</button>
 
-          <!-- 채점 후 노래 추천 — admin 'Song requests'에서 편집 -->
-          <div class="song-card" id="songCard" style="display:none">
-            <p class="song-label" id="songLabel">Song requests</p>
-            <p class="song-title" id="songTitle"></p>
-            <div class="song-body" id="songBody"></div>
-          </div>
-
           <!-- 기억해둘 문제 담기 -->
           <div class="keep-box" id="keepBox" style="display:none">
             <h4>기억해둘 문제 담기</h4>
@@ -185,18 +178,13 @@
             <a class="keep-link" href="notebox.html" id="keepLink">담아둔 문제 보러 가기 →</a>
           </div>
 
-          <div class="ask-box" id="askBox">
-            <h4 id="askTitle">혼자 해결이 안 되면, 질문 남기기</h4>
-            <div id="askLeadBox">
-              <p class="ask-lead"><b>해설도 강의도 없이 스스로 고민해서 깨닫는 것, 그게 최고의 국어 공부야.</b> 그래도 도저히 안 풀리는 문제, 해설을 봐도 납득이 안 되는 문제, 애매하고 헷갈리는 개념이 있다면 여기에 바로 남겨. 확인하고 <b>카톡으로 답</b> 줄게.</p>
-              <p class="ask-lead">내 풀이가 맞는지 확인받고 싶을 때, 시간 분배가 고민될 때 — 뭐든 편하게 물어봐!</p>
-            </div>
-            <textarea id="askText" rows="4" placeholder="예) 12번 ③이 왜 틀렸는지 모르겠어요. 지문 3문단이랑 상충한다고 봤는데 아닌가요?"></textarea>
-            <div class="ask-row">
-              <span class="mini" id="askCount">0 / 1000</span>
-              <button class="btn jumuk" id="askBtn">질문 보내기</button>
-            </div>
-            <p class="msg" id="askMsg" style="display:none"></p>
+
+
+          <!-- 채점 후 노래 추천 — admin '오노추'에서 편집 -->
+          <div class="song-card" id="songCard" style="display:none">
+            <p class="song-label" id="songLabel">오노추</p>
+            <p class="song-title" id="songTitle"></p>
+            <div class="song-body" id="songBody"></div>
           </div>
 
           <button class="btn ghost" id="againBtn" style="margin-top:18px">다시 풀기</button>
@@ -220,7 +208,21 @@
         <!-- 채점 전에도 질문 가능: 채점하면 질문 칸이 결과 안으로 이동하고 이 접이식은 숨는다 -->
         <details class="faq-item" id="askFold">
           <summary id="askFoldTitle">질문 남기기</summary>
-          <div class="faq-body"><div id="askFoldBody"></div></div>
+          <div class="faq-body"><div id="askFoldBody">
+            <div class="ask-box" id="askBox">
+              <h4 id="askTitle">혼자 해결이 안 되면, 질문 남기기</h4>
+              <div id="askLeadBox">
+                <p class="ask-lead"><b>해설도 강의도 없이 스스로 고민해서 깨닫는 것, 그게 최고의 국어 공부야.</b> 그래도 도저히 안 풀리는 문제, 해설을 봐도 납득이 안 되는 문제, 애매하고 헷갈리는 개념이 있다면 여기에 바로 남겨. 확인하고 <b>카톡으로 답</b> 줄게.</p>
+                <p class="ask-lead">내 풀이가 맞는지 확인받고 싶을 때, 시간 분배가 고민될 때 — 뭐든 편하게 물어봐!</p>
+              </div>
+              <textarea id="askText" rows="4" placeholder="예) 12번 ③이 왜 틀렸는지 모르겠어요. 지문 3문단이랑 상충한다고 봤는데 아닌가요?"></textarea>
+              <div class="ask-row">
+                <span class="mini" id="askCount">0 / 1000</span>
+                <button class="btn jumuk" id="askBtn">질문 보내기</button>
+              </div>
+              <p class="msg" id="askMsg" style="display:none"></p>
+            </div>
+          </div></div>
         </details>
       <details class="faq-item" id="guideDetails">
         <summary>사고과정 피드백</summary>
@@ -647,11 +649,10 @@
       }
     });
 
-    // ── 질문 칸 위치 전환: 채점 전엔 접이식(#askFold), 채점 후엔 결과 안 ──
+    // ── 질문 접이식 위치 전환: 채점 전엔 도구 묶음, 채점 후엔 결과 안(노래 추천 위) ──
     const askHome = () => {
-      const open = $("result").classList.contains("show");
-      if (open) { $("result").insertBefore($("askBox"), $("againBtn")); $("askFold").style.display = "none"; }
-      else { $("askFoldBody").appendChild($("askBox")); $("askFold").style.display = ""; }
+      if ($("result").classList.contains("show")) $("result").insertBefore($("askFold"), $("songCard"));
+      else document.querySelector(".tool-stack").insertBefore($("askFold"), $("guideDetails"));
     };
     new MutationObserver(askHome).observe($("result"), { attributes: true, attributeFilter: ["class"] });
     askHome();
@@ -845,7 +846,7 @@
     }
 
     // ── 채점 후 노래 추천 (admin 'Song requests'에서 편집) ──
-    let SONGS = []; let SONG_LABEL = "Song requests";
+    let SONGS = []; let SONG_LABEL = "오노추";
     async function loadSongs() {
       const { data } = await sb.from("site_content").select("content").eq("key", "song_requests").maybeSingle();
       if (!data || !data.content) { SONGS = []; return; }
