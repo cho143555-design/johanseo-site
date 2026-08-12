@@ -47,6 +47,13 @@
     /* 채점 전 접이식 질문 칸: 상자 속 상자가 되지 않게 껍데기 제거 */
     #askFoldBody .ask-box { margin-top:0; padding:0; border:none; background:none; }
     #askFoldBody .ask-box h4 { display:none; }
+    /* 채점 도구 묶음: 통일된 박스 스택 */
+    .tool-stack { display:grid; gap:10px; margin-top:26px; }
+    .tool-stack .faq-item { margin-bottom:0; }
+    .tool-link { display:flex; justify-content:space-between; align-items:center; gap:12px;
+      padding:16px 18px; font-weight:700; font-size:15.5px; color:var(--ink); text-decoration:none; }
+    .tool-link .arrow { color:var(--jumuk); font-weight:800; font-size:17px; }
+
   </style>
 </head>
 <body>
@@ -185,18 +192,14 @@
         </div>
       </div>
 
-      <!-- 채점 전에도 질문 가능: 채점하면 질문 칸이 결과 안으로 이동하고 이 접이식은 숨는다 -->
-      <details class="faq-item" id="askFold" style="margin-top:14px">
-        <summary id="askFoldTitle">혼자 해결이 안 되면, 질문 남기기</summary>
-        <div class="faq-body"><div id="askFoldBody"></div></div>
-      </details>
-    </div>
-  </section>
-
-  <section style="padding-top:0">
-    <div class="wrap" style="max-width:640px">
-      <p style="margin:0 0 14px"><a class="keep-link" style="margin-top:0" href="notebox.html">기억해둘 문제 보관함 열기 →</a></p>
-
+      <!-- 채점 도구 묶음: 보관함 → 질문 → 피드백 → 앱 안내 -->
+      <div class="tool-stack">
+        <a class="faq-item tool-link" href="notebox.html"><span>기억해둘 문제 보관함</span><span class="arrow">→</span></a>
+        <!-- 채점 전에도 질문 가능: 채점하면 질문 칸이 결과 안으로 이동하고 이 접이식은 숨는다 -->
+        <details class="faq-item" id="askFold">
+          <summary id="askFoldTitle">질문 남기기</summary>
+          <div class="faq-body"><div id="askFoldBody"></div></div>
+        </details>
       <details class="faq-item" id="guideDetails">
         <summary>국어 실력을 늘리고 싶다면 — 사고과정 피드백</summary>
         <div class="faq-body">
@@ -205,7 +208,6 @@
           </div>
         </div>
       </details>
-
       <details class="faq-item">
         <summary>이 화면을 앱처럼 쓰는 방법 (홈 화면에 추가)</summary>
         <div class="faq-body">
@@ -228,8 +230,10 @@
         </ol>
         </div>
       </details>
+      </div>
     </div>
   </section>
+
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
