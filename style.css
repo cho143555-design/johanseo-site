@@ -598,6 +598,14 @@ body .hint{font-size:12.5px}
   word-break:keep-all; overflow-wrap:break-word; }
 .song-body p:last-child { margin-bottom:0; }
 .song-body .ln { display:block; padding-left:13px; text-indent:-13px; }
+.song-body .lyr { display:block; white-space:nowrap; overflow:hidden; }
+.song-body .lyr-en { font-style:italic; color:#f6f1e7; font-size:13px; margin-top:9px; }
+.song-body .lyr-ko { color:rgba(246,241,231,.6); font-size:12px; margin-top:2px; }
+.song-body p .lyr:first-child { margin-top:0; }
 .song-body i { color:#f6f1e7; opacity:.92; }
 .song-body b { color:#fff; }
 .song-card .nw { white-space:nowrap; }
+@media (max-width: 400px) {
+  .song-card { padding:20px 15px 18px; }
+  .song-body .lyr { letter-spacing:-.015em; }
+}

@@ -883,21 +883,31 @@
       $("songTitle").textContent = s.title;
       $("songArtist").textContent = s.artist || "";
       $("songArtist").style.display = s.artist ? "" : "none";
-      // 가사(*줄 전체 기울임*) 문단만 줄 단위 유지, 나머지는 흐르는 줄글로
+      // 가사(*로 감싼 줄): 영어 원문/한글 해석 각각 한 줄, 폰 한 줄에 자동 맞춤. 나머지는 흐르는 줄글
       const lyric = (l) => /^\*[^*].*\*$/.test(l);
+      const lyrHtml = (l) => {
+        const txt = l.trim().replace(/^\*+|\*+$/g, "");
+        const ko = /[가-힣]/.test(txt);
+        return `<span class="lyr ${ko ? "lyr-ko" : "lyr-en"}">${esc(txt)}</span>`;
+      };
       $("songBody").innerHTML = paras.map(pp =>
         pp.some(lyric)
-          ? `<p>${pp.map(l => `<span class="ln">${fmt(l)}</span>`).join("")}</p>`
+          ? `<p>${pp.map(l => lyric(l) ? lyrHtml(l) : `<span class="ln">${fmt(l)}</span>`).join("")}</p>`
           : `<p>${fmt(pp.join(" "))}</p>`
       ).join("");
       box.style.display = "";
       $("songTitle").style.fontSize = "";
       let tries = 60;
+      const fitLine = (el, max, min) => {
+        let px = max; el.style.fontSize = px + "px";
+        while (el.scrollWidth > el.clientWidth + 1 && px > min) { px -= 0.5; el.style.fontSize = px + "px"; }
+      };
       const fitNow = () => {
-        const el = $("songTitle");
-        if (!el.clientWidth) { if (tries--) requestAnimationFrame(fitNow); return; }
-        let px = 21; el.style.fontSize = px + "px";
-        while (el.scrollWidth > el.clientWidth + 1 && px > 12.5) { px -= 0.5; el.style.fontSize = px + "px"; }
+        const t = $("songTitle");
+        if (!t.clientWidth) { if (tries--) requestAnimationFrame(fitNow); return; }
+        fitLine(t, 21, 12.5);
+        document.querySelectorAll("#songBody .lyr").forEach(el =>
+          fitLine(el, el.classList.contains("lyr-en") ? 13 : 12, 9));
       };
       requestAnimationFrame(fitNow);
     }

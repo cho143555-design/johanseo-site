@@ -298,7 +298,7 @@ Q: 다음 질문
               </div>
               <p class="mini" style="margin-bottom:12px">
                 <b>곡: 가수 – 제목</b> 줄 = 곡 하나의 시작 · 그 아래 줄들 = 코멘트 (빈 줄 = 문단 나눔, 문단 안 줄들은 줄글로 이어짐)
-                <br /><b>*별표 한 개*</b>로 줄 전체를 감싸면 <i>가사 줄</i>(줄바꿈 유지) · <b>**두 개**</b>는 굵게 · 맨 위 <b>제목:</b> 줄은 카드 라벨(선택)
+                <br /><b>*별표 한 개*</b>로 줄 전체를 감싸면 <i>가사 한 줄</i> — 영어 원문 줄, 한글 해석 줄을 따로 쓰세요 (각 줄이 폰 한 줄에 자동 맞춤) · <b>**두 개**</b>는 굵게 · 맨 위 <b>제목:</b> 줄은 카드 라벨(선택)
               </p>
               <div class="field" style="margin-top:2px">
                 <label>카드 미리보기 <span class="mini">— 실제 채점 만점 화면에 뜨는 모습, 입력하면 바로 갱신</span></label>
@@ -1287,9 +1287,14 @@ Q: 다음 질문
       s.lines.forEach(l => { if (!l.trim()) { if (p.length) { paras.push(p); p = []; } } else p.push(l.trim()); });
       if (p.length) paras.push(p);
       const lyric = (l) => /^\*[^*].*\*$/.test(l);
+      const lyrHtml = (l) => {
+        const txt = l.trim().replace(/^\*+|\*+$/g, "");
+        const ko = /[가-힣]/.test(txt);
+        return `<span class="lyr ${ko ? "lyr-ko" : "lyr-en"}">${esc(txt)}</span>`;
+      };
       const body = paras.map(pp =>
         pp.some(lyric)
-          ? `<p>${pp.map(l => `<span class="ln">${fmt(l)}</span>`).join("")}</p>`
+          ? `<p>${pp.map(l => lyric(l) ? lyrHtml(l) : `<span class="ln">${fmt(l)}</span>`).join("")}</p>`
           : `<p>${fmt(pp.join(" "))}</p>`
       ).join("");
       box.innerHTML = `<div class="song-card" style="margin-top:0;max-width:352px">
@@ -1298,9 +1303,13 @@ Q: 다음 질문
         ${s.artist ? `<p class="song-artist">${esc(s.artist)}</p>` : ""}
         <div class="song-rule"></div>
         <div class="song-body">${body}</div></div>`;
+      const spFit = (el, max, min) => { let px = max; el.style.fontSize = px + "px";
+        while (el.scrollWidth > el.clientWidth + 1 && px > min) { px -= 0.5; el.style.fontSize = px + "px"; } };
       const t = box.querySelector(".song-title");
-      if (t.clientWidth) { let px = 22; t.style.fontSize = px + "px";
-        while (t.scrollWidth > t.clientWidth + 1 && px > 12.5) { px -= 0.5; t.style.fontSize = px + "px"; } }
+      if (t.clientWidth) {
+        spFit(t, 22, 12.5);
+        box.querySelectorAll(".lyr").forEach(el => spFit(el, el.classList.contains("lyr-en") ? 13 : 12, 9));
+      }
       $("songPrevIdx").textContent = `${SP_I + 1} / ${SP_SONGS.length}곡`;
     }
     function spRefresh() { const r = spParse($("songText").value); SP_SONGS = r.songs; SP_LABEL = r.label || "오노추"; spRender(); }
