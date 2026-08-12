@@ -56,6 +56,9 @@
     .song-title { font-family:var(--serif); font-size:15.5px; font-weight:800; color:var(--ink); margin:0 0 8px; }
     .song-body p { font-size:13.5px; line-height:1.75; color:var(--ink-soft); margin:0 0 10px; }
     .song-body p:last-child { margin-bottom:0; }
+    .song-body .ln { display:block; padding-left:13px; text-indent:-13px;
+      word-break:keep-all; overflow-wrap:break-word; }
+    .song-title { word-break:keep-all; }
     .song-body i { color:var(--ink); opacity:.85; }
     .song-body b { color:var(--ink); }
     /* 채점기 아래 습관 핵심 + 도구 묶음 */
@@ -867,7 +870,7 @@
       if (p.length) paras.push(p);
       $("songLabel").textContent = SONG_LABEL;
       $("songTitle").textContent = s.title;
-      $("songBody").innerHTML = paras.map(pp => `<p>${pp.map(fmt).join("<br />")}</p>`).join("");
+      $("songBody").innerHTML = paras.map(pp => `<p>${pp.map(l => `<span class="ln">${fmt(l)}</span>`).join("")}</p>`).join("");
       box.style.display = "";
     }
 
