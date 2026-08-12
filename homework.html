@@ -61,6 +61,13 @@
     .song-title { word-break:keep-all; }
     .song-body i { color:var(--ink); opacity:.85; }
     .song-body b { color:var(--ink); }
+    /* 결과 화면 정리: 담기도 다른 카드와 같은 상자, 카드 간격 통일 */
+    .keep-box { margin-top:22px; padding:16px 18px 15px; border:1px solid var(--line);
+      border-radius:var(--radius); background:rgba(255,255,255,0.4); }
+    #result .faq-item { margin:22px 0 0; }
+    /* 짧은 안내문 줄바꿈 원칙: 단어 단위 + 괄호는 통째로 */
+    .ask-lead, .keep-lead, .keep-extra summary { word-break:keep-all; overflow-wrap:break-word; }
+    .nw { white-space:nowrap; }
     /* 채점기 아래 습관 핵심 + 도구 묶음 */
     #habitWrap { margin-top:26px; }
     .tool-stack { display:grid; gap:10px; margin-top:26px; }
@@ -335,7 +342,14 @@
       Object.values(bankIdx).forEach(chs => Object.values(chs).forEach(c =>
         c.sections.sort((a, b) => a.section.localeCompare(b.section, "ko"))));
       $("mSel").innerHTML = Object.keys(bankIdx).sort().map(m => `<option value="${m}">${m}</option>`).join("");
-      fillChapters();
+      // 이 기기에서 마지막으로 채점한 교재·단원을 기억해 자동 선택
+      let lm = null, lc = null;
+      try { lm = localStorage.getItem("hw_last_mat"); lc = localStorage.getItem("hw_last_ch"); } catch (e) {}
+      if (lm && bankIdx[lm]) {
+        $("mSel").value = lm;
+        fillChapters();
+        if (lc && (bankIdx[lm] || {})[lc]) { $("cSel").value = lc; onChapter(); }
+      } else fillChapters();
     }
     function fillChapters() {
       const m = $("mSel").value;
@@ -581,7 +595,9 @@
              || [current.material, current.chapter, current.section].filter(Boolean).join(" "));
         if (retryMode) lastLabel += " · 오답 재풀이";
         buildKeep(json.wrong_questions, json.plus_no || null);
-        renderSong();
+        try { if (current && current.material) { localStorage.setItem("hw_last_mat", current.material); if (current.chapter) localStorage.setItem("hw_last_ch", current.chapter); } } catch (e) {}
+        if (json.wrong_questions.length) $("songCard").style.display = "none";
+        else renderSong();
         $("askMsg").style.display = "none";
         $("result").classList.add("show");
         $("result").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -864,7 +880,8 @@
       const box = $("songCard");
       if (!SONGS.length) { box.style.display = "none"; return; }
       const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-      const fmt = (t) => esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\*(.+?)\*/g,"<i>$1</i>");
+      const fmt = (t) => esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\*(.+?)\*/g,"<i>$1</i>")
+        .replace(/\(([^()<>]{1,28})\)/g, '<span class="nw">($1)</span>');
       const s = pick(SONGS);
       const paras = []; let p = [];
       s.lines.forEach(l => { if (!l.trim()) { if (p.length) { paras.push(p); p = []; } } else p.push(l.trim()); });
