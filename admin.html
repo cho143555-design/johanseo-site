@@ -83,9 +83,9 @@
           </details>
 
           <!-- 대량 등록 -->
-          <div>
-            <p class="section-label">교재 등록</p>
-            <h2 class="section-title" style="margin-bottom:16px">붙여넣기로 대량 등록</h2>
+          <details class="faq-item">
+            <summary>교재 등록 — 붙여넣기 대량 등록</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="bulkText">등록 텍스트</label>
@@ -115,12 +115,13 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
               </div>
               <div class="preview" id="previewBox"></div>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 정답 수정 -->
-          <div>
-            <p class="section-label">정답 수정</p>
-            <h2 class="section-title" style="margin-bottom:16px">문항 정답 고치기</h2>
+          <details class="faq-item">
+            <summary>정답 수정 — 문항 정답 고치기</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
                 <div class="field"><label for="edMat">교재</label><select id="edMat"></select></div>
@@ -132,12 +133,13 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
               <div class="omr" id="edOmr" style="margin-top:14px"></div>
               <p class="msg err" id="edErr" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 결과 화면 안내문 편집 -->
-          <div>
-            <p class="section-label">안내문 편집</p>
-            <h2 class="section-title" style="margin-bottom:16px">채점 결과 아래 안내문 고치기</h2>
+          <details class="faq-item">
+            <summary>안내문 편집 — 사고과정 피드백</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="guideText">내용 <span class="mini">— 저장하면 즉시 사이트에 반영</span></label>
@@ -154,12 +156,13 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
               <p class="msg" id="guideMsg" style="display:none"></p>
               <div class="fb" id="guidePreview" style="display:none;margin-top:16px;border-top:1px dashed var(--line);padding-top:16px"></div>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 메인 문구 편집 -->
-          <div>
-            <p class="section-label">메인 문구 편집</p>
-            <h2 class="section-title" style="margin-bottom:16px">홈 첫 화면 문구 고치기</h2>
+          <details class="faq-item">
+            <summary>메인 문구 편집 — 홈 첫 화면</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="heroText">내용 <span class="mini">— 저장하면 홈에 즉시 반영</span></label>
@@ -175,12 +178,13 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
               <button class="btn jumuk" id="heroSaveBtn" style="width:100%">저장 (즉시 반영)</button>
               <p class="msg" id="heroMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 홈 소개 편집 -->
-          <div>
-            <p class="section-label">소개 편집</p>
-            <h2 class="section-title" style="margin-bottom:16px">홈 화면 선생님 소개 고치기</h2>
+          <details class="faq-item">
+            <summary>소개 편집 — 선생님 소개</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="teacherText">내용 <span class="mini">— 저장하면 홈에 즉시 반영</span></label>
@@ -194,12 +198,13 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
               <button class="btn jumuk" id="teacherSaveBtn" style="width:100%">저장 (즉시 반영)</button>
               <p class="msg" id="teacherMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- FAQ 편집 -->
-          <div>
-            <p class="section-label">FAQ 편집</p>
-            <h2 class="section-title" style="margin-bottom:16px">자주 묻는 질문 고치기</h2>
+          <details class="faq-item">
+            <summary>FAQ 편집 — 자주 묻는 질문</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="faqText">내용 <span class="mini">— 저장하면 홈에 즉시 반영</span></label>
@@ -214,12 +219,13 @@ Q: 다음 질문
               <button class="btn jumuk" id="faqSaveBtn" style="width:100%">저장 (즉시 반영)</button>
               <p class="msg" id="faqMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 칼럼 편집 -->
-          <div>
-            <p class="section-label">칼럼 편집</p>
-            <h2 class="section-title" style="margin-bottom:16px">칼럼 글 고치기 · 추가하기</h2>
+          <details class="faq-item">
+            <summary>칼럼 편집 — 글 고치기 · 추가</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="colText">내용 <span class="mini">— 맨 위 문단(첫 <b>범주:</b> 줄 앞)은 칼럼 섹션 안내문으로 나갑니다 · 저장하면 홈에 즉시 반영</span></label>
@@ -244,12 +250,13 @@ Q: 다음 질문
               </div>
               <p class="msg" id="colMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 만점 축하 문구 -->
-          <div>
-            <p class="section-label">만점 축하 문구</p>
-            <h2 class="section-title" style="margin-bottom:16px">다 맞았을 때 뜨는 말 고치기</h2>
+          <details class="faq-item">
+            <summary>만점 축하 문구</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="perfText">문구 목록 <span class="mini">— 한 줄에 하나씩. 채점에서 만점이면 무작위로 하나가 뜹니다</span></label>
@@ -271,12 +278,13 @@ Q: 다음 질문
               </div>
               <p class="msg" id="perfMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 채점 후 노래 추천 -->
-          <div>
-            <p class="section-label">Song requests</p>
-            <h2 class="section-title" style="margin-bottom:16px">채점하면 뜨는 노래 추천</h2>
+          <details class="faq-item">
+            <summary>Song requests — 노래 추천</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="songText">노래 목록 <span class="mini">— 채점할 때마다 결과 맨 위에 무작위로 한 곡이 뜹니다</span></label>
@@ -298,12 +306,13 @@ Q: 다음 질문
               </div>
               <p class="msg" id="songMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 질문칸 문구 -->
-          <div>
-            <p class="section-label">질문칸 문구</p>
-            <h2 class="section-title" style="margin-bottom:16px">채점 후 질문 안내 문구 고치기</h2>
+          <details class="faq-item">
+            <summary>질문칸 문구</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="askText2">내용 <span class="mini">— 저장하면 채점 화면에 즉시 반영</span></label>
@@ -320,12 +329,13 @@ Q: 다음 질문
               <button class="btn jumuk" id="askSaveBtn" style="width:100%">저장 (즉시 반영)</button>
               <p class="msg" id="askMsg2" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 채점 습관 안내 -->
-          <div>
-            <p class="section-label">채점 습관 안내</p>
-            <h2 class="section-title" style="margin-bottom:16px">채점 화면 맨 위 습관 안내 고치기</h2>
+          <details class="faq-item">
+            <summary>채점 습관 안내</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="habitText2">내용 <span class="mini">— 저장하면 채점 화면에 즉시 반영</span></label>
@@ -345,12 +355,13 @@ Q: 다음 질문
               <button class="btn jumuk" id="habitSaveBtn" style="width:100%">저장 (즉시 반영)</button>
               <p class="msg" id="habitMsg2" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 학생 보관함 -->
-          <div>
-            <p class="section-label">기억해둘 문제 보관함</p>
-            <h2 class="section-title" style="margin-bottom:16px">학생이 담아둔 문제와 메모</h2>
+          <details class="faq-item">
+            <summary>기억해둘 문제 보관함</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;margin-bottom:14px">
                 <select id="nbAdminWho"><option value="">— 전체 —</option></select>
@@ -362,12 +373,13 @@ Q: 다음 질문
               <p class="mini" id="nbAdminCount" style="margin-bottom:12px"></p>
               <div id="nbAdminList"></div>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 보관함 안내 문구 -->
-          <div>
-            <p class="section-label">보관함 문구</p>
-            <h2 class="section-title" style="margin-bottom:16px">보관함 안내 문구 고치기</h2>
+          <details class="faq-item">
+            <summary>보관함 문구</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="nbGuideText">내용 <span class="mini">— 저장하면 보관함 화면에 즉시 반영</span></label>
@@ -380,12 +392,13 @@ Q: 다음 질문
               <button class="btn jumuk" id="nbGuideSaveBtn" style="width:100%">저장 (즉시 반영)</button>
               <p class="msg" id="nbGuideMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 수업 안내 -->
-          <div>
-            <p class="section-label">수업 안내</p>
-            <h2 class="section-title" style="margin-bottom:16px">홈 화면 수업 안내 고치기</h2>
+          <details class="faq-item">
+            <summary>수업 안내</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
                 <label for="lessonsText">내용 <span class="mini">— 저장하면 홈 화면에 즉시 반영</span></label>
@@ -398,12 +411,13 @@ Q: 다음 질문
               <button class="btn jumuk" id="lessonsSaveBtn" style="width:100%">저장 (즉시 반영)</button>
               <p class="msg" id="lessonsMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 학생 명단 -->
-          <div>
-            <p class="section-label">학생 명단</p>
-            <h2 class="section-title" style="margin-bottom:16px">우리 학생들</h2>
+          <details class="faq-item">
+            <summary>학생 명단</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
                 <div class="field" style="margin-bottom:0"><input id="stuName" placeholder="학생 이름 (세 글자 정자)" /></div>
@@ -412,12 +426,13 @@ Q: 다음 질문
               <div id="stuList" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px"></div>
               <p class="msg err" id="stuMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 과제 내기 -->
-          <div>
-            <p class="section-label">과제 내기</p>
-            <h2 class="section-title" style="margin-bottom:16px">과제 만들고 학생 지목하기</h2>
+          <details class="faq-item">
+            <summary>과제 내기</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
                 <div class="field"><label for="bkMaterial">교재</label><select id="bkMaterial"></select></div>
@@ -437,12 +452,13 @@ Q: 다음 질문
               <button class="btn jumuk" id="bkSaveBtn" style="width:100%">과제 등록</button>
               <p class="msg" id="bkMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 자작 학습지 -->
-          <div>
-            <p class="section-label">자작 학습지</p>
-            <h2 class="section-title" style="margin-bottom:16px">직접 정답 입력해 등록</h2>
+          <details class="faq-item">
+            <summary>자작 학습지</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field"><label for="setCode">학습지 코드 <span class="mini">— 영문/숫자, 겹치지 않게</span></label><input id="setCode" placeholder="igam-doksu-1" /></div>
               <div class="field"><label for="title">제목</label><input id="title" placeholder="이감 독서 1회" /></div>
@@ -455,12 +471,13 @@ Q: 다음 질문
               <button class="btn" id="saveBtn" style="width:100%">등록하기</button>
               <p class="msg" id="saveMsg" style="display:none"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 학생별 리포트 -->
-          <div>
-            <p class="section-label">학생별 리포트</p>
-            <h2 class="section-title" style="margin-bottom:16px">성적 추이 보기</h2>
+          <details class="faq-item">
+            <summary>학생별 리포트 — 성적 추이</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
                 <div class="field" style="margin-bottom:0"><input id="rpName" placeholder="학생 이름 (세 글자 정자)" /></div>
@@ -468,29 +485,33 @@ Q: 다음 질문
               </div>
               <div id="rpBox" style="margin-top:16px"></div>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 오답 통계 -->
-          <div>
-            <p class="section-label">오답 통계</p>
-            <h2 class="section-title" style="margin-bottom:16px">많이 틀리는 문항</h2>
+          <details class="faq-item">
+            <summary>오답 통계 — 많이 틀리는 문항</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field"><label for="stSel">과제/세트 선택 <span class="mini">— 제출이 있는 것만 표시</span></label>
                 <select id="stSel"><option value="">불러오는 중…</option></select></div>
               <div id="stBox"></div>
             </div>
-          </div>
+            </div>
+          </details>
 
           <!-- 등록된 과제 -->
-          <div>
-            <p class="section-label">등록된 과제</p>
+          <details class="faq-item">
+            <summary>등록된 과제</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div id="setList" class="admin-grid"></div>
-          </div>
+            </div>
+          </details>
 
           <!-- 학생 질문함 -->
-          <div>
-            <p class="section-label">학생 질문</p>
-            <h2 class="section-title" style="margin-bottom:16px">채점 후 남긴 질문</h2>
+          <details class="faq-item">
+            <summary>학생 질문함</summary>
+            <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <p class="mini" style="margin-bottom:14px">질문이 오면 디스코드로도 알림이 갑니다. 답변은 카톡으로 하고, 처리한 질문은 [완료] 처리하세요.</p>
               <div id="qList" class="admin-grid"></div>
@@ -498,7 +519,8 @@ Q: 다음 질문
                 <button class="btn ghost" id="qMoreBtn" style="display:none;padding:8px 18px;font-size:13px">더 보기</button>
               </div>
             </div>
-          </div>
+            </div>
+          </details>
 
         </div>
       </div>
