@@ -47,7 +47,8 @@
     /* 채점 전 접이식 질문 칸: 상자 속 상자가 되지 않게 껍데기 제거 */
     #askFoldBody .ask-box { margin-top:0; padding:0; border:none; background:none; }
     #askFoldBody .ask-box h4 { display:none; }
-    /* 채점 도구 묶음: 통일된 박스 스택 */
+    /* 채점기 아래 습관 핵심 + 도구 묶음 */
+    #habitWrap { margin-top:26px; }
     .tool-stack { display:grid; gap:10px; margin-top:26px; }
     .tool-stack .faq-item { margin-bottom:0; }
     .tool-link { display:flex; justify-content:space-between; align-items:center; gap:12px;
@@ -70,17 +71,6 @@
   <section>
     <div class="wrap" style="max-width:640px">
       <h1 class="hw-title">과제 채점</h1>
-
-      <!-- 채점 습관 안내 — 문구는 admin '채점 습관 안내'에서 편집 -->
-      <div id="habitWrap" style="display:none">
-        <div class="habit-core" id="habitCore"></div>
-        <details class="faq-item" id="habitDetails">
-          <summary id="habitTitle"></summary>
-          <div class="faq-body">
-            <div class="fb" id="habitBody" style="margin-top:0"></div>
-          </div>
-        </details>
-      </div>
 
       <div class="panel">
         <div class="field">
@@ -192,13 +182,24 @@
         </div>
       </div>
 
-      <!-- 채점 도구 묶음: 보관함 → 질문 → 피드백 → 앱 안내 -->
+      <!-- 채점 습관 핵심 — 문구는 admin '채점 습관 안내'에서 편집 -->
+      <div id="habitWrap" style="display:none">
+        <div class="habit-core" id="habitCore"></div>
+      </div>
+
+      <!-- 채점 도구 묶음: 보관함 → 질문 → 채점 습관 → 피드백 → 앱 안내 -->
       <div class="tool-stack">
         <a class="faq-item tool-link" href="notebox.html"><span>기억해둘 문제 보관함</span><span class="arrow">→</span></a>
         <!-- 채점 전에도 질문 가능: 채점하면 질문 칸이 결과 안으로 이동하고 이 접이식은 숨는다 -->
         <details class="faq-item" id="askFold">
           <summary id="askFoldTitle">질문 남기기</summary>
           <div class="faq-body"><div id="askFoldBody"></div></div>
+        </details>
+        <details class="faq-item" id="habitDetails" style="display:none">
+          <summary id="habitTitle"></summary>
+          <div class="faq-body">
+            <div class="fb" id="habitBody" style="margin-top:0"></div>
+          </div>
         </details>
       <details class="faq-item" id="guideDetails">
         <summary>국어 실력을 늘리고 싶다면 — 사고과정 피드백</summary>
@@ -800,6 +801,7 @@
       if (title && body.length) {
         $("habitTitle").textContent = title;
         $("habitBody").innerHTML = renderGuide(body.join("\n"));
+        $("habitDetails").style.display = "";
       } else {
         $("habitDetails").style.display = "none";
       }
