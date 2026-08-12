@@ -47,6 +47,17 @@
     /* 채점 전 접이식 질문 칸: 상자 속 상자가 되지 않게 껍데기 제거 */
     #askFoldBody .ask-box { margin-top:0; padding:0; border:none; background:none; }
     #askFoldBody .ask-box h4 { display:none; }
+    /* 채점 후 노래 추천 카드 */
+    .song-card { margin-top:22px; padding:16px 18px 15px;
+      border:1px solid var(--line); border-left:3px solid var(--jumuk);
+      border-radius:var(--radius); background:rgba(255,255,255,0.4); }
+    .song-label { font-size:11.5px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+      color:var(--jumuk); margin:0 0 8px; }
+    .song-title { font-family:var(--serif); font-size:15.5px; font-weight:800; color:var(--ink); margin:0 0 8px; }
+    .song-body p { font-size:13.5px; line-height:1.75; color:var(--ink-soft); margin:0 0 10px; }
+    .song-body p:last-child { margin-bottom:0; }
+    .song-body i { color:var(--ink); opacity:.85; }
+    .song-body b { color:var(--ink); }
     /* 채점기 아래 습관 핵심 + 도구 묶음 */
     #habitWrap { margin-top:26px; }
     .tool-stack { display:grid; gap:10px; margin-top:26px; }
@@ -127,6 +138,13 @@
           <div class="score-big"><span id="scoreLabel"></span></div>
           <div class="wrong-list" id="wrongList"></div>
           <button class="btn jumuk" id="retryBtn" style="margin-top:16px;display:none">틀린 문항만 다시 풀기</button>
+
+          <!-- 채점 후 노래 추천 — admin 'Song requests'에서 편집 -->
+          <div class="song-card" id="songCard" style="display:none">
+            <p class="song-label" id="songLabel">Song requests</p>
+            <p class="song-title" id="songTitle"></p>
+            <div class="song-body" id="songBody"></div>
+          </div>
 
           <!-- 기억해둘 문제 담기 -->
           <div class="keep-box" id="keepBox" style="display:none">
@@ -558,6 +576,7 @@
              || [current.material, current.chapter, current.section].filter(Boolean).join(" "));
         if (retryMode) lastLabel += " · 오답 재풀이";
         buildKeep(json.wrong_questions, json.plus_no || null);
+        renderSong();
         $("askMsg").style.display = "none";
         $("result").classList.add("show");
         $("result").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -822,12 +841,42 @@
       if (retry.length) RETRY_PERFECT_MSGS = retry;
     }
 
+    // ── 채점 후 노래 추천 (admin 'Song requests'에서 편집) ──
+    let SONGS = []; let SONG_LABEL = "Song requests";
+    async function loadSongs() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "song_requests").maybeSingle();
+      if (!data || !data.content) { SONGS = []; return; }
+      const songs = []; let label = ""; let cur = null;
+      data.content.replace(/\r/g, "").split("\n").forEach(l => {
+        const t = l.trim(); let m;
+        if (!cur && (m = t.match(/^제목\s*:\s*(.+)$/))) { label = m[1].trim(); return; }
+        if ((m = t.match(/^곡\s*:\s*(.+)$/))) { cur = { title: m[1].trim(), lines: [] }; songs.push(cur); return; }
+        if (cur) cur.lines.push(l);
+      });
+      SONGS = songs.filter(s => s.title);
+      if (label) SONG_LABEL = label;
+    }
+    function renderSong() {
+      const box = $("songCard");
+      if (!SONGS.length) { box.style.display = "none"; return; }
+      const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      const fmt = (t) => esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\*(.+?)\*/g,"<i>$1</i>");
+      const s = pick(SONGS);
+      const paras = []; let p = [];
+      s.lines.forEach(l => { if (!l.trim()) { if (p.length) { paras.push(p); p = []; } } else p.push(l.trim()); });
+      if (p.length) paras.push(p);
+      $("songLabel").textContent = SONG_LABEL;
+      $("songTitle").textContent = s.title;
+      $("songBody").innerHTML = paras.map(pp => `<p>${pp.map(fmt).join("<br />")}</p>`).join("");
+      box.style.display = "";
+    }
+
     async function loadGuide() {
       const { data, error } = await sb.from("site_content").select("content").eq("key", "result_guide").maybeSingle();
       if (!error && data && data.content) $("fbBox").innerHTML = renderGuide(data.content);
     }
 
-    (async () => { await loadIndex(); await loadSets(); loadGuide(); loadPerfectMsgs(); loadAskBox(); loadHabit(); })();
+    (async () => { await loadIndex(); await loadSets(); loadGuide(); loadPerfectMsgs(); loadSongs(); loadAskBox(); loadHabit(); })();
 
     /* 홈 화면 앱에서 다시 열었을 때: 채점 중이면 절대 새로고침하지 않는다(답이 날아간다).
        손대지 않은 상태에서만 통째로 새로고침하고, 그 외에는 안내 문구만 조용히 갱신한다. */
@@ -837,7 +886,7 @@
       const 결과열림 = $("result").classList.contains("show");
       const 질문초안 = ($("askText").value || "").trim();
       if (!이름 && !답입력 && !결과열림 && !질문초안) { location.reload(); return; }
-      loadGuide(); loadAskBox(); loadHabit(); loadPerfectMsgs();
+      loadGuide(); loadAskBox(); loadHabit(); loadPerfectMsgs(); loadSongs();
     };
   </script>
   <script>
