@@ -44,6 +44,9 @@
       font-size:14px; line-height:1.7; color:var(--ink); }
     .note-card .no { font-family:var(--serif); font-weight:800; color:var(--jumuk); margin-right:8px; }
     .note-card .aside { display:block; margin-top:8px; font-size:13px; color:var(--ink-soft); }
+    /* 채점 전 접이식 질문 칸: 상자 속 상자가 되지 않게 껍데기 제거 */
+    #askFoldBody .ask-box { margin-top:0; padding:0; border:none; background:none; }
+    #askFoldBody .ask-box h4 { display:none; }
   </style>
 </head>
 <body>
@@ -181,6 +184,12 @@
           <button class="btn ghost" id="againBtn" style="margin-top:18px">다시 풀기</button>
         </div>
       </div>
+
+      <!-- 채점 전에도 질문 가능: 채점하면 질문 칸이 결과 안으로 이동하고 이 접이식은 숨는다 -->
+      <details class="faq-item" id="askFold" style="margin-top:14px">
+        <summary id="askFoldTitle">혼자 해결이 안 되면, 질문 남기기</summary>
+        <div class="faq-body"><div id="askFoldBody"></div></div>
+      </details>
     </div>
   </section>
 
@@ -573,7 +582,7 @@
         else if (k === "입력예시") ph = v;
         else if (k === "완료문구") done = v;
       });
-      if (title) $("askTitle").textContent = title;
+      if (title) { $("askTitle").textContent = title; $("askFoldTitle").textContent = title; }
       if (leads.length) $("askLeadBox").innerHTML = leads.map(x => `<p class="ask-lead">${bold(x)}</p>`).join("");
       if (ph) $("askText").placeholder = ph;
       if (done) ASK_DONE = done;
@@ -610,6 +619,15 @@
         $("askBtn").disabled = false; $("askBtn").textContent = "질문 보내기";
       }
     });
+
+    // ── 질문 칸 위치 전환: 채점 전엔 접이식(#askFold), 채점 후엔 결과 안 ──
+    const askHome = () => {
+      const open = $("result").classList.contains("show");
+      if (open) { $("result").insertBefore($("askBox"), $("againBtn")); $("askFold").style.display = "none"; }
+      else { $("askFoldBody").appendChild($("askBox")); $("askFold").style.display = ""; }
+    };
+    new MutationObserver(askHome).observe($("result"), { attributes: true, attributeFilter: ["class"] });
+    askHome();
 
     $("againBtn").addEventListener("click", () => {
       $("result").classList.remove("show");
@@ -811,7 +829,8 @@
       const 이름 = ($("name").value || "").trim();
       const 답입력 = Array.isArray(answers) && answers.some(v => v !== null && v !== undefined);
       const 결과열림 = $("result").classList.contains("show");
-      if (!이름 && !답입력 && !결과열림) { location.reload(); return; }
+      const 질문초안 = ($("askText").value || "").trim();
+      if (!이름 && !답입력 && !결과열림 && !질문초안) { location.reload(); return; }
       loadGuide(); loadAskBox(); loadHabit(); loadPerfectMsgs();
     };
   </script>
