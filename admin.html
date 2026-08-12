@@ -60,24 +60,27 @@
       <div id="adminView" style="display:none">
         <div class="admin-grid">
 
-          <!-- 제출 기록 -->
-          <div>
-            <p class="section-label">제출 기록</p>
-            <h2 class="section-title" style="margin-bottom:16px">채점 결과</h2>
-            <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
-              <div class="field" style="margin-bottom:0"><input id="subFilter" placeholder="학생 이름으로 검색" /></div>
-              <button class="btn ghost" id="csvBtn">CSV 내보내기</button>
+          <!-- 제출 기록 (평소 접힘) -->
+          <details class="faq-item" id="subFold">
+            <summary>채점 결과 — 제출 기록</summary>
+            <div class="faq-body" style="padding-top:6px">
+              <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
+                <div class="field" style="margin-bottom:0"><input id="subFilter" placeholder="학생 이름으로 검색" /></div>
+                <button class="btn ghost" id="csvBtn">CSV 내보내기</button>
+              </div>
+              <div id="subChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
+              <div id="subList" class="admin-grid"></div>
+              <div id="subPager" style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px"></div>
             </div>
-            <div id="subChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
-            <div id="subList" class="admin-grid"></div>
-            <div id="subPager" style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px"></div>
-          </div>
+          </details>
 
-          <!-- 교재 현황 -->
-          <div>
-            <p class="section-label">교재 현황</p>
-            <div id="matList" class="admin-grid"></div>
-          </div>
+          <!-- 교재 현황 (평소 접힘) -->
+          <details class="faq-item" id="matFold">
+            <summary>교재 현황 — 교재 목록</summary>
+            <div class="faq-body" style="padding-top:6px">
+              <div id="matList" class="admin-grid"></div>
+            </div>
+          </details>
 
           <!-- 대량 등록 -->
           <div>
