@@ -31,6 +31,10 @@
     }
     .tab.on { background:var(--ink); color:var(--paper); border-color:var(--ink); }
     .hint { font-size:13px; color:var(--ink-soft); margin-top:-12px; margin-bottom:18px; }
+    /* 교재·단원 — 좁은 화면에서는 세로로 (교재 이름이 잘려 서로 구분이 안 되는 것 방지) */
+    .pick-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:520px) { .pick-grid { grid-template-columns:1fr; gap:0; } }
+    #matScope a { color:var(--jumuk); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
     .fb { margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); }
     .fb h4 { font-family:var(--serif); font-size:17px; font-weight:800; margin-bottom:12px; }
     .fb ol { padding-left:20px; }
@@ -94,10 +98,11 @@
 
         <!-- 교재 범위 셀프 채점 -->
         <div id="rangeView">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pick-grid">
             <div class="field"><label for="mSel">교재</label><select id="mSel"></select></div>
             <div class="field"><label for="cSel">단원</label><select id="cSel"></select></div>
           </div>
+          <p class="hint" id="matScope" style="display:none;margin:-12px 0 16px"></p>
           <div id="rangeInputs">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
               <div class="field"><label for="startNo">시작 번호</label><input id="startNo" type="number" min="1" inputmode="numeric" /></div>
@@ -288,6 +293,9 @@
     const CH_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','인문·독서','인문·예술','사회','과학','기술','과학·기술','주제 통합','예술','복합 지문','독서론','미니모의고사 1회','미니모의고사 2회','고전 시가','현대 소설','고전 산문','갈래 복합'];
 
     let bankIdx = {};     // { 교재: [{chapter,min_no,max_no}] }
+    let matCat = {};      // { 교재: 분류 }  — null 이면 일반 교재
+    let myMats = null;    // 이 학생의 담당 교재 (admin에서 지정)
+    let showAllMats = false;
     let mode = "range";   // 'range' | 'set'
     let current = null;   // 채점 대상 정보
     let answers = [];
@@ -297,15 +305,23 @@
     $("name").addEventListener("input", () => {
       clearTimeout(nameTimer);
       const v = $("name").value.trim();
-      if (!v) { $("nameList").innerHTML = ""; return; }
+      if (!v) { $("nameList").innerHTML = ""; applyMyMats(null); return; }
       nameTimer = setTimeout(async () => {
         try {
-          const { data } = await sb.from("student_names").select("name")
+          const { data } = await sb.from("student_names").select("name, materials")
             .ilike("name", v + "%").order("name").limit(8);
           $("nameList").innerHTML = (data || []).map(r => `<option value="${r.name}"></option>`).join("");
+          applyMyMats((data || []).find(r => r.name === v));
         } catch (e) {}
       }, 180);
     });
+    // 이름이 정확히 맞는 학생이면 그 학생의 담당 교재만 보여준다
+    function applyMyMats(row) {
+      const next = (row && Array.isArray(row.materials) && row.materials.length) ? row.materials : null;
+      if (JSON.stringify(next) === JSON.stringify(myMats)) return;
+      myMats = next; showAllMats = false;
+      renderMatSelect(true);
+    }
 
     function showErr(m) { const e = $("err"); e.textContent = m; e.style.display = m ? "block" : "none"; }
     function chSort(a, b) {
@@ -329,15 +345,55 @@
       });
       Object.values(bankIdx).forEach(chs => Object.values(chs).forEach(c =>
         c.sections.sort((a, b) => a.section.localeCompare(b.section, "ko"))));
-      $("mSel").innerHTML = Object.keys(bankIdx).sort().map(m => `<option value="${m}">${m}</option>`).join("");
-      // 이 기기에서 마지막으로 채점한 교재·단원을 기억해 자동 선택
+      matCat = {};
+      data.forEach(r => { if (r.category && !matCat[r.material]) matCat[r.material] = r.category; });
+      renderMatSelect(false);
+    }
+
+    const lastMat = () => { try { return localStorage.getItem("hw_last_mat"); } catch (e) { return null; } };
+
+    // 교재 칸을 다시 그린다. keep=true 면 지금 고른 교재를 최대한 유지한다.
+    function renderMatSelect(keep) {
+      const all = Object.keys(bankIdx).sort();
+      const prev = keep ? $("mSel").value : null;
+      const opt = (m) => `<option value="${m}">${m}</option>`;
+      const mine = (myMats || []).filter(m => bankIdx[m]);
+      const scope = $("matScope");
+
+      if (mine.length && !showAllMats) {
+        $("mSel").innerHTML = mine.map(opt).join("");
+        scope.innerHTML = '내 교재만 보이고 있어. <a href="#" id="matScopeBtn">다른 교재 찾기</a>';
+        scope.style.display = "";
+      } else {
+        const lm = lastMat();
+        const recent = (!mine.length && lm && bankIdx[lm]) ? [lm] : [];
+        const rest = all.filter(m => !recent.includes(m));
+        const sil = rest.filter(m => matCat[m] === "실전 모의고사");
+        const bok = rest.filter(m => matCat[m] !== "실전 모의고사");
+        let html = "";
+        if (recent.length) html += `<optgroup label="최근 채점">${recent.map(opt).join("")}</optgroup>`;
+        if (sil.length) html += `<optgroup label="실전 모의고사">${sil.map(opt).join("")}</optgroup>`;
+        if (bok.length) html += `<optgroup label="교재">${bok.map(opt).join("")}</optgroup>`;
+        $("mSel").innerHTML = html;
+        if (mine.length) {
+          scope.innerHTML = '전체 교재를 보고 있어. <a href="#" id="matScopeBtn">내 교재만 보기</a>';
+          scope.style.display = "";
+        } else scope.style.display = "none";
+      }
+
+      const btn = $("matScopeBtn");
+      if (btn) btn.addEventListener("click", (e) => {
+        e.preventDefault(); showAllMats = !showAllMats; renderMatSelect(true);
+      });
+
+      // 고를 교재 정하기: 유지 > 마지막으로 채점한 교재 > 첫 항목
       let lm = null, lc = null;
       try { lm = localStorage.getItem("hw_last_mat"); lc = localStorage.getItem("hw_last_ch"); } catch (e) {}
-      if (lm && bankIdx[lm]) {
-        $("mSel").value = lm;
-        fillChapters();
-        if (lc && (bankIdx[lm] || {})[lc]) { $("cSel").value = lc; onChapter(); }
-      } else fillChapters();
+      const has = (m) => m && [...$("mSel").options].some(o => o.value === m);
+      if (has(prev)) $("mSel").value = prev;
+      else if (has(lm)) $("mSel").value = lm;
+      fillChapters();
+      if ($("mSel").value === lm && lc && (bankIdx[lm] || {})[lc]) { $("cSel").value = lc; onChapter(); }
     }
     function fillChapters() {
       const m = $("mSel").value;

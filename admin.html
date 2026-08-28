@@ -109,6 +109,7 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
 1: 2 4 4 3 4 2 2 2 1
 10: 3 5 5 4 5 …   ← 10번부터 이어짐"></textarea>
               </div>
+              <p class="mini" style="margin-bottom:12px">'교재:' 줄 아래에 <b>분류: 실전 모의고사</b> 를 넣으면 채점 화면 교재 목록에서 그 머리글 아래로 묶입니다. (비우면 일반 교재)</p>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
                 <button class="btn ghost" id="previewBtn">미리보기 (검사)</button>
                 <button class="btn jumuk" id="bulkBtn" disabled>등록하기</button>
@@ -433,6 +434,9 @@ Q: 다음 질문
                 <button class="btn" id="stuAddBtn">추가</button>
               </div>
               <div id="stuList" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px"></div>
+              <div id="stuBooks" style="display:none;margin-top:14px;border-top:1px dashed var(--line);padding-top:14px"></div>
+              <p class="mini" style="margin-top:12px">이름 옆 <b>교재</b>를 누르면 그 학생이 지금 푸는 교재를 정할 수 있습니다.
+                지정해두면 채점 화면에서 <b>그 교재만</b> 뜹니다. (지정 안 하면 지금까지처럼 전체가 뜹니다)</p>
               <p class="msg err" id="stuMsg" style="display:none"></p>
             </div>
             </div>
@@ -627,10 +631,18 @@ Q: 다음 질문
         </div><div class="ans-wrap" id="ansBox${i}" style="display:none"></div></div>`;
       }).join("") || '<p class="meta">등록된 교재가 없습니다.</p>';
 
-      // 과제내기(범위형만) / 정답수정(전체) 드롭다운
-      $("bkMaterial").innerHTML = mats.length ? mats.map(m=>`<option>${m}</option>`).join("") : '<option value="">교재 없음</option>';
+      // 과제내기(범위형만) / 정답수정(전체) 드롭다운 — 분류별로 묶어서
+      const grouped = () => {
+        const cat = {};
+        idx.forEach(r => { if (r.category && !cat[r.material]) cat[r.material] = r.category; });
+        const sil = mats.filter(m => cat[m] === "실전 모의고사");
+        const bok = mats.filter(m => cat[m] !== "실전 모의고사");
+        const g = (label, arr) => arr.length ? `<optgroup label="${label}">${arr.map(m=>`<option>${m}</option>`).join("")}</optgroup>` : "";
+        return sil.length ? g("실전 모의고사", sil) + g("교재", bok) : mats.map(m=>`<option>${m}</option>`).join("");
+      };
+      $("bkMaterial").innerHTML = mats.length ? grouped() : '<option value="">교재 없음</option>';
       fillBkChapters();
-      $("edMat").innerHTML = mats.map(m=>`<option>${m}</option>`).join("");
+      $("edMat").innerHTML = grouped();
       fillEdChapters();
     }
 
@@ -680,7 +692,7 @@ Q: 다음 질문
 
     // ---- 대량 등록 ----
     function parseBulk(text) {
-      const out = { material:null, rows:[], summary:[], errors:[] };
+      const out = { material:null, category:null, rows:[], summary:[], errors:[] };
       let ch = null, rangeQs = {}, chMode = null;
       const flushRange = () => {
         if (!ch || chMode!=="range") return;
@@ -699,6 +711,7 @@ Q: 다음 질문
         const L = li + 1;
         let m;
         if ((m = line.match(/^교재\s*:\s*(.+)$/))) { out.material = m[1].trim(); return; }
+        if ((m = line.match(/^분류\s*:\s*(.+)$/))) { out.category = m[1].trim() || null; return; }
         if ((m = line.match(/^\[(.+)\]$/))) { flushRange(); ch = m[1].trim(); rangeQs = {}; chMode = null; secCount = 0; curSec = null; return; }
         if (!ch) { out.errors.push(`${L}행: 단원([단원명]) 지정 전에 내용이 있습니다.`); return; }
         const ci = line.indexOf(":");
@@ -771,7 +784,7 @@ Q: 다음 질문
         $("bulkBtn").disabled = true;
       } else {
         box.className = "preview";
-        box.textContent = `✓ 검사 통과\n교재: ${parsed.material}\n` + parsed.summary.map(s=>"· "+s).join("\n") + `\n총 ${parsed.rows.length}문항`;
+        box.textContent = `✓ 검사 통과\n교재: ${parsed.material}${parsed.category ? `  (분류: ${parsed.category})` : ""}\n` + parsed.summary.map(s=>"· "+s).join("\n") + `\n총 ${parsed.rows.length}문항`;
         $("bulkBtn").disabled = false;
       }
     });
@@ -787,7 +800,7 @@ Q: 다음 질문
           const { error } = await sb.from("answer_bank").delete().eq("material", m);
           if (error) throw error;
         }
-        const rows = parsed.rows.map(r => ({ material:m, ...r }));
+        const rows = parsed.rows.map(r => ({ material:m, category:parsed.category, ...r }));
         for (let i = 0; i < rows.length; i += 400) {
           const { error } = await sb.from("answer_bank").insert(rows.slice(i, i+400));
           if (error) throw error;
@@ -865,6 +878,7 @@ Q: 다음 질문
       $("stuList").innerHTML = students.length ? students.map(s =>
         `<span class="pill" style="padding:6px 12px;font-size:13px">${s.name}
           <a href="#" onclick="setPin('${s.id}','${s.name}','${s.pin || ""}');return false" title="보관함 확인번호" style="color:${s.pin ? "var(--ink-soft)" : "var(--jumuk)"};margin-left:7px;font-weight:700;letter-spacing:.08em">${s.pin || "번호없음"}</a>
+          <a href="#" onclick="setBooks('${s.id}');return false" title="이 학생이 지금 푸는 교재" style="color:${(s.materials||[]).length ? "var(--ink-soft)" : "var(--jumuk)"};margin-left:7px;font-weight:700">교재 ${(s.materials||[]).length || "―"}</a>
           <a href="#" onclick="delStudent('${s.id}','${s.name}');return false" style="color:var(--jumuk);margin-left:6px;font-weight:700">×</a></span>`
       ).join("") : '<span class="mini">아직 등록된 학생이 없습니다.</span>';
       fillBkStudents();
@@ -1083,6 +1097,34 @@ Q: 다음 질문
       if (error) return msg($("askMsg2"), "저장 실패: " + error.message, true);
       toast("저장 완료 — 채점 화면에 즉시 반영됨");
     });
+
+    // ---- 학생별 담당 교재 지정 ----
+    window.setBooks = function (id) {
+      const st = students.find(x => x.id === id);
+      const box = $("stuBooks");
+      if (!st) return;
+      if (box.dataset.who === id && box.style.display !== "none") { box.style.display = "none"; box.dataset.who = ""; return; }
+      box.dataset.who = id;
+      const on = new Set(st.materials || []);
+      box.innerHTML = `<p class="mini" style="margin-bottom:10px"><b>${st.name}</b> 학생이 지금 푸는 교재 — 고른 것만 채점 화면에 뜹니다.</p>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">${
+          MATS.map(m => `<label style="font-size:14px;display:flex;align-items:center;gap:7px;cursor:pointer">
+            <input type="checkbox" class="stuBook" value="${m.replace(/"/g, "&quot;")}" ${on.has(m) ? "checked" : ""}> ${m}</label>`).join("")}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <button class="btn ghost" onclick="setBooksClear()">전부 해제</button>
+          <button class="btn jumuk" onclick="saveBooks('${id}')">저장</button>
+        </div>`;
+      box.style.display = "block";
+    };
+    window.setBooksClear = () => document.querySelectorAll(".stuBook").forEach(b => b.checked = false);
+    window.saveBooks = async function (id) {
+      const picked = [...document.querySelectorAll(".stuBook:checked")].map(b => b.value);
+      const { error } = await sb.from("students").update({ materials: picked.length ? picked : null }).eq("id", id);
+      if (error) return toast("저장 실패: " + error.message);
+      toast(picked.length ? `담당 교재 ${picked.length}종 저장됨` : "담당 교재 지정 해제됨");
+      $("stuBooks").style.display = "none"; $("stuBooks").dataset.who = "";
+      await loadStudents();
+    };
 
     window.setPin = async function (id, name, cur) {
       const v = prompt(`${name} 학생의 보관함 확인번호 (숫자 4자리).\n비우면 번호를 지웁니다.`, cur || "");
