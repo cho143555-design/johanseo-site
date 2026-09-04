@@ -35,6 +35,13 @@
     .pick-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
     @media (max-width:520px) { .pick-grid { grid-template-columns:1fr; gap:0; } }
     #matScope a { color:var(--jumuk); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+    /* 파트별 걸린 시간 (실전 모의고사에서만) */
+    .part-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px 14px; }
+    @media (max-width:330px) { .part-grid { grid-template-columns:1fr; } }
+    .part-row { display:flex; align-items:center; gap:6px; }
+    .part-row span.nm { flex:1; font-size:14px; color:var(--ink); white-space:nowrap; }
+    .part-row input { width:52px; flex:none; text-align:center; padding:7px 2px; font-size:15px; }
+    .part-row span.un { font-size:12.5px; color:var(--ink-soft); }
     .fb { margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); }
     .fb h4 { font-family:var(--serif); font-size:17px; font-weight:800; margin-bottom:12px; }
     .fb ol { padding-left:20px; }
@@ -129,6 +136,11 @@
           <div class="field">
             <label>답안 표기 <span style="font-weight:400;color:var(--ink-soft)">— 각 문항의 답을 눌러 주세요</span></label>
             <div class="omr" id="omr"></div>
+          </div>
+          <div class="field" id="partWrap" style="display:none">
+            <label>파트별 걸린 시간 <span style="font-weight:400;color:var(--ink-soft)">— 분 단위, 푼 것만 적으면 돼</span></label>
+            <div class="part-grid" id="partGrid"></div>
+            <p class="hint" id="partSum" style="margin:12px 0 0"></p>
           </div>
           <button class="btn jumuk" id="submitBtn" style="width:100%">채점하기</button>
         </div>
@@ -352,6 +364,47 @@
 
     const lastMat = () => { try { return localStorage.getItem("hw_last_mat"); } catch (e) { return null; } };
 
+    // ── 파트별 걸린 시간 (실전 모의고사에서만) ──────────────────
+    // 갈래 목록은 admin '실전 모의고사 갈래'에서 편집. 아래는 저장본이 없을 때의 기본값.
+    let MOCK_PARTS = ["비문학 1","비문학 2","비문학 3","고전시가","현대시","고전소설","현대소설","선택과목","독서론"];
+    const isMock = () => !!(current && current.material && matCat[current.material] === "실전 모의고사");
+
+    function buildPartTimes() {
+      const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      $("partGrid").innerHTML = MOCK_PARTS.map((nm, i) =>
+        `<div class="part-row"><span class="nm">${esc(nm)}</span>` +
+        `<input type="number" class="part-min" min="0" max="300" step="1" inputmode="numeric" ` +
+        `data-nm="${esc(nm)}" aria-label="${esc(nm)} 걸린 시간(분)" /><span class="un">분</span></div>`).join("");
+      $("partGrid").querySelectorAll(".part-min").forEach(el => el.addEventListener("input", partSum));
+      partSum();
+    }
+    function partSum() {
+      let sum = 0, n = 0;
+      $("partGrid").querySelectorAll(".part-min").forEach(el => {
+        const v = parseFloat(el.value);
+        if (Number.isFinite(v) && v > 0) { sum += v; n += 1; }
+      });
+      $("partSum").textContent = n ? `${n}개 적음 · 합 ${Math.round(sum * 10) / 10}분` : "";
+    }
+    function collectPartTimes() {
+      const out = {};
+      $("partGrid").querySelectorAll(".part-min").forEach(el => {
+        const v = parseFloat(el.value);
+        if (Number.isFinite(v) && v > 0) out[el.dataset.nm] = v;
+      });
+      return Object.keys(out).length ? out : null;
+    }
+    // omrWrap을 열 때마다 호출 — 실전 모의고사이고 오답 재풀이가 아닐 때만 보인다.
+    // 회차(교재·단원)가 바뀌면 적어둔 시간을 비운다. 같은 회차를 다시 풀 때는 그대로 둔다.
+    let partKey = "";
+    function syncPartTimes() {
+      const on = isMock() && !retryMode;
+      $("partWrap").style.display = on ? "" : "none";
+      if (!on) return;
+      const key = [current.material, current.chapter, current.section || ""].join("|");
+      if (key !== partKey || !$("partGrid").children.length) { partKey = key; buildPartTimes(); }
+    }
+
     // 교재 칸을 다시 그린다. keep=true 면 지금 고른 교재를 최대한 유지한다.
     function renderMatSelect(keep) {
       const all = Object.keys(bankIdx).sort();
@@ -500,6 +553,7 @@
         bt.classList.add("on");
       }));
       $("omrWrap").style.display = "block";
+      syncPartTimes();
       $("result").classList.remove("show");
     }
 
@@ -529,6 +583,7 @@
         });
       });
       $("omrWrap").style.display = "block";
+      syncPartTimes();
       $("result").classList.remove("show");
     }
 
@@ -590,6 +645,7 @@
         bt.classList.add("on");
       }));
       $("omrWrap").style.display = "block";
+      syncPartTimes();
       $("result").classList.remove("show");
       $("retryBtn").style.display = "none";
       $("omrWrap").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -612,6 +668,10 @@
         body = { set_code: current.set_code, student_name: name, answers };
       }
       if (retryMode) body.retry_questions = retryList;
+      if (isMock() && !retryMode) {
+        const pt = collectPartTimes();
+        if (pt) body.part_times = pt;
+      }
 
       $("submitBtn").disabled = true; $("submitBtn").textContent = "채점 중…";
       try {
@@ -643,6 +703,10 @@
         if (json.wrong_questions.length) $("songCard").style.display = "none";
         else renderSong();
         $("askMsg").style.display = "none";
+        // 실전 모의고사는 소감 유도 문구로 바꾸고 질문칸을 펼쳐 둔다
+        const mockNow = isMock() && !retryMode && ASK_MOCK;
+        applyAskBox(mockNow ? ASK_MOCK : ASK_NORMAL);
+        if (mockNow) $("askFold").open = true;
         $("result").classList.add("show");
         $("result").scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (err) {
@@ -656,13 +720,11 @@
     let lastLabel = "";
     let ASK_DONE = "질문이 전달됐어. 확인하고 카톡으로 답 줄게 👌";
 
-    async function loadAskBox() {
-      const { data } = await sb.from("site_content").select("content").eq("key", "ask_box").maybeSingle();
-      if (!data || !data.content) return;
-      const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-      const bold = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+    let ASK_NORMAL = null, ASK_MOCK = null;
+
+    function parseAskBox(text) {
       let title = "", leads = [], ph = "", done = "";
-      data.content.replace(/\r/g,"").split("\n").forEach(l => {
+      text.replace(/\r/g,"").split("\n").forEach(l => {
         const t = l.trim(); if (!t) return;
         const i = t.indexOf(":"); if (i < 0) return;
         const k = t.slice(0, i).trim(), v = t.slice(i + 1).trim();
@@ -671,10 +733,31 @@
         else if (k === "입력예시") ph = v;
         else if (k === "완료문구") done = v;
       });
-      if (title) { $("askTitle").textContent = title; $("askFoldTitle").textContent = title; }
-      if (leads.length) $("askLeadBox").innerHTML = leads.map(x => `<p class="ask-lead">${bold(x)}</p>`).join("");
-      if (ph) $("askText").placeholder = ph;
-      if (done) ASK_DONE = done;
+      return { title, leads, ph, done };
+    }
+    function applyAskBox(cfg) {
+      if (!cfg) return;
+      const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      const bold = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+      if (cfg.title) { $("askTitle").textContent = cfg.title; $("askFoldTitle").textContent = cfg.title; }
+      if (cfg.leads.length) $("askLeadBox").innerHTML = cfg.leads.map(x => `<p class="ask-lead">${bold(x)}</p>`).join("");
+      if (cfg.ph) $("askText").placeholder = cfg.ph;
+      if (cfg.done) ASK_DONE = cfg.done;
+    }
+    async function loadAskBox() {
+      const { data } = await sb.from("site_content").select("key, content").in("key", ["ask_box", "ask_box_mock"]);
+      (data || []).forEach(r => {
+        if (!r.content) return;
+        if (r.key === "ask_box") ASK_NORMAL = parseAskBox(r.content);
+        else if (r.key === "ask_box_mock") ASK_MOCK = parseAskBox(r.content);
+      });
+      applyAskBox(ASK_NORMAL);
+    }
+    async function loadMockParts() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "mock_parts").maybeSingle();
+      if (!data || !data.content) return;
+      const list = data.content.replace(/\r/g,"").split("\n").map(t => t.trim()).filter(Boolean).slice(0, 20);
+      if (list.length) { MOCK_PARTS = list; $("partGrid").innerHTML = ""; }
     }
     $("askText").addEventListener("input", () => {
       const n = $("askText").value.length;
@@ -973,7 +1056,7 @@
       if (!error && data && data.content) $("fbBox").innerHTML = renderGuide(data.content);
     }
 
-    (async () => { await loadIndex(); await loadSets(); loadGuide(); loadPerfectMsgs(); loadSongs(); loadAskBox(); loadHabit(); })();
+    (async () => { await loadIndex(); await loadSets(); loadGuide(); loadPerfectMsgs(); loadSongs(); loadAskBox(); loadMockParts(); loadHabit(); })();
 
     /* 홈 화면 앱에서 다시 열었을 때: 채점 중이면 절대 새로고침하지 않는다(답이 날아간다).
        손대지 않은 상태에서만 통째로 새로고침하고, 그 외에는 안내 문구만 조용히 갱신한다. */
@@ -983,7 +1066,7 @@
       const 결과열림 = $("result").classList.contains("show");
       const 질문초안 = ($("askText").value || "").trim();
       if (!이름 && !답입력 && !결과열림 && !질문초안) { location.reload(); return; }
-      loadGuide(); loadAskBox(); loadHabit(); loadPerfectMsgs(); loadSongs();
+      loadGuide(); loadAskBox(); loadMockParts(); loadHabit(); loadPerfectMsgs(); loadSongs();
     };
   </script>
   <script>

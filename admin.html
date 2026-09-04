@@ -342,6 +342,58 @@ Q: 다음 질문
             </div>
           </details>
 
+          <!-- 실전 모의고사 질문칸 문구 -->
+          <details class="faq-item">
+            <summary>질문칸 문구 — 실전 모의고사용</summary>
+            <div class="faq-body" style="padding-top:6px">
+            <div class="panel">
+              <p class="mini" style="margin-bottom:12px">분류가 <b>실전 모의고사</b>인 교재를 채점했을 때만 이 문구가 대신 뜹니다.
+                질문칸도 접히지 않고 펼쳐진 채로 보입니다. 비워두면 일반 질문칸 문구가 그대로 쓰입니다.</p>
+              <div class="field">
+                <label for="askMockText">내용 <span class="mini">— 저장하면 채점 화면에 즉시 반영</span></label>
+                <textarea id="askMockText" style="min-height:200px" placeholder="제목: 오늘 시험, 소감 한마디 남기고 가
+설명: 최대한 본인의 **문제점·고민·갈래별 소감**을 자세히 남겨줘.
+입력예시: 예) 비문학 2에 12분 썼는데 결국 못 풀었어요.
+완료문구: 남겼어. 잘 읽어볼게 👌"></textarea>
+              </div>
+              <p class="mini" style="margin-bottom:12px">문법은 위 '질문칸 문구'와 같습니다 —
+                <b>제목:</b> · <b>설명:</b>(줄마다 문단, <b>**강조**</b>) · <b>입력예시:</b> · <b>완료문구:</b></p>
+              <button class="btn jumuk" id="askMockSaveBtn" style="width:100%">저장 (즉시 반영)</button>
+              <p class="msg" id="askMockMsg" style="display:none"></p>
+            </div>
+            </div>
+          </details>
+
+          <!-- 실전 모의고사 갈래 -->
+          <details class="faq-item">
+            <summary>실전 모의고사 갈래 (파트별 걸린 시간)</summary>
+            <div class="faq-body" style="padding-top:6px">
+            <div class="panel">
+              <p class="mini" style="margin-bottom:12px">분류가 <b>실전 모의고사</b>인 교재를 채점할 때, 답안 표기 아래에
+                여기 적은 갈래마다 <b>분 단위 입력칸</b>이 하나씩 뜹니다. 학생이 적은 시간은 제출 기록과 디스코드 알림에 같이 붙습니다.</p>
+              <div class="field">
+                <label for="partsText">갈래 목록 <span class="mini">— 한 줄에 하나, 적은 순서대로 표시</span></label>
+                <textarea id="partsText" style="min-height:220px" placeholder="비문학 1
+비문학 2
+비문학 3
+고전시가
+현대시
+고전소설
+현대소설
+선택과목
+독서론"></textarea>
+              </div>
+              <p class="mini" style="margin-bottom:12px">최대 20줄. 갈래복합·극이 나오는 회차가 생기면 줄을 추가하면 됩니다.
+                비워두면 기본 9개가 쓰입니다.</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                <button class="btn ghost" id="partsCountBtn">개수 확인</button>
+                <button class="btn jumuk" id="partsSaveBtn">저장 (즉시 반영)</button>
+              </div>
+              <p class="msg" id="partsMsg" style="display:none"></p>
+            </div>
+            </div>
+          </details>
+
           <!-- 채점 습관 안내 -->
           <details class="faq-item">
             <summary>채점 습관 안내</summary>
@@ -590,6 +642,8 @@ Q: 다음 질문
       await loadSongEditor();
       await loadQuestions();
       await loadAskEditor();
+      await loadAskMockEditor();
+      await loadPartsEditor();
       await loadHabitEditor();
       await loadNotebox();
       await loadNoteboxEditor();
@@ -1098,6 +1152,41 @@ Q: 다음 질문
       toast("저장 완료 — 채점 화면에 즉시 반영됨");
     });
 
+    async function loadAskMockEditor() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "ask_box_mock").maybeSingle();
+      if (data && data.content) $("askMockText").value = data.content;
+    }
+    $("askMockSaveBtn").addEventListener("click", async () => {
+      msg($("askMockMsg"), "", false);
+      const content = $("askMockText").value;
+      if (content.trim() && !/^\s*설명\s*:/m.test(content))
+        return msg($("askMockMsg"), "'설명:' 줄이 최소 1개 필요합니다. (전부 비우면 일반 문구가 쓰입니다)", true);
+      const { error } = await sb.from("site_content").upsert(
+        { key: "ask_box_mock", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) return msg($("askMockMsg"), "저장 실패: " + error.message, true);
+      toast(content.trim() ? "저장 완료 — 실전 모의고사 채점에 즉시 반영됨" : "비웠습니다 — 일반 질문칸 문구가 쓰입니다");
+    });
+
+    async function loadPartsEditor() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "mock_parts").maybeSingle();
+      if (data && data.content) $("partsText").value = data.content;
+    }
+    const partsList = (t) => t.replace(/\r/g,"").split("\n").map(x => x.trim()).filter(Boolean);
+    $("partsCountBtn").addEventListener("click", () => {
+      const l = partsList($("partsText").value);
+      msg($("partsMsg"), l.length ? `갈래 ${l.length}개로 인식됩니다 — ${l.join(" · ")}` : "비어 있어서 기본 9개가 쓰입니다.", l.length > 20);
+    });
+    $("partsSaveBtn").addEventListener("click", async () => {
+      msg($("partsMsg"), "", false);
+      const content = $("partsText").value;
+      const l = partsList(content);
+      if (l.length > 20) return msg($("partsMsg"), "갈래는 20개까지만 가능합니다. (지금 " + l.length + "개)", true);
+      const { error } = await sb.from("site_content").upsert(
+        { key: "mock_parts", content, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) return msg($("partsMsg"), "저장 실패: " + error.message, true);
+      toast(l.length ? `저장 완료 — 갈래 ${l.length}개 반영됨` : "비웠습니다 — 기본 9개가 쓰입니다");
+    });
+
     // ---- 학생별 담당 교재 지정 ----
     window.setBooks = function (id) {
       const st = students.find(x => x.id === id);
@@ -1583,6 +1672,15 @@ Q: 다음 질문
       }
       return (s.wrong_questions && s.wrong_questions.length) ? s.wrong_questions.join(", ") + "번" : "없음";
     }
+    // 실전 모의고사 파트별 소요 시간 — 학생이 적었을 때만 한 줄 붙는다
+    function timesText(s) {
+      const pt = s.part_times;
+      if (!pt || typeof pt !== "object" || !Object.keys(pt).length) return "";
+      const esc2 = (t) => String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      const items = Object.entries(pt).map(([k, v]) => `${esc2(k)} <b>${v}</b>`).join(" · ");
+      const sum = Object.values(pt).reduce((a, b) => a + (Number(b) || 0), 0);
+      return `<div class="meta" style="margin-top:3px">⏱ ${items} <span style="color:var(--jumuk);font-weight:600">— 합 ${Math.round(sum * 10) / 10}분</span></div>`;
+    }
 
     async function refreshSubs() {
       renderChips();
@@ -1594,7 +1692,8 @@ Q: 다음 질문
         <div class="set-item"><div>
           <div class="code">${s.student_name} <span class="pill">${s.score}/${s.total}</span></div>
           <div class="meta">${s.label || s.set_code || ""} · ${new Date(s.created_at).toLocaleString("ko-KR")}</div>
-          <div class="meta" style="margin-top:3px">틀린 문항 ${wrongText(s)}</div></div>
+          <div class="meta" style="margin-top:3px">틀린 문항 ${wrongText(s)}</div>
+          ${timesText(s)}</div>
           <button class="btn ghost" style="padding:8px 14px;font-size:13px" onclick="delSub('${s.id}')">삭제</button></div>`
       ).join("") || '<p class="meta">기록이 없습니다.</p>';
 
