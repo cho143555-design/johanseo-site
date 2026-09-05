@@ -42,6 +42,20 @@
     .part-row span.nm { flex:1; font-size:14px; color:var(--ink); white-space:nowrap; }
     .part-row input { width:52px; flex:none; text-align:center; padding:7px 2px; font-size:15px; }
     .part-row span.un { font-size:12.5px; color:var(--ink-soft); }
+    /* 소감 우수 예시 카드 */
+    .ex-fold { margin:2px 0 14px; }
+    .ex-fold > summary { cursor:pointer; font-size:13.5px; font-weight:600; color:var(--jumuk);
+      list-style:none; padding:9px 0; border-top:1px dashed var(--line); border-bottom:1px dashed var(--line); }
+    .ex-fold > summary::-webkit-details-marker { display:none; }
+    .ex-fold > summary::before { content:"▸ "; }
+    .ex-fold[open] > summary::before { content:"▾ "; }
+    .ex-cards { padding-top:12px; }
+    .ex-card { background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--jumuk);
+      border-radius:var(--radius); padding:13px 15px; margin-bottom:10px; }
+    .ex-card .ex-h { font-family:var(--serif); font-weight:800; font-size:14px; color:var(--jumuk);
+      margin-bottom:8px; }
+    .ex-card .ex-b { font-size:13.5px; line-height:1.75; color:var(--ink); white-space:pre-wrap;
+      word-break:keep-all; }
     .fb { margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); }
     .fb h4 { font-family:var(--serif); font-size:17px; font-weight:800; margin-bottom:12px; }
     .fb ol { padding-left:20px; }
@@ -227,6 +241,10 @@
                 <p class="ask-lead"><b>해설도 강의도 없이 스스로 고민해서 깨닫는 것, 그게 최고의 국어 공부야.</b> 그래도 도저히 안 풀리는 문제, 해설을 봐도 납득이 안 되는 문제, 애매하고 헷갈리는 개념이 있다면 여기에 바로 남겨. 확인하고 <b>카톡으로 답</b> 줄게.</p>
                 <p class="ask-lead">내 풀이가 맞는지 확인받고 싶을 때, 시간 분배가 고민될 때 — 뭐든 편하게 물어봐!</p>
               </div>
+              <details class="ex-fold" id="askExamples" style="display:none">
+                <summary id="askExTitle">이렇게 쓰면 돼 — 우수 예시 보기</summary>
+                <div class="ex-cards" id="askExCards"></div>
+              </details>
               <textarea id="askText" rows="4" placeholder="예) 12번 ③이 왜 틀렸는지 모르겠어요. 지문 3문단이랑 상충한다고 봤는데 아닌가요?"></textarea>
               <div class="ask-row">
                 <span class="mini" id="askCount">0 / 1000</span>
@@ -706,6 +724,7 @@
         // 실전 모의고사는 소감 유도 문구로 바꾸고 질문칸을 펼쳐 둔다
         const mockNow = isMock() && !retryMode && ASK_MOCK;
         applyAskBox(mockNow ? ASK_MOCK : ASK_NORMAL);
+        renderMockExamples(!!mockNow);
         if (mockNow) $("askFold").open = true;
         $("result").classList.add("show");
         $("result").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -753,6 +772,30 @@
       });
       applyAskBox(ASK_NORMAL);
     }
+    // 소감 우수 예시 — admin '실전 모의고사 우수 예시'에서 편집.
+    // 문법: 한 줄이 통째로 [제목] 이면 새 카드 시작, 그 아래 줄들이 카드 내용(줄바꿈 그대로).
+    let MOCK_EX = [];
+    async function loadMockExamples() {
+      const { data } = await sb.from("site_content").select("content").eq("key", "mock_examples").maybeSingle();
+      MOCK_EX = [];
+      if (!data || !data.content) return;
+      let cur = null;
+      data.content.replace(/\r/g, "").split("\n").forEach(line => {
+        const m = line.trim().match(/^\[(.+)\]$/);
+        if (m) { cur = { title: m[1].trim(), body: [] }; MOCK_EX.push(cur); return; }
+        if (cur) cur.body.push(line.replace(/\s+$/, ""));
+      });
+      MOCK_EX = MOCK_EX.map(c => ({ title: c.title, body: c.body.join("\n").trim() })).filter(c => c.body);
+    }
+    function renderMockExamples(on) {
+      const box = $("askExamples");
+      if (!on || !MOCK_EX.length) { box.style.display = "none"; return; }
+      const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      $("askExCards").innerHTML = MOCK_EX.map(c =>
+        `<div class="ex-card"><div class="ex-h">${esc(c.title)}</div><div class="ex-b">${esc(c.body)}</div></div>`).join("");
+      box.style.display = "";
+    }
+
     async function loadMockParts() {
       const { data } = await sb.from("site_content").select("content").eq("key", "mock_parts").maybeSingle();
       if (!data || !data.content) return;
@@ -1056,7 +1099,7 @@
       if (!error && data && data.content) $("fbBox").innerHTML = renderGuide(data.content);
     }
 
-    (async () => { await loadIndex(); await loadSets(); loadGuide(); loadPerfectMsgs(); loadSongs(); loadAskBox(); loadMockParts(); loadHabit(); })();
+    (async () => { await loadIndex(); await loadSets(); loadGuide(); loadPerfectMsgs(); loadSongs(); loadAskBox(); loadMockParts(); loadMockExamples(); loadHabit(); })();
 
     /* 홈 화면 앱에서 다시 열었을 때: 채점 중이면 절대 새로고침하지 않는다(답이 날아간다).
        손대지 않은 상태에서만 통째로 새로고침하고, 그 외에는 안내 문구만 조용히 갱신한다. */
@@ -1066,7 +1109,7 @@
       const 결과열림 = $("result").classList.contains("show");
       const 질문초안 = ($("askText").value || "").trim();
       if (!이름 && !답입력 && !결과열림 && !질문초안) { location.reload(); return; }
-      loadGuide(); loadAskBox(); loadMockParts(); loadHabit(); loadPerfectMsgs(); loadSongs();
+      loadGuide(); loadAskBox(); loadMockParts(); loadMockExamples(); loadHabit(); loadPerfectMsgs(); loadSongs();
     };
   </script>
   <script>
