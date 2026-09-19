@@ -8,7 +8,7 @@
   const dateText = date => `${Number(date.slice(5,7))}.${Number(date.slice(8,10))}`;
   const weekday = date => ['일','월','화','수','목','금','토'][new Date(`${date}T12:00:00+09:00`).getUTCDay()];
   const timeText = value => new Intl.DateTimeFormat('ko-KR', {timeZone:'Asia/Seoul', hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(value));
-  let db, initialized = false, generation = 0, report, historyFilter = 'all', historyLimit = 30;
+  let db, catalog = [], initialized = false, generation = 0, report, historyFilter = 'all', historyLimit = 30;
 
   async function allRows(table, columns, filter) {
     const rows = [], size = 500;
@@ -94,11 +94,32 @@
     return `<div class="study-daily-long" tabindex="0" aria-label="날짜별 학습량">${summary.daily.map(d=>`<div class="study-daily-row"><time datetime="${d.date}">${dateText(d.date)} (${weekday(d.date)})</time><div class="study-day-bar" aria-hidden="true"><span style="width:${Math.round(d.total/max*100)}%"></span></div><span>${num(d.total)}문항 · 재풀이 ${d.retryCount}회</span></div>`).join('')}</div>`;
   }
 
-  function renderGroups(summary) {
-    if (!summary.groups.length) return '<p class="study-empty">이 기간에는 채점 기록이 없어요.</p>';
-    const groups = summary.groups.slice().sort((a,b)=>Number(b.wrongQuestions.length>0)-Number(a.wrongQuestions.length>0));
-    const cards = groups.map(g=>`<div class="study-set"><div class="study-set-name">${escape(g.label)}<p>일반 풀이 ${g.firstCount}회 · 재풀이 ${g.retryCount}회 · 마지막 ${dateText(M.kstDate(g.latest.created_at))}</p></div><div class="study-set-score">${g.total?`${g.score}/${g.total} 정답`:'일반 풀이 기록 없음'}</div><div class="study-set-status${g.wrongQuestions.length?' needs-review':''}">${g.wrongKnown===false?'최근 오답 정보 없음':g.wrongQuestions.length?`최근 오답 ${g.wrongQuestions.map(n=>`${escape(n)}번`).join(', ')}`:'최근 채점 오답 없음'}</div></div>`);
-    return `<div class="study-sets">${cards.slice(0,6).join('')}${cards.length>6?`<details class="study-expand"><summary>나머지 ${cards.length-6}개 세트 보기</summary>${cards.slice(6).join('')}</details>`:''}</div>`;
+  function answerText(value) {
+    return /^[1-5]$/.test(String(value)) ? ['①','②','③','④','⑤'][Number(value)-1] : escape(value == null?'기록 없음':value);
+  }
+
+  function renderAttempt(row, label) {
+    const detail = Array.isArray(row.wrong_detail) ? row.wrong_detail : [];
+    const numbers = Array.isArray(row.wrong_questions) ? row.wrong_questions : detail.map(d=>d.n);
+    const questions = [...new Set(numbers)];
+    const total = row.total, score = row.score;
+    const gradeKnown = Number.isFinite(total) && Number.isFinite(score) && total>=0 && score>=0 && score<=total;
+    const emptyText = !gradeKnown?'채점 정보가 없어 오답 여부를 확인할 수 없어요.':total===0?'채점된 문항이 없어요.':score===total?'틀린 문제 없음':'틀린 문제 번호가 저장되어 있지 않아요.';
+    return `<article class="homework-attempt"><div class="homework-attempt-heading"><strong>${label}</strong><span>${dateText(M.kstDate(row.created_at))} ${timeText(row.created_at)} · ${gradeKnown?`${num(score)}/${num(total)} 정답`:'채점 정보 없음'}</span></div>${questions.length?`<table class="homework-answers"><caption class="study-sr-only">${label} 오답 상세</caption><thead><tr><th scope="col">틀린 문제</th><th scope="col">고른 답</th><th scope="col">정답</th></tr></thead><tbody>${questions.map(n=>{const d=detail.find(item=>String(item.n)===String(n));return `<tr><th scope="row">${escape(n)}번</th><td class="homework-picked">${answerText(d?.p)}</td><td>${answerText(d?.a)}</td></tr>`;}).join('')}</tbody></table>`:`<p class="homework-no-wrong">${emptyText}</p>`}</article>`;
+  }
+
+  function renderHomework(summary) {
+    const sections = M.homeworkOverview(summary.groups,catalog);
+    if (!sections.length) return '<p class="study-empty">이 기간에 채점한 숙제가 없어요. 날짜를 바꿔서 확인해 보세요.</p>';
+    return `<div class="homework-sections">${sections.map(section=>`<section class="homework-section"><div class="homework-section-heading"><p>${escape(section.material)}</p><h3>${escape(section.chapter || '세트별 기록')} <small>${section.sets.length}세트</small></h3></div><div class="homework-table-head" aria-hidden="true"><span>세트</span><span>처음 오답</span><span>이후 풀이</span><span></span></div>${section.sets.map(set=>{
+      const firstIndex = set.first ? set.attempts.indexOf(set.first) : -1;
+      const earlier = firstIndex>0 ? set.attempts.slice(0,firstIndex) : [];
+      const later = set.first ? set.attempts.slice(firstIndex+1) : set.attempts;
+      const latestCount = set.latestWrongCount;
+      const afterLabel = !set.first ? '재풀이만 있음' : !later.length ? '—' : `${M.isRetry(set.latest)?'재풀이 후':'최근'} ${latestCount == null?'정보 없음':`${num(latestCount)}개`}`;
+      const earlierHtml = earlier.length ? `<details class="homework-later"><summary>이 기간의 앞선 재풀이 ${earlier.length}회 보기</summary>${earlier.map((r,i)=>renderAttempt(r,`앞선 오답 재풀이 ${i+1}`)).join('')}</details>` : '';
+      return `<details class="homework-set"><summary aria-label="${escape(section.chapter?section.chapter+' '+set.title:set.label)} · ${set.initialWrongCount == null?'처음 오답 기록 없음':`처음 ${set.initialWrongCount}개 틀림`} · ${afterLabel}"><span class="homework-set-title">${escape(set.title)}${set.first?`<small>${Number.isFinite(set.first.total)?num(set.first.total)+'문항':'문항 수 기록 없음'}</small>`:''}</span><span class="homework-wrong${set.initialWrongCount>0?' has-wrong':''}">${set.initialWrongCount==null?'—':`${num(set.initialWrongCount)}<small>개</small>`}</span><span class="homework-after${later.length && latestCount===0?' cleared':''}">${afterLabel}</span><span class="homework-caret" aria-hidden="true"></span></summary><div class="homework-set-body">${set.first?renderAttempt(set.first,'처음 풀이'):'<p class="homework-period-note">선택한 기간에는 일반 풀이 기록이 없어요. 아래는 재풀이 기록이에요.</p>'}${later.length?`${set.first?`<details class="homework-later"><summary>이후 풀이 ${later.length}회 보기</summary>`:''}${later.map((r,i)=>renderAttempt(r,`${M.isRetry(r)?'오답 재풀이':'다시 일반 풀이'}${later.length>1?' '+(i+1):''}`)).join('')}${set.first?'</details>':''}`:''}${earlierHtml}</div></details>`;
+    }).join('')}</section>`).join('')}</div>`;
   }
 
   function renderNotes(result,kind) {
@@ -118,7 +139,11 @@
     const {name,start,end,summary:s} = report;
     const last = s.rows[s.rows.length-1];
     el('studyResults').innerHTML = `
-      <div class="study-summary-head"><h2>${escape(name)}의 학습 현황</h2><p>${escape(start.replaceAll('-','.'))} — ${escape(end.replaceAll('-','.'))}</p></div>
+      <div class="study-summary-head"><h2>${escape(name)}의 숙제 확인</h2><p>${escape(start.replaceAll('-','.'))} — ${escape(end.replaceAll('-','.'))}</p></div>
+      <div class="homework-guide"><strong>${s.groups.length}개 세트</strong><span>세트를 누르면 틀린 문제와 고른 답이 펼쳐져요.</span></div>
+      <p class="homework-basis">‘처음 오답’은 선택한 기간의 첫 일반 풀이 기준. 재풀이로 맞혀도 그대로 남아요.</p>
+      ${renderHomework(s)}
+      <details class="study-secondary"><summary><span>학습 현황도 보기</span><small>공부한 날 · 학습량 · 날짜별 기록</small></summary><div class="study-secondary-body">
       <dl class="study-metrics">
         ${metric('공부한 날',num(s.activeDays),'일',`선택한 ${s.daily.length}일 중 채점한 날`)}
         ${metric('일반 풀이',num(s.firstTotal),'문항',`일반 채점 ${num(s.firstCount)}회`)}
@@ -127,10 +152,9 @@
       </dl>
       <div class="study-insight">${last?`마지막 채점 <b>${dateText(M.kstDate(last.created_at))} ${timeText(last.created_at)}</b> · 세트별 최근 채점에 남은 오답 <b>${num(s.remainingWrong)}문항</b>${s.unknownWrongGroups?` · 오답 정보 없는 세트 ${s.unknownWrongGroups}개`:''}`:'선택한 기간에 제출된 채점 기록이 없어요. 다른 기간도 확인해 보세요.'}</div>
       <div class="study-section"><div class="study-section-title"><h3>날짜별 학습량</h3><p>문항 수는 일반 풀이 기준</p></div>${renderCalendar(s)}</div>
-      <div class="study-section"><div class="study-section-title"><h3>어떤 공부를 했나</h3><p>${s.groups.length}개 세트 · 오답이 남은 세트부터 표시</p></div>${renderGroups(s)}</div>
       <div class="study-section study-columns">${renderNotes(report.questions,'questions')}${renderNotes(report.notes,'notes')}</div>
       <div class="study-section"><div class="study-section-title"><h3>풀이 내역</h3><div class="study-filter" role="group" aria-label="풀이 종류"><button type="button" data-history="all" aria-pressed="true">전체 ${s.rows.length}</button><button type="button" data-history="first" aria-pressed="false">일반 풀이 ${s.firstCount}</button><button type="button" data-history="retry" aria-pressed="false">재풀이 ${s.retryCount}</button></div></div><p class="study-muted" style="margin-bottom:8px">내역을 누르면 틀린 문항과 입력된 풀이 시간을 볼 수 있어요.</p><div id="studyHistory"></div></div>
-      <div class="study-footnote">일반 풀이 = ‘오답 재풀이’ 표시가 없는 일반 채점. 같은 범위를 다시 일반 채점하면 각각 포함돼요.<br>최근 오답은 선택한 기간 내 각 세트의 마지막 채점 기준이에요. 기간 밖 재풀이와 별도로 한 공부는 반영되지 않아요.<br>풀이 시간은 학생이 입력한 경우에만 표시해요. 채점 사이의 시간으로 공부 시간을 추정하지 않아요.</div>`;
+      <div class="study-footnote">일반 풀이 = ‘오답 재풀이’ 표시가 없는 일반 채점. 같은 범위를 다시 일반 채점하면 각각 포함돼요.<br>최근 오답은 선택한 기간 내 각 세트의 마지막 채점 기준이에요. 기간 밖 재풀이와 별도로 한 공부는 반영되지 않아요.<br>풀이 시간은 학생이 입력한 경우에만 표시해요. 채점 사이의 시간으로 공부 시간을 추정하지 않아요.</div></div></details>`;
     el('studyResults').querySelectorAll('[data-history]').forEach(button => button.addEventListener('click',()=>{
       historyFilter = button.dataset.history; historyLimit = 30;
       el('studyResults').querySelectorAll('[data-history]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
@@ -152,9 +176,9 @@
     if (more) more.addEventListener('click',()=>{historyLimit+=30;renderHistory();});
   }
 
-  async function init(client) {
+  async function init(client, index) {
     if (initialized) return;
-    initialized = true; db = client;
+    initialized = true; db = client; catalog = Array.isArray(index)?index:[];
     setPreset('week');
     el('studyForm').addEventListener('submit',event=>{event.preventDefault();load();});
     el('studyStudent').addEventListener('change',load);

@@ -154,3 +154,108 @@ test("all period math and timestamp grouping stay identical in different host ti
   const results = ["UTC", "America/Los_Angeles", "Asia/Seoul", "Pacific/Auckland"].map(TZ => execFileSync(process.execPath, ["-e", script], { env: { ...process.env, TZ }, encoding: "utf8" }));
   assert.ok(results.every(value => value === results[0]));
 });
+
+function homework(rows, catalog = []) {
+  return model.homeworkOverview(model.summarize(rows, "2026-09-14", "2026-09-20").groups, catalog);
+}
+
+test("homework keeps the period's first wrong count after a successful retry", () => {
+  const label = "테스트 교재 현대시 03 · 테스트 작품";
+  const first = row("2026-09-14T01:00:00Z", { label, total: 4, score: 3, wrong_questions: [2] });
+  const retry = row("2026-09-15T01:00:00Z", { label: label + " · 오답 재풀이", total: 1, score: 1, wrong_questions: [] });
+  assert.deepEqual(homework([retry, first]), [{
+    material: "테스트 교재", chapter: "현대시", sets: [{
+      label, title: "03 · 테스트 작품", first, latest: retry, attempts: [first, retry], initialWrongCount: 1, latestWrongCount: 0
+    }]
+  }]);
+});
+
+test("repeated ordinary submissions preserve the earliest ordinary result", () => {
+  const label = "테스트 교재 현대시 04";
+  const first = row("2026-09-14T01:00:00Z", { label, total: 3, score: 1 });
+  const second = row("2026-09-15T01:00:00Z", { label, total: 3, score: 2 });
+  const retry = row("2026-09-16T01:00:00Z", { label: label + " · 오답 재풀이", total: 1, score: 1 });
+  const set = homework([retry, second, first])[0].sets[0];
+  assert.equal(set.first, first);
+  assert.equal(set.initialWrongCount, 2);
+  assert.equal(set.latestWrongCount, 0);
+  assert.deepEqual(set.attempts, [first, second, retry]);
+});
+
+test("a retry-only period leaves initial result unknown even with an earlier submission outside it", () => {
+  const label = "테스트 교재 현대시 03";
+  const before = row("2026-09-13T01:00:00Z", { label, total: 3, score: 1 });
+  const retry = row("2026-09-14T01:00:00Z", { label: label + " · 오답 재풀이", total: 2, score: 2 });
+  const set = homework([before, retry])[0].sets[0];
+  assert.equal(set.first, null);
+  assert.equal(set.initialWrongCount, null);
+  assert.equal(set.latestWrongCount, 0);
+  assert.deepEqual(set.attempts, [retry]);
+});
+
+test("homework sorts numbered sets naturally and keeps different codes with the same label", () => {
+  const rows = ["10", "04", "03", "3"].map((title, i) => row(`2026-09-14T0${i}:00:00Z`, { label: "테스트 교재 현대시 " + title, set_code: "set-" + i }));
+  rows.push(row("2026-09-14T05:00:00Z", { label: "테스트 교재 현대시 03", set_code: "distinct-code" }));
+  const sets = homework(rows)[0].sets;
+  assert.deepEqual(sets.map(set => set.title), ["03", "3", "03", "04", "10"]);
+  assert.equal(sets.length, 5);
+  assert.equal(new Set(sets.map(set => set.first.set_code)).size, 5);
+});
+
+test("catalog uses the longest material/chapter prefix and preserves the complete remaining title", () => {
+  const catalog = [{ material: "테스트", chapter: "교재" }, { material: "테스트 교재", chapter: "현대시" }];
+  const label = "테스트 교재 현대시 03 · 사회 04와 관련된 작품";
+  const section = homework([row("2026-09-14T01:00:00Z", { label })], catalog)[0];
+  assert.equal(section.material, "테스트 교재");
+  assert.equal(section.chapter, "현대시");
+  assert.equal(section.sets[0].title, "03 · 사회 04와 관련된 작품");
+});
+
+test("fallback recognizes only an unambiguous numbered chapter and otherwise preserves the full label", () => {
+  const labels = ["테스트 교재 현대시 03 사회 04", "테스트 교재 사회문화 03", "독서 숙제", "테스트 교재 현대시 작품명"];
+  const fallback = homework(labels.map((label, i) => row(`2026-09-14T0${i}:00:00Z`, { label })));
+  assert.equal(fallback.length, 1);
+  assert.equal(fallback[0].material, "기타 교재");
+  assert.equal(fallback[0].chapter, "");
+  assert.deepEqual(new Set(fallback[0].sets.map(set => set.title)), new Set(labels));
+  const known = homework([row("2026-09-14T01:00:00Z", { label: "테스트 교재 현대 소설 04 · 작품명" })])[0];
+  assert.equal(known.chapter, "현대 소설");
+  assert.equal(known.sets[0].title, "04 · 작품명");
+});
+
+test("homework sections use material names then the existing curriculum chapter order", () => {
+  const labels = ["나 교재 현대시 03", "가 교재 현대 소설 01", "가 교재 사회 01", "가 교재 현대시 04", "가 교재 고전시가 02"];
+  const sections = homework(labels.map((label, i) => row(`2026-09-14T0${i}:00:00Z`, { label })));
+  assert.deepEqual(sections.map(section => [section.material, section.chapter]), [
+    ["가 교재", "현대시"], ["가 교재", "고전시가"], ["가 교재", "사회"], ["가 교재", "현대 소설"], ["나 교재", "현대시"]
+  ]);
+});
+
+test("wrong counts require finite numeric grade fields and clamp scores within the total", () => {
+  const grades = [
+    { total: 4, score: 3, expected: 1 }, { total: 4, score: 10, expected: 0 }, { total: 4, score: -2, expected: 4 },
+    { total: 0, score: 0, expected: 0 }, { total: null, score: 0, expected: null }, { total: 4, score: null, expected: null },
+    { total: "4", score: 3, expected: null }, { total: 4, score: "3", expected: null }, { total: -1, score: 0, expected: null },
+    { total: 4, score: NaN, expected: null }, { total: Infinity, score: 3, expected: null }, { total: 4, score: false, expected: null }
+  ];
+  grades.forEach(({ total, score, expected }) => {
+    const set = homework([row("2026-09-14T01:00:00Z", { total, score, wrong_questions: [] })])[0].sets[0];
+    assert.equal(set.initialWrongCount, expected);
+    assert.equal(set.latestWrongCount, expected);
+  });
+});
+
+test("homework overview does not reorder or mutate its summary groups, rows, or catalog", () => {
+  const first = Object.freeze(row("2026-09-14T01:00:00Z", { label: "테스트 교재 현대시 03" }));
+  const retry = Object.freeze(row("2026-09-15T01:00:00Z", { label: first.label + " · 오답 재풀이" }));
+  const rows = Object.freeze([retry, first]);
+  const groups = Object.freeze([Object.freeze({ label: first.label, rows })]);
+  const catalog = Object.freeze([Object.freeze({ material: "테스트 교재", chapter: "현대시" })]);
+  const set = model.homeworkOverview(groups, catalog)[0].sets[0];
+  assert.deepEqual(rows, [retry, first]);
+  assert.deepEqual(set.attempts, [first, retry]);
+  assert.notEqual(set.attempts, rows);
+  assert.equal(set.first, first);
+  assert.equal(set.latest, retry);
+  assert.deepEqual(model.homeworkOverview([]), []);
+});

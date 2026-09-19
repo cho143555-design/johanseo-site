@@ -81,7 +81,56 @@
 .study-footnote { border-top:1px solid var(--line); padding-top:14px; margin-top:26px; font-size:12px; color:var(--ink-soft); line-height:1.8; }
 .study-empty { padding:28px 20px; border:1px dashed var(--line); text-align:center; font-size:14px; color:var(--ink-soft); }
 .study-more { margin:14px auto 0; display:block; }
+.study-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.homework-guide { display:flex; align-items:baseline; flex-wrap:wrap; gap:12px; font-size:13px; margin-bottom:4px; }
+.homework-guide strong { color:var(--jumuk); font-size:14px; }
+.homework-basis { font-size:12px; color:var(--ink-soft); margin-bottom:18px; word-break:keep-all; }
+.homework-sections { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; align-items:start; }
+.homework-section { padding:0; min-width:0; border:1px solid var(--line); background:#fffdf7; }
+.homework-section-heading { padding:15px 18px 12px; border-bottom:2px solid var(--ink); }
+.homework-section-heading p { font-size:12px; color:var(--ink-soft); margin-bottom:3px; word-break:keep-all; overflow-wrap:anywhere; }
+.homework-section-heading h3 { font-size:18px; font-weight:700; }
+.homework-section-heading h3 small { font-size:12px; font-weight:400; margin-left:8px; color:var(--ink-soft); }
+.homework-table-head,.homework-set > summary { display:grid; grid-template-columns:minmax(0,1fr) 64px 98px 12px; gap:8px; align-items:center; padding:0 16px; }
+.homework-table-head { padding-top:8px; padding-bottom:8px; background:var(--paper-2); font-size:11px; color:var(--ink-soft); }
+.homework-table-head > span:not(:first-child) { text-align:center; }
+.homework-set { border-bottom:1px solid var(--line); }
+.homework-set:last-child { border-bottom:0; }
+.homework-set > summary { min-height:52px; list-style:none; cursor:pointer; transition:background .15s; }
+.homework-set > summary::-webkit-details-marker { display:none; }
+.homework-set > summary:hover { background:var(--paper); }
+.homework-set[open] > summary { background:var(--paper-2); }
+.homework-set-title { font-size:13px; font-weight:600; line-height:1.45; min-width:0; overflow-wrap:anywhere; word-break:keep-all; }
+.homework-set-title > small { display:block; color:var(--ink-soft); font-size:10px; font-weight:400; margin-top:2px; }
+.homework-wrong { font-size:21px; font-weight:700; text-align:center; font-variant-numeric:tabular-nums; color:var(--ink-soft); }
+.homework-wrong small { font-size:12px; font-weight:400; margin-left:3px; }
+.homework-wrong.has-wrong { color:var(--jumuk); }
+.homework-after { text-align:center; font-size:11px; color:var(--ink-soft); line-height:1.5; word-break:keep-all; }
+.homework-after.cleared { color:var(--study-green); }
+.homework-caret::after { content:'+'; font-size:17px; color:var(--ink-soft); }
+.homework-set[open] > summary .homework-caret::after { content:'−'; }
+.homework-set-body { padding:4px 16px 14px; border-top:1px solid var(--line); background:var(--paper); }
+.homework-attempt { margin-top:12px; }
+.homework-attempt-heading { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:4px 8px; margin-bottom:8px; font-size:12px; }
+.homework-attempt-heading span { color:var(--ink-soft); font-size:11px; }
+.homework-answers { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
+.homework-answers th,.homework-answers td { padding:6px 8px; text-align:center; border:1px solid var(--line); background:#fffdf7; }
+.homework-answers thead th { font-size:11px; font-weight:500; color:var(--ink-soft); background:var(--paper-2); }
+.homework-answers tbody th { font-weight:600; }
+.homework-picked { color:var(--jumuk); }
+.homework-answers td { font-size:15px; }
+.homework-no-wrong,.homework-period-note { font-size:12px; color:var(--ink-soft); padding:8px 0; }
+.homework-later > summary { font-size:12px; color:var(--ink-soft); cursor:pointer; padding-top:10px; }
+.study-secondary { border:1px solid var(--line); margin-top:26px; }
+.study-secondary > summary { display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; list-style:none; padding:17px 20px; cursor:pointer; background:var(--paper-2); }
+.study-secondary > summary::-webkit-details-marker { display:none; }
+.study-secondary > summary > span { font-size:15px; font-weight:700; }
+.study-secondary > summary > small { font-size:12px; color:var(--ink-soft); }
+.study-secondary > summary::after { content:'+'; margin-left:auto; font-size:19px; }
+.study-secondary[open] > summary::after { content:'−'; }
+.study-secondary-body { padding:20px; }
 @media(max-width:700px) {
+  .homework-sections { grid-template-columns:1fr; gap:20px; }
   .study-fields { grid-template-columns:1fr 1fr; }
   .study-student { grid-column:1/-1; }
   #studyLoad { grid-column:1/-1; padding:9px; }
@@ -103,6 +152,13 @@
   .study-record-body { padding-left:0; }
 }
 @media(max-width:440px) {
+  .homework-table-head,.homework-set > summary { grid-template-columns:minmax(0,1fr) 52px 77px 10px; gap:5px; padding-left:12px; padding-right:12px; }
+  .homework-section-heading { padding-left:12px; padding-right:12px; }
+  .homework-set-title { font-size:12px; }
+  .homework-wrong { font-size:19px; }
+  .homework-after { font-size:10px; }
+  .homework-set-body { padding-left:12px; padding-right:12px; }
+  .study-secondary-body { padding:12px; }
   .admin-wrap { padding:0 18px; }
   .study-heading { display:block; margin-bottom:20px; }
   .study-zone { display:block; margin-top:6px; }

@@ -63,7 +63,7 @@
 
           <div id="studyDashboard" class="study-dashboard" aria-labelledby="studyTitle">
             <div class="study-heading">
-              <div><p class="study-eyebrow">학생별 학습 기록</p><h1 id="studyTitle">이번 주, 어떻게 공부했을까?</h1></div>
+              <div><p class="study-eyebrow">수업 준비 · 학생별 숙제 확인</p><h1 id="studyTitle">이번 숙제, 어디서 틀렸을까?</h1></div>
               <span class="study-zone">한국 시간 기준</span>
             </div>
             <form id="studyForm" class="study-controls">
@@ -685,9 +685,9 @@ Q: 다음 질문
       $("loginView").style.display = "none";
       $("adminView").style.display = "block";
       $("logoutLink").style.display = "inline";
-      window.AdminStudyDashboard.init(sb);
       buildKeyOmr();
       await refreshIndex();
+      window.AdminStudyDashboard.init(sb, idx);
       await refreshSets();
       await refreshSubs();
       await loadStats();

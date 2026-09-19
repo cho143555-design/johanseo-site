@@ -9,6 +9,7 @@
   var DAY = 86400000;
   var KST = 9 * 60 * 60 * 1000;
   var RETRY_SUFFIX = /(?:\s*·\s*오답 재풀이\s*)+$/;
+  var CHAPTER_ORDER = ['현대시','고전시가','갈래복합·수필','현대소설','고전산문','극','인문·독서','인문·예술','사회','과학','기술','과학·기술','주제 통합','예술','복합 지문','독서론','미니모의고사 1회','미니모의고사 2회','고전 시가','현대 소설','고전 산문','갈래 복합'];
 
   function dateValue(value) {
     if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value) || value.slice(0, 4) === "0000") {
@@ -191,5 +192,90 @@
     };
   }
 
-  return { kstDate: kstDate, addDays: addDays, period: period, bounds: bounds, isRetry: isRetry, baseLabel: baseLabel, summarize: summarize };
+  function wrongCount(row) {
+    if (!row || typeof row.total !== "number" || typeof row.score !== "number" ||
+        !Number.isFinite(row.total) || !Number.isFinite(row.score) || row.total < 0) return null;
+    return row.total - Math.min(row.total, Math.max(0, row.score));
+  }
+
+  function labelParts(label, catalog) {
+    var prefixes = catalog.filter(function (item) {
+      return item && typeof item.material === "string" && item.material.trim() &&
+        typeof item.chapter === "string" && item.chapter.trim();
+    }).map(function (item) {
+      var material = item.material.trim(), chapter = item.chapter.trim();
+      return { material: material, chapter: chapter, prefix: material + " " + chapter };
+    }).filter(function (item) {
+      return label === item.prefix || label.indexOf(item.prefix + " ") === 0;
+    }).sort(function (a, b) { return b.prefix.length - a.prefix.length; });
+    if (prefixes.length) {
+      var match = prefixes[0];
+      return { material: match.material, chapter: match.chapter, title: label.slice(match.prefix.length).trim() };
+    }
+
+    // Old labels may predate the catalog. Only an unambiguous, whole chapter name
+    // followed by a numbered set is safe to infer without its original metadata.
+    var candidates = [];
+    CHAPTER_ORDER.forEach(function (chapter) {
+      var from = 0, at;
+      while ((at = label.indexOf(chapter, from)) !== -1) {
+        var end = at + chapter.length, rest = label.slice(end);
+        if ((at === 0 || /\s/.test(label.charAt(at - 1))) && /^\s+\d/.test(rest)) {
+          candidates.push({ material: label.slice(0, at).trim() || "기타 교재", chapter: chapter, title: rest.trim() });
+        }
+        from = end;
+      }
+    });
+    return candidates.length === 1 ? candidates[0] : { material: "기타 교재", chapter: "", title: label };
+  }
+
+  function koreanOrder(a, b) {
+    return a.localeCompare(b, "ko", { numeric: true });
+  }
+
+  function chapterOrder(a, b) {
+    var first = CHAPTER_ORDER.indexOf(a), second = CHAPTER_ORDER.indexOf(b);
+    if (first !== -1 || second !== -1) {
+      if (first === -1) return 1;
+      if (second === -1) return -1;
+      return first - second;
+    }
+    return koreanOrder(a, b);
+  }
+
+  function homeworkOverview(summaryGroups, catalog) {
+    var sections = new Map();
+    catalog = Array.isArray(catalog) ? catalog : [];
+    (Array.isArray(summaryGroups) ? summaryGroups : []).forEach(function (group) {
+      if (!group || !Array.isArray(group.rows)) return;
+      var attempts = group.rows.filter(function (row) { return row && typeof row === "object"; }).slice().sort(function (a, b) {
+        return timestamp(a.created_at) - timestamp(b.created_at);
+      });
+      if (!attempts.length) return;
+      var first = attempts.find(function (row) { return !isRetry(row); }) || null;
+      var latest = attempts[attempts.length - 1];
+      var label = typeof group.label === "string" && group.label.trim() ? group.label.trim() : baseLabel(latest);
+      var parts = labelParts(label, catalog), key = JSON.stringify([parts.material, parts.chapter]);
+      var section = sections.get(key);
+      if (!section) {
+        section = { material: parts.material, chapter: parts.chapter, sets: [] };
+        sections.set(key, section);
+      }
+      // Each summary group is one distinct set, including groups with equal labels
+      // but different set_code values. Do not collapse those when arranging them.
+      section.sets.push({
+        label: label, title: parts.title, first: first, latest: latest, attempts: attempts,
+        initialWrongCount: wrongCount(first), latestWrongCount: wrongCount(latest)
+      });
+    });
+    var result = Array.from(sections.values()).sort(function (a, b) {
+      return koreanOrder(a.material, b.material) || chapterOrder(a.chapter, b.chapter);
+    });
+    result.forEach(function (section) {
+      section.sets.sort(function (a, b) { return koreanOrder(a.title, b.title); });
+    });
+    return result;
+  }
+
+  return { kstDate: kstDate, addDays: addDays, period: period, bounds: bounds, isRetry: isRetry, baseLabel: baseLabel, summarize: summarize, homeworkOverview: homeworkOverview };
 });
