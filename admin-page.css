@@ -1,0 +1,106 @@
+/* Teacher workspace: shared brand styles plus focused administration tools. */
+.admin-page { background:#f4f5f8; }
+.admin-page .topbar .wrap,.admin-page .admin-wrap { max-width:1240px; }
+.admin-page .topbar { background:rgba(255,255,255,.96); }
+.admin-page .topbar .wrap { min-height:76px; height:auto; }
+.admin-page .brand-line { display:inline-flex; align-items:baseline; gap:0; white-space:nowrap; font-family:var(--sans); font-size:26px; font-weight:800; letter-spacing:-1.2px; }
+.admin-page .brand-dot { color:#4260f5; }
+.admin-page .brand-line small { font-size:9px; letter-spacing:1.4px; margin-left:12px; font-weight:700; color:#696d78; }
+.admin-page .topbar .nav { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:24px; font-size:13px; }
+.admin-current { color:#4260f5; font-weight:700; }
+.admin-main { padding:38px 0 88px; }
+.admin-page-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:28px; }
+.admin-eyebrow { font-size:10px; font-weight:700; letter-spacing:1.8px; color:#696d78; margin-bottom:5px; }
+.admin-page-title { font-size:25px; font-weight:750; letter-spacing:-.8px; line-height:1.4; }
+.admin-student-link { font-size:13px; color:#4260f5; white-space:nowrap; font-weight:650; }
+.admin-quick-nav { position:sticky; top:76px; z-index:35; display:flex; align-items:center; flex-wrap:wrap; gap:7px; padding:12px; margin:0 0 32px; border:1px solid #e2e4e9; border-radius:12px; background:rgba(255,255,255,.97); box-shadow:0 4px 16px #13151a04; }
+.admin-quick-nav[hidden] { display:none; }
+.admin-quick-nav a { display:block; border-radius:8px; padding:9px 15px; color:#696d78; font-size:13px; font-weight:650; line-height:1.4; white-space:nowrap; transition:background .18s,color .18s; }
+.admin-quick-nav a:hover { background:#f2f4fb; color:#13151a; }
+.admin-quick-nav a[aria-current] { color:#314dce; background:#e9edff; }
+.admin-quick-nav .admin-nav-primary { color:#314dce; }
+#adminTools { gap:42px; }
+.admin-page #studyDashboard,.admin-tool-group { scroll-margin-top:60px; }
+.admin-tool-group { min-width:0; padding:0; border:0; }
+.admin-group-heading { display:flex; align-items:baseline; flex-wrap:wrap; gap:8px 18px; margin:0 0 15px; }
+.admin-group-heading h2 { font-family:var(--sans); font-size:21px; font-weight:750; letter-spacing:-.5px; }
+.admin-group-heading p { color:#696d78; font-size:13px; }
+.admin-tool-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; align-items:start; }
+.admin-tool-list > .faq-item { min-width:0; margin:0; border:1px solid #e2e4e9; border-radius:12px; background:#fff; overflow:hidden; }
+.admin-tool-list > .faq-item:hover { border-color:#b6c2f2; }
+.admin-tool-list > .faq-item[open] { grid-column:1/-1; border-color:#b6c2f2; box-shadow:0 4px 20px #13151a04; }
+.admin-tool-list > .faq-item > summary { padding:20px 22px; min-height:68px; color:#262b36; font-family:var(--sans); font-weight:650; font-size:15px; line-height:1.55; }
+.admin-tool-list > .faq-item > summary::after { color:#7e879a; font-family:var(--sans); font-size:21px; font-weight:400; }
+.admin-tool-list > .faq-item[open] > summary { color:#314dce; background:#f8f9ff; border-bottom:1px solid #e7ebf7; }
+.admin-tool-list > .faq-item[open] > summary::after { color:#4260f5; }
+.admin-tool-list > .faq-item > .faq-body { padding:22px !important; }
+.admin-page .faq-body > .panel { padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; }
+.admin-page .faq-body .panel,.admin-page .faq-body .field { min-width:0; }
+.admin-page .faq-body input,.admin-page .faq-body select { max-width:100%; min-width:0; }
+.admin-page textarea { background:#fcfcfe; border:1px solid #dce0e9; border-radius:9px; line-height:1.75; resize:vertical; }
+.admin-page textarea:focus { border-color:#4260f5; box-shadow:0 0 0 3px #4260f514; }
+.admin-page .faq-body .field label { font-size:13px; font-weight:650; letter-spacing:0; }
+.admin-page .faq-body .mini { line-height:1.8; }
+.admin-page .faq-body .admin-grid { gap:10px; }
+.admin-page .faq-body .set-item { gap:16px; border-color:#e2e4e9; border-radius:9px; background:#fff; }
+.admin-page .set-item > div { min-width:0; overflow-wrap:anywhere; }
+.admin-page .set-item .btn { flex-shrink:0; }
+.admin-page .set-item .code,.admin-page .edit-row .qno,.admin-page .fb h4,.admin-page .note-card .no { font-family:var(--sans); }
+.admin-page .set-item .code { font-size:14px; }
+.admin-page .set-item .meta { font-size:12px; line-height:1.65; margin-top:4px; }
+.admin-page .pill { border-color:#dce2f5; background:#f0f3ff; color:#4158ad; font-size:11px; }
+.admin-page .preview { border-color:#cbd3e9; background:#f8f9fc; line-height:1.75; overflow-wrap:anywhere; }
+.admin-page .preview.err { color:#b23b36; border-color:#e2b7b4; }
+.admin-page .note-card { border-color:#e2e4e9; border-left-color:#4260f5; background:#f8f9fc; border-radius:9px; }
+.admin-page .ans-wrap { overflow-x:auto; }
+.admin-page .nb-item { background:#f8f9fc; border-radius:10px; border-color:#e2e4e9; }
+.admin-page #nbAdminLive { width:17px; min-height:17px; accent-color:#4260f5; }
+.admin-page input[type="checkbox"],.admin-page input[type="radio"] { width:17px; min-height:17px; height:17px; padding:0; accent-color:#4260f5; vertical-align:middle; flex-shrink:0; }
+.admin-page .toast { color:#fff; background:#232733; border-radius:10px; box-shadow:0 6px 22px #0002; max-width:calc(100vw - 32px); text-align:center; }
+.admin-page #loginView { max-width:440px; padding:45px 0; }
+.admin-page #loginView .section-label { font-size:11px; letter-spacing:1.5px; color:#4260f5; }
+.admin-page #loginView .section-title { margin:8px 0 10px; font:750 32px/1.35 var(--sans); letter-spacing:-1px; }
+.admin-login-lead { font-size:14px; color:#696d78; margin-bottom:28px; }
+.admin-page #loginView .panel { padding:28px; border:1px solid #e2e4e9; border-radius:14px; background:#fff; box-shadow:0 8px 36px #13151a05; }
+.admin-page #loginView label { letter-spacing:0; }
+.admin-skip-link { position:fixed; left:20px; top:-60px; z-index:100; padding:10px 18px; color:#fff; background:#4260f5; border-radius:8px; }
+.admin-skip-link:focus { top:12px; }
+@media(max-width:760px) {
+  .admin-page .wrap { padding-left:20px; padding-right:20px; }
+  .admin-page .topbar .wrap { min-height:66px; }
+  .admin-page .brand-line { font-size:23px; }
+  .admin-page .brand-line small { display:none; }
+  .admin-page .topbar .nav { gap:15px; font-size:12px; }
+  .admin-main { padding-top:26px; padding-bottom:60px; }
+  .admin-page-heading { align-items:flex-start; margin-bottom:22px; }
+  .admin-page-title { font-size:21px; }
+  .admin-student-link { font-size:11px; padding-top:21px; }
+  .admin-eyebrow { font-size:9px; }
+  .admin-quick-nav { top:66px; flex-wrap:nowrap; overflow-x:auto; padding:8px; gap:4px; margin-bottom:27px; scrollbar-width:thin; }
+  .admin-quick-nav a { padding:9px 12px; font-size:12px; }
+  #adminTools { gap:34px; }
+  .admin-tool-list { grid-template-columns:minmax(0,1fr); gap:10px; }
+  .admin-tool-list > .faq-item > summary { padding:18px; min-height:62px; font-size:14px; }
+  .admin-tool-list > .faq-item > .faq-body { padding:18px !important; }
+  .admin-group-heading { display:block; }
+  .admin-group-heading h2 { font-size:19px; }
+  .admin-group-heading p { margin-top:4px; font-size:12px; }
+  .admin-page #studyDashboard,.admin-tool-group { scroll-margin-top:43px; }
+  .admin-page .faq-body [style*="grid-template-columns:1fr auto auto"] { grid-template-columns:minmax(0,1fr) auto !important; }
+  .admin-page .faq-body [style*="grid-template-columns:1fr auto auto"] > select { grid-column:1/-1; }
+  .admin-page .faq-body [style*="grid-template-columns:1fr 1fr"] { grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important; }
+  .admin-page .faq-body [style*="grid-template-columns:1fr auto"] { grid-template-columns:minmax(0,1fr) auto; }
+  .admin-page .faq-body .set-item { align-items:flex-start; padding:13px; gap:10px; }
+  .admin-page #loginView { padding-top:20px; }
+  .admin-page #loginView .panel { padding:22px; }
+}
+@media(max-width:390px) {
+  .admin-page .wrap { padding-left:16px; padding-right:16px; }
+  .admin-page .topbar .nav { gap:11px; font-size:11px; }
+  .admin-page-heading { gap:10px; }
+  .admin-page-title { font-size:19px; }
+  .admin-student-link { font-size:10px; }
+  .admin-tool-list > .faq-item > .faq-body { padding:15px !important; }
+  .admin-page .faq-body [style*="grid-template-columns:1fr 1fr"] { gap:10px !important; }
+  .admin-page .faq-body .btn { padding-left:12px; padding-right:12px; }
+}

@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>관리자 — 조한서 국어</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="brand.css?v=20260919" />
   <link rel="stylesheet" href="admin-study.css" />
   <style>
     textarea { width:100%; min-height:220px; font-family:ui-monospace,Consolas,monospace; font-size:13px;
@@ -33,22 +33,25 @@
     .note-card .no { font-family:var(--serif); font-weight:800; color:var(--jumuk); margin-right:8px; }
     .note-card .aside { display:block; margin-top:8px; font-size:13px; color:var(--ink-soft); }
   </style>
+  <link rel="stylesheet" href="admin-page.css?v=20260919" />
 </head>
-<body>
+<body class="admin-page">
+  <a class="admin-skip-link" href="#adminMain">본문으로 이동</a>
   <div class="topbar">
     <div class="wrap">
-      <a class="brand" href="index.html">조한서 수능 · 내신 국어</a>
-      <nav class="nav"><a href="index.html">홈</a><a href="#" id="logoutLink" style="display:none">로그아웃</a></nav>
+      <a class="brand-line" href="index.html" aria-label="조한서 국어 홈">조한서<span class="brand-dot">.</span><small>KOREAN</small></a>
+      <nav class="nav" aria-label="관리자 메뉴"><span class="admin-current">관리자</span><a href="index.html">사이트 보기 ↗</a><a href="#" id="logoutLink" style="display:none">로그아웃</a></nav>
     </div>
   </div>
 
-  <section>
+  <main id="adminMain" class="admin-main">
     <div class="wrap admin-wrap">
 
       <!-- 로그인 -->
       <div id="loginView">
-        <p class="section-label">관리자</p>
-        <h2 class="section-title">로그인</h2>
+        <p class="section-label">TEACHER’S WORKSPACE</p>
+        <h1 class="section-title">관리자 로그인</h1>
+        <p class="admin-login-lead">수업 준비와 학생 관리를 한곳에서.</p>
         <div class="panel">
           <div class="field"><label for="email">이메일</label><input id="email" type="email" autocomplete="username" /></div>
           <div class="field"><label for="pw">비밀번호</label><input id="pw" type="password" autocomplete="current-password" /></div>
@@ -59,7 +62,9 @@
 
       <!-- 관리 -->
       <div id="adminView" style="display:none">
-        <div class="admin-grid">
+        <div class="admin-page-heading"><div><p class="admin-eyebrow">TEACHER’S WORKSPACE</p><p class="admin-page-title">수업을 준비하는 공간.</p></div><a class="admin-student-link" href="homework.html">학생 채점 화면 ↗</a></div>
+        <nav id="adminQuickNav" class="admin-quick-nav" aria-label="관리 도구 바로가기" hidden></nav>
+        <div class="admin-grid" id="adminTools">
 
           <div id="studyDashboard" class="study-dashboard" aria-labelledby="studyTitle">
             <div class="study-heading">
@@ -646,7 +651,7 @@ Q: 다음 질문
         </div>
       </div>
     </div>
-  </section>
+  </main>
 
   <div class="toast" id="toast"></div>
 
@@ -654,6 +659,7 @@ Q: 다음 질문
   <script src="config.js"></script>
   <script src="admin-study-model.js"></script>
   <script src="admin-study.js"></script>
+  <script src="admin-nav.js?v=20260919"></script>
   <script>
     const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);

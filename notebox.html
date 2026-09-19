@@ -5,23 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>기억해둘 문제 보관함 — 조한서 국어</title>
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="과제 채점 — 조한서 국어" />
-  <meta property="og:description" content="교재·범위 고르고 답 입력하면 바로 채점됩니다." />
+  <meta property="og:title" content="기억해둘 문제 보관함 — 조한서 국어" />
+  <meta property="og:description" content="다시 볼 문제와 메모를 모아두고, 하나씩 내 것으로." />
   <meta property="og:image" content="https://johanseo.com/og.png" />
-  <meta property="og:url" content="https://johanseo.com/homework" />
+  <meta property="og:url" content="https://johanseo.com/notebox" />
 
-  <link rel="icon" type="image/png" href="seal.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#f6f1e7" />
+  <meta name="theme-color" content="#f4f5f8" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="조한서 국어" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="brand.css?v=20260919" />
+  <link rel="stylesheet" href="student.css?v=20260919" />
   <style>
     .tabs { display:flex; gap:8px; margin-bottom:22px; }
     .tab {
@@ -46,20 +46,24 @@
     .note-card .aside { display:block; margin-top:8px; font-size:13px; color:var(--ink-soft); }
   </style>
 </head>
-<body>
+<body class="student-page page-notebox">
   <div class="topbar">
     <div class="wrap">
-      <a class="brand" href="index.html">조한서 수능 · 내신 국어</a>
-      <nav class="nav">
+      <a class="brand-line student-wordmark" href="index.html" aria-label="조한서 국어 홈">조한서<span>.</span><small>KOREAN</small></a>
+      <nav class="nav" aria-label="학생 메뉴">
         <a href="index.html">홈</a>
         <a href="homework.html">과제 채점</a>
+        <a href="notebox.html" aria-current="page">보관함</a>
       </nav>
     </div>
   </div>
 
-  <section>
-    <div class="wrap" style="max-width:640px">
-      <p class="section-label">기억해둘 문제</p>
+  <main class="student-main">
+    <div class="wrap student-shell">
+      <div class="student-heading">
+        <div><p class="student-eyebrow">MY NOTEBOX</p><h1 class="hw-title">다시 볼 문제</h1><p class="student-intro">모아두고, 이해하고, 하나씩 줄여가자.</p></div>
+        <a class="student-shortcut" href="homework.html">과제 채점 <span aria-hidden="true">↗</span></a>
+      </div>
 
       <details class="faq-item" id="nbGuideBox" style="margin-bottom:18px;display:none">
         <summary id="nbGuideTitle">이걸 왜 모으는지 — 먼저 읽어봐</summary>
@@ -68,6 +72,7 @@
 
       <!-- 이름 + 번호 -->
       <div class="panel nb-gate" id="nbGate">
+        <div class="student-card-heading"><h2>내 보관함 열기</h2><p>이름과 확인번호를 입력해 주세요.</p></div>
         <div class="field">
           <label for="nbName">이름</label>
           <input id="nbName" type="text" placeholder="예: 조한서" autocomplete="off" list="nbNameList" />
@@ -79,20 +84,25 @@
           <p class="hint" style="margin:8px 0 0">선생님께 받은 번호야. 한 번 넣으면 다음부턴 안 물어봐.</p>
         </div>
         <button class="btn jumuk" id="nbOpen" style="width:100%">보관함 열기</button>
-        <p class="msg" id="nbMsg" style="display:none;margin-top:12px"></p>
+        <p class="msg" id="nbMsg" role="status" style="display:none;margin-top:12px"></p>
       </div>
 
       <!-- 목록 -->
       <div id="nbView" style="display:none">
         <p class="nb-count" id="nbCount"></p>
+        <div class="student-note-filters" aria-label="보관한 문제 상태">
+          <button type="button" data-note-filter="live" aria-pressed="true">아직 볼 것 <span id="studentLiveCount">0</span></button>
+          <button type="button" data-note-filter="done" aria-pressed="false">이제 맞출 수 있는 것 <span id="studentDoneCount">0</span></button>
+        </div>
         <div id="nbList"></div>
+        <p class="nb-empty student-filter-empty" id="studentFilterEmpty" hidden></p>
         <div style="margin-top:22px;display:flex;gap:9px;flex-wrap:wrap">
           <a class="btn ghost" href="homework.html">채점하러 가기</a>
           <button type="button" class="btn ghost" id="nbLogout">다른 사람으로 열기</button>
         </div>
       </div>
     </div>
-  </section>
+  </main>
 
   <footer>
     <div class="wrap" style="justify-content:flex-end"><span>조한서 수능 · 내신 국어</span></div>
@@ -207,7 +217,7 @@
           <div class="nb-head"><span class="nb-no">${n.question_no}번</span>
             <span class="nb-src">${esc(n.source_label || src)}</span></div>
           <div class="nb-ans">${ansLine}</div>
-          <textarea class="nb-note" placeholder="왜 틀렸는지, 뭘 배웠는지 한 줄만">${esc(n.note)}</textarea>
+          <textarea class="nb-note" aria-label="${n.question_no}번 문제 메모" placeholder="왜 틀렸는지, 뭘 배웠는지 한 줄만">${esc(n.note)}</textarea>
           <div class="nb-acts">
             <button type="button" class="btn ghost tiny act-save">메모 저장</button>
             <button type="button" class="btn ghost tiny act-toggle">${n.resolved ? "다시 볼래" : "이제 맞출 수 있어"}</button>
@@ -220,8 +230,8 @@
       if (!notes.length) {
         html = `<div class="nb-empty">아직 담아둔 문제가 없어.<br />채점하고 나서 <b>기억해둘 문제</b>를 골라 담아봐.</div>`;
       } else {
-        if (live.length) html += `<div class="nb-sec">아직 볼 것</div>` + live.map(card).join("");
-        if (done.length) html += `<div class="nb-sec">이제 맞출 수 있는 것</div>` + done.map(card).join("");
+        if (live.length) html += `<div class="nb-sec" data-note-group="live">아직 볼 것</div>` + live.map(card).join("");
+        if (done.length) html += `<div class="nb-sec" data-note-group="done">이제 맞출 수 있는 것</div>` + done.map(card).join("");
       }
       $("nbList").innerHTML = html;
       bind();
@@ -282,5 +292,6 @@
       });
     })();
   </script>
+  <script src="student-ui.js?v=20260919"></script>
 </body>
 </html>

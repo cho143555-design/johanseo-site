@@ -10,18 +10,18 @@
   <meta property="og:image" content="https://johanseo.com/og.png" />
   <meta property="og:url" content="https://johanseo.com/homework" />
 
-  <link rel="icon" type="image/png" href="seal.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#f6f1e7" />
+  <meta name="theme-color" content="#f4f5f8" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="조한서 국어" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="brand.css?v=20260919" />
+  <link rel="stylesheet" href="student.css?v=20260919" />
   <style>
     .tabs { display:flex; gap:8px; margin-bottom:22px; }
     .tab {
@@ -89,22 +89,32 @@
 
   </style>
 </head>
-<body>
+<body class="student-page page-homework">
   <div class="topbar">
     <div class="wrap">
-      <a class="brand" href="index.html">조한서 수능 · 내신 국어</a>
-      <nav class="nav">
+      <a class="brand-line student-wordmark" href="index.html" aria-label="조한서 국어 홈">조한서<span>.</span><small>KOREAN</small></a>
+      <nav class="nav" aria-label="학생 메뉴">
         <a href="index.html">홈</a>
-        <a href="index.html#contact">문의</a>
+        <a href="homework.html" aria-current="page">과제 채점</a>
+        <a href="notebox.html">보관함</a>
       </nav>
     </div>
   </div>
 
-  <section>
-    <div class="wrap" style="max-width:640px">
-      <h1 class="hw-title">과제 채점</h1>
+  <main class="student-main">
+    <div class="wrap student-shell">
+      <div class="student-heading">
+        <div><p class="student-eyebrow">STUDY ROOM</p><h1 class="hw-title">오늘의 과제</h1><p class="student-intro">풀고, 확인하고, 내 것으로.</p></div>
+        <a class="student-shortcut" href="notebox.html">보관함 <span aria-hidden="true">↗</span></a>
+      </div>
+      <ol class="student-steps" aria-label="채점 순서">
+        <li data-student-step="1" aria-current="step"><span>01</span> 과제 선택</li>
+        <li data-student-step="2"><span>02</span> 답안 입력</li>
+        <li data-student-step="3"><span>03</span> 결과 확인</li>
+      </ol>
 
-      <div class="panel">
+      <div class="panel student-work-card">
+        <div class="student-card-heading"><h2>과제 선택</h2><p>이름과 교재를 확인해 주세요.</p></div>
         <div class="field">
           <label for="name">이름</label>
           <input id="name" type="text" placeholder="예: 조한서" autocomplete="off" list="nameList" />
@@ -147,8 +157,13 @@
 
         <!-- 공용: 답안 표기 + 채점 -->
         <div id="omrWrap" style="display:none;margin-top:8px">
+          <div class="student-answer-heading">
+            <div><p id="studentSelection" class="student-selection"></p><h2 id="studentAnswerTitle">답안 입력</h2></div>
+            <span id="studentAnswerCount" role="status" aria-live="polite">0 / 0 입력</span>
+          </div>
+          <div class="student-progress" aria-hidden="true"><span id="studentAnswerProgress"></span></div>
           <div class="field">
-            <label>답안 표기 <span style="font-weight:400;color:var(--ink-soft)">— 각 문항의 답을 눌러 주세요</span></label>
+            <p class="student-answer-help">각 문항의 답을 눌러 주세요. 다른 번호를 누르면 바꿀 수 있어요.</p>
             <div class="omr" id="omr"></div>
           </div>
           <div class="field" id="partWrap" style="display:none">
@@ -159,9 +174,10 @@
           <button class="btn jumuk" id="submitBtn" style="width:100%">채점하기</button>
         </div>
 
-        <p class="msg err" id="err" style="display:none"></p>
+        <p class="msg err" id="err" role="alert" style="display:none"></p>
 
         <div class="result" id="result">
+          <div class="student-result-heading"><p class="student-result-label">채점 결과</p><span class="student-result-count" id="studentWrongCount"></span></div>
           <div class="score-big"><span id="scoreLabel"></span></div>
           <div class="wrong-list" id="wrongList"></div>
           <button class="btn jumuk" id="retryBtn" style="margin-top:16px;display:none">틀린 문항만 다시 풀기</button>
@@ -286,7 +302,7 @@
       </details>
       </div>
     </div>
-  </section>
+  </main>
 
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -552,8 +568,22 @@
         .order("question_no", { ascending: true });
       return data || [];
     }
+    function syncStudySelection() {
+      if (!current) return;
+      let label;
+      if (current.kind === "set") {
+        const option = [...$("setSelect").options].find(opt => opt.value === current.set_code);
+        label = option ? option.textContent.trim() : current.set_code;
+      } else {
+        const range = current.kind === "section" ? current.section : `${p3(current.start)}–${p3(current.end)}번`;
+        label = [current.material, current.chapter, range].filter(Boolean).join(" · ");
+      }
+      $("omrWrap").dataset.studySelection = label;
+    }
     function buildOmrNums(nums, choiceCount) {
       retryMode = false; $("retryBtn").style.display = "none";
+      $("omrWrap").dataset.studyMode = "normal";
+      syncStudySelection();
       const omr = $("omr"); omr.innerHTML = "";
       answers = new Array(nums.length).fill(null);
       nums.forEach((row, i) => {
@@ -578,6 +608,8 @@
     // ---- OMR ----
     function buildOmr(count, choiceCount, startNo, hasPlus) {
       retryMode = false; $("retryBtn").style.display = "none";
+      $("omrWrap").dataset.studyMode = "normal";
+      syncStudySelection();
       const omr = $("omr");
       omr.innerHTML = "";
       answers = new Array(count).fill(null);
@@ -646,6 +678,7 @@
     $("retryBtn").addEventListener("click", () => {
       if (!lastWrong.length || !current) return;
       retryMode = true; retryList = lastWrong.slice();
+      $("omrWrap").dataset.studyMode = "retry";
       const cc = (current.kind === "set" && current.choice_count) ? current.choice_count : 5;
       const omr = $("omr"); omr.innerHTML = "";
       answers = new Array(retryList.length).fill(null);
@@ -702,6 +735,8 @@
         if (!res.ok) throw new Error(json.error || "채점에 실패했습니다.");
 
         $("scoreLabel").innerHTML = `${json.score}<span> / ${json.total}</span>`;
+        $("studentWrongCount").textContent = json.wrong_questions.length ? `오답 ${json.wrong_questions.length}개` : "모두 정답";
+        $("studentWrongCount").classList.toggle("is-perfect", !json.wrong_questions.length);
         const fmt = (n) => (json.plus_no && n === json.plus_no) ? "이감+" :
           (current.kind === "range" || (current.kind === "set" && current.start_no) ? p3(n) : String(n));
         $("wrongList").innerHTML = json.wrong_questions.length
@@ -1141,5 +1176,6 @@
       });
     })();
   </script>
+  <script src="student-ui.js?v=20260919"></script>
 </body>
 </html>
