@@ -25,6 +25,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .topbar .wrap { height:auto; min-height:76px; gap:20px; }
 .brand-line,.brand { font-family:var(--sans); font-size:25px; font-weight:850; letter-spacing:-1.4px; color:var(--ink); white-space:nowrap; }
 .brand-line .brand-dot,.brand-dot { color:var(--blue); }
+.brand-line .brand-subject { margin-left:7px;color:var(--blue);font:inherit;letter-spacing:inherit; }
 .brand-line small { margin-left:10px; font-size:10px; letter-spacing:1.7px; color:var(--ink-soft); font-weight:550; }
 .nav { display:flex; align-items:center; flex-wrap:wrap; gap:22px; font-size:13px; }
 .nav a { padding:7px 0; color:var(--ink-soft); }
