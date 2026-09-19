@@ -4,7 +4,7 @@
 .student-page .topbar { background:rgba(255,255,255,.96); }
 .student-page .topbar .wrap { max-width:1180px; min-height:76px; height:auto; gap:22px; }
 .student-page .student-wordmark { display:inline-flex; align-items:baseline; flex-shrink:0; gap:0; font:800 27px/1 var(--sans); letter-spacing:-1.6px; }
-.student-wordmark > span { color:var(--jumuk,#4260f5); }
+.student-wordmark > .brand-subject { color:var(--jumuk,#4260f5);font:inherit;letter-spacing:inherit;margin-left:7px; }
 .student-wordmark small { font-size:9px; font-weight:700; letter-spacing:1.6px; margin-left:10px; }
 .student-page .nav { display:flex; gap:28px; font-size:14px; font-weight:650; }
 .student-page .nav a { padding:26px 0; white-space:nowrap; }
@@ -12,7 +12,7 @@
 .student-main { padding:52px 0 80px; }
 .student-page .student-shell { max-width:840px; }
 .student-heading { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:30px; }
-.student-eyebrow { font-size:11px; font-weight:750; letter-spacing:1.9px; color:var(--jumuk,#4260f5); margin:0 0 10px; }
+.student-eyebrow { font-size:11px; font-weight:750; letter-spacing:.7px; color:var(--jumuk,#4260f5); margin:0 0 10px; }
 .student-page .hw-title { font-family:var(--sans); font-size:clamp(30px,4.5vw,40px); line-height:1.22; letter-spacing:-1.4px; margin:0 0 10px; }
 .student-intro { font-size:15px; color:var(--ink-soft); line-height:1.6; }
 .student-shortcut { font-size:13px; font-weight:650; white-space:nowrap; padding:8px 0; }
@@ -147,4 +147,10 @@
   .student-shortcut { margin-top:31px; }
   .student-page .student-work-card,.student-page .nb-gate { padding:20px 15px; }
   .student-page .bubbles { gap:5px; }
+}
+
+.student-page .footer-wordmark { font-size:20px;font-weight:800;letter-spacing:-.8px; }
+@media(max-width:380px) {
+  .student-page .student-wordmark { font-size:22px;letter-spacing:-1.2px; }
+  .student-page .nav { gap:13px; }
 }

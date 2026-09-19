@@ -89,7 +89,7 @@
       const split = line.match(/^\*\*(.+?)\*\*\s*[—–-]\s*(.*)$/);
       return split ? `<div><b>${escape(split[1])}</b><p>${lineBreaks(split[2])}</p></div>` : `<div><p>${lineBreaks(line)}</p></div>`;
     }).join('');
-    return `<p class="eyebrow">YOUR TEACHER</p><h2>${catchHtml || escape(name)}</h2><ul class="credentials">${credentials}</ul>${points ? `<div class="teacher-points">${points}</div>` : ''}`;
+    return `<p class="eyebrow">${escape(name)} 선생님</p><h2>${catchHtml || escape(name)}</h2><ul class="credentials">${credentials}</ul>${points ? `<div class="teacher-points">${points}</div>` : ''}`;
   }
 
   function lessonsHtml(content) {
@@ -121,7 +121,7 @@
     const fields = readFields(content);
     if (fields['윗줄']) byId('heroEyebrow').textContent = fields['윗줄'][0];
     if (fields['수능라벨']) {
-      byId('satTag').textContent = 'JO HAN SEO · ' + fields['수능라벨'][0];
+      byId('satTag').textContent = '조한서 · ' + fields['수능라벨'][0];
       byId('satCourseTag').textContent = fields['수능라벨'][0];
     }
     if (fields['제목']) {
