@@ -1,343 +1,568 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>조한서 국어</title>
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="조한서 국어" />
-  <meta property="og:description" content="노베이스에서 수능 만점까지." />
-  <meta property="og:image" content="https://johanseo.com/og.png?v=3" />
-  <meta property="og:url" content="https://johanseo.com/" />
-
-  <meta name="description" content="노베이스에서 수능 만점까지. 수능·내신 국어 밀착 지도." />
-  <link rel="icon" type="image/png" href="seal.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#f6f1e7" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="조한서 국어" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>조한서 국어</title>
+<meta property="og:type" content="website" />
+<meta property="og:title" content="조한서 국어" />
+<meta property="og:description" content="노베이스에서 수능 만점까지." />
+<meta property="og:image" content="https://johanseo.com/og.png?v=3" />
+<meta property="og:url" content="https://johanseo.com/" />
+<meta name="description" content="노베이스에서 수능 만점까지. 수능·내신 국어 밀착 지도." />
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260919" />
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#101115" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="조한서 국어" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="brand.css?v=20260919" />
+<link rel="stylesheet" href="home.css?v=20260919" />
 </head>
-<body>
-  <div class="topbar">
-    <div class="wrap">
-      <span class="brand-line" id="heroEyebrow">조한서 수능 · 내신 국어</span>
-      <nav class="nav">
-        <a href="#teacher">소개</a>
-        <a href="#lessons" id="navLessons" style="display:none">수업 안내</a>
-        <a href="homework.html">과제 채점</a>
-        <a href="#column">칼럼</a>
-        <a href="#contact">문의</a>
-      </nav>
-    </div>
-  </div>
-
-  <!-- 히어로 -->
-  <header class="hero loading">
-    <div class="wongoji"></div>
-    <div class="wrap">
-      <div>
-        <p class="hero-tag" id="satTag"></p>
-        <h1 id="heroH1"></h1>
-        <p class="lead" id="heroLead"></p>
-      </div>
-      <div class="hero-naesin" id="naesinBlock" style="display:none">
-        <p class="hero-tag" id="naesinTag"></p>
-        <h2 class="naesin-title" id="naesinTitle"></h2>
-        <p class="lead" id="naesinLead"></p>
-      </div>
-      <div class="cta-row">
-        <a class="btn jumuk" href="#contact">상담 문의</a>
-        <a class="btn ghost" href="homework.html">과제 채점하러 가기</a>
-      </div>
-    </div>
-  </header>
-
-  <div class="divider"></div>
-
-  <!-- 선생님 소개 -->
-  <section id="teacher">
-    <div class="wrap">
-      <p class="section-label">선생님 소개</p>
-      <div class="teacher">
-        <img class="teacher-photo" src="profile.jpg" alt="조한서 선생님 프로필 사진" />
-        <div id="teacherInfo">
-          <h2 class="teacher-name">조한서</h2>
-          <ul class="creds">
-            <li>2026학년도 수능 국어 만점</li>
-            <li>중앙대학교 국어국문학과</li>
-            <li>누적 지도 학생 100명+</li>
-            <li>국어 1등급 · 만점 학생 다수</li>
-          </ul>
-          <p class="teacher-catch">문법과 문학,<br /><span class="mark">전공자</span>에게 배우면 다릅니다.</p>
-          <div class="teacher-why">
-            <p><b>문학</b> — 작가와 작품을 둘러싼<br />폭넓은 배경지식까지 함께.</p>
-            <p><b>문법</b> — 수많은 예외가 '왜' 그렇게 되는지,<br />단순 암기가 아닌 이해로.</p>
-          </div>
-          <p class="teacher-strength">노베이스·중하위권 학생을 중상위권으로 끌어올리는 것, 그리고 상위권을 만점에 가까운 최상위권으로 완성하는 것 — 이 두 가지에 가장 자신 있습니다.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- 수업 안내 (문구는 admin '수업 안내'에서 편집, 비우면 숨김) -->
-  <section id="lessons" style="display:none">
-    <div class="wrap" style="max-width:760px">
-      <p class="section-label">수업 안내</p>
-      <h2 class="section-title" style="margin-bottom:20px" id="lessonsTitle"></h2>
-      <div class="fb" id="lessonsBody"></div>
-    </div>
-  </section>
-
-  <div class="divider" id="lessonsDivider" style="display:none"></div>
-
-  <!-- 문의 -->
-  <section id="contact">
-    <div class="wrap">
-      <div class="contact">
-        <h3>상담 문의</h3>
-        <p>국어 관련 고민, 무엇이든.</p>
-        <!-- ↓ 카카오톡 채널 주소로 교체하세요 (예: http://pf.kakao.com/_XXXXX) -->
-        <a class="btn kakao" href="https://pf.kakao.com/_xfxbxgfX/chat" target="_blank" rel="noopener">카카오톡 채널로 문의하기</a>
-        <p class="kakao-note">평균 30분 이내로 답변드립니다.</p>
-      </div>
-    </div>
-  </section>
-
-
-  <div class="divider"></div>
-
-
-  <!-- 칼럼 -->
-  <section id="column">
-    <div class="wrap" style="max-width:760px">
-      <h2 class="section-title" style="margin-bottom:20px">수능 국어 칼럼</h2>
-      <div id="columnList">
-        <div class="col-group">
-          <h3 class="col-cat">Ⅱ. 평소에 무엇을 공부할까</h3>
-          <details class="faq-item">
-            <summary>5. 불수능은 독서론·화작·언매에서 갈립니다</summary>
-            <div class="faq-body">
-              <p>불수능이 오면 늘 나오는 말이 "비문학이 고등학생 수준에 맞느냐"입니다. 심하면 뉴스에도 나오죠. 그런데 3등급 이하 학생은 그 어려운 비문학을 제대로 건드려 보지도 못합니다. 독서론이 5분 안에 안 끝나고, 9시 5분에는 끝났어야 할 화작을 9시 10분까지 붙들고 있고 — 여기서 이미 시간과 멘탈이 무너진 채 시험이 끝나 있습니다.</p>
-              <p>그래서 불수능 대비의 핵심은 어려운 비문학을 파는 것이 아니라, <b>독서론과 선택과목처럼 비교적 쉬운 파트에서 흔들리지 않는 실력을 확보하는 것</b>입니다. 기출은 기본이고, 사설 자료로도 충분히 연습해 두세요.</p>
-            </div>
-          </details>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- 홈 화면에 추가 -->
-  <section id="install">
-    <div class="wrap" style="max-width:760px">
-      <details class="install-fold">
-        <summary>채점 페이지를 폰 홈 화면에 추가하는 방법 (앱처럼 쓰기)</summary>
-      <div class="install-card">
-        <p class="install-lead">채점 페이지를 폰 <b>홈 화면에 아이콘으로 추가</b>해 두면, 앱처럼 한 번에 열 수 있습니다. 따로 설치할 것은 없습니다.</p>
-      <div class="install-tabs">
-        <button type="button" class="install-tab" data-os="ios">아이폰</button>
-        <button type="button" class="install-tab" data-os="android">안드로이드</button>
-      </div>
-      <ol class="install-steps" data-panel="ios">
-        <li><b>사파리(Safari)</b>로 <b>johanseo.com/homework</b> 를 엽니다. (크롬 등 다른 브라우저에서는 이 기능이 없을 수 있어요)</li>
-        <li>화면 아래 가운데 <b>공유 버튼</b>(사각형에서 화살표가 위로 나가는 모양)을 누릅니다.</li>
-        <li>목록을 아래로 넘겨 <b>'홈 화면에 추가'</b>를 선택합니다.</li>
-        <li>오른쪽 위 <b>'추가'</b>를 누르면 끝. 홈 화면에 인장 아이콘이 생깁니다.</li>
-      </ol>
-      <ol class="install-steps" data-panel="android">
-        <li><b>크롬(Chrome)</b>으로 <b>johanseo.com/homework</b> 를 엽니다.</li>
-        <li>오른쪽 위 <b>점 세 개(⋮)</b> 메뉴를 누릅니다.</li>
-        <li><b>'홈 화면에 추가'</b> 또는 <b>'앱 설치'</b>를 선택합니다.</li>
-        <li><b>'추가'</b>를 누르면 끝. 홈 화면에 인장 아이콘이 생깁니다.</li>
-      </ol>
-        <p class="install-note">추가한 아이콘을 누르면 <b>과제 채점 화면이 바로</b> 열립니다. 기종·브라우저에 따라 메뉴 이름이 조금씩 다를 수 있어요.</p>
-      </div>
-      </details>
-    </div>
-  </section>
-
-  <footer>
-    <div class="wrap" style="justify-content:flex-end">
-      <span>조한서 수능 · 내신 국어</span>
-    </div>
-  </footer>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script>
-    const escT = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    const runSection = (fn) => { (async () => { try { await fn(); } catch (e) {} })(); };
-
-    const revealHero = () => document.querySelector(".hero")?.classList.remove("loading");
-    setTimeout(revealHero, 2000);  // 혹시 응답이 없어도 2초 뒤엔 잠금 해제 (문구는 DB에만 있음)
-
-    runSection(async () => {
-      try {
-        const sb0 = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-        const { data } = await sb0.from("site_content").select("content").eq("key", "hero").maybeSingle();
-        if (data && data.content) {
-          let eyebrow = "", satTag = "", naeTag = "", titles = [], leads = [], nTitles = [], nLeads = [];
-          data.content.replace(/\r/g,"").split("\n").forEach(l => {
-            l = l.trim(); if (!l) return;
-            const i = l.indexOf(":"); if (i < 0) return;
-            const k = l.slice(0, i).trim(), v = l.slice(i + 1).trim();
-            if (k === "윗줄") eyebrow = v;
-            else if (k === "수능라벨") satTag = v;
-            else if (k === "제목") titles.push(v);
-            else if (k === "리드") leads.push(v);
-            else if (k === "내신라벨") naeTag = v;
-            else if (k === "내신제목") nTitles.push(v);
-            else if (k === "내신리드") nLeads.push(v);
-          });
-          const mark = (t) => escT(t).replace(/\*\*(.+?)\*\*/g, '<span class="mark">$1</span>');
-          const bold = (t) => escT(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
-          if (eyebrow) document.getElementById("heroEyebrow").textContent = eyebrow;
-          if (satTag) document.getElementById("satTag").textContent = satTag;
-          if (titles.length) document.getElementById("heroH1").innerHTML = titles.map(mark).join("<br />");
-          if (leads.length) document.getElementById("heroLead").innerHTML = leads.map(bold).join("<br />");
-          if (nTitles.length || nLeads.length) {
-            document.getElementById("naesinBlock").style.display = "";
-            if (naeTag) document.getElementById("naesinTag").textContent = naeTag;
-            if (nTitles.length) document.getElementById("naesinTitle").innerHTML = nTitles.map(mark).join("<br />");
-            if (nLeads.length) document.getElementById("naesinLead").innerHTML = nLeads.map(bold).join("<br />");
-          } else {
-            document.getElementById("naesinBlock").style.display = "none";
-          }
-        }
-      } finally {
-        revealHero();
-      }
-    });
-
-    runSection(async () => {
-        const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-        const { data } = await sb.from("site_content").select("content").eq("key", "teacher").maybeSingle();
-        if (!data || !data.content) return;
-        const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-        const bold = (t) => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
-        const mark = (t) => t.replace(/\*\*(.+?)\*\*/g, '<span class="mark">$1</span>');
-        const br = (t) => t.replace(/\s*\/\/\s*/g, "<br />");
-        let name = "", creds = [], catches = [], why = [], strength = [];
-        data.content.replace(/\r/g,"").split("\n").forEach(l => {
-          l = l.trim(); if (!l) return;
-          const i = l.indexOf(":"); if (i < 0) return;
-          const k = l.slice(0, i).trim(), v = l.slice(i + 1).trim();
-          if (k === "이름") name = v;
-          else if (k === "이력") creds.push(v);
-          else if (k === "캐치") catches.push(v);
-          else if (k === "설명") why.push(v);
-          else if (k === "강점") strength.push(v);
-        });
-        if (!name) return;
-        document.getElementById("teacherInfo").innerHTML =
-          `<h2 class="teacher-name">${esc(name)}</h2>`
-          + (creds.length ? `<ul class="creds">${creds.map(c => `<li>${bold(esc(c))}</li>`).join("")}</ul>` : "")
-          + (catches.length ? `<p class="teacher-catch">${catches.map(c => mark(esc(c))).join("<br />")}</p>` : "")
-          + (why.length ? `<div class="teacher-why">${why.map(w => `<p>${br(bold(esc(w)))}</p>`).join("")}</div>` : "")
-          + (strength.length ? `<p class="teacher-strength">${strength.map(x => bold(esc(x))).join("<br />")}</p>` : "");
-    });
-
-    runSection(async () => {
-        const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-        const { data } = await sb.from("site_content").select("content").eq("key", "lessons").maybeSingle();
-        if (!data || !data.content || !data.content.trim()) return;
-        const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-        const fmt = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
-        const lines = data.content.replace(/\r/g,"").split("\n");
-        let title = "";
-        const ti = lines.findIndex(l => l.trim().startsWith("# "));
-        if (ti >= 0) { title = lines[ti].trim().slice(2); lines.splice(0, ti + 1); }
-        let html = "";
-        lines.join("\n").split(/\n\s*\n/).forEach(bl => {
-          const ls = bl.split("\n").map(l=>l.trim()).filter(Boolean);
-          if (!ls.length) return;
-          if (ls.length === 1 && ls[0] === "---") {
-            html += '<div style="border-top:1px dashed var(--line);margin:24px 0"></div>'; return;
-          }
-          if (ls[0].startsWith("# ")) {
-            html += `<h4>${fmt(ls[0].slice(2))}</h4>`; ls.shift();
-            if (!ls.length) return;
-          }
-          html += `<p>${fmt(ls.join(" "))}</p>`;
-        });
-        if (!title && !html) return;
-        document.getElementById("lessonsTitle").innerHTML = fmt(title);
-        document.getElementById("lessonsBody").innerHTML = html;
-        document.getElementById("lessons").style.display = "";
-        document.getElementById("lessonsDivider").style.display = "";
-        document.getElementById("navLessons").style.display = "";
-    });
-
-    runSection(async () => {
-        const sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-        const { data } = await sb.from("site_content").select("content").eq("key", "columns").maybeSingle();
-        if (!data || !data.content) return;
-        const esc = (t) => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-        const bold = (t) => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
-        const cats = []; let cat = null, item = null; const intro = [[]];
-        data.content.replace(/\r/g,"").split("\n").forEach(l => {
-          const t = l.trim();
-          if (!t) { if (item && item.paras[item.paras.length-1].length) item.paras.push([]); else if (!cat && !item && intro[intro.length-1].length) intro.push([]); return; }
-          let m;
-          if ((m = t.match(/^범주\s*:\s*(.+)$/))) { cat = { name: m[1].trim(), items: [] }; cats.push(cat); item = null; return; }
-          if ((m = t.match(/^제목\s*:\s*(.+)$/))) {
-            if (!cat) { cat = { name: "", items: [] }; cats.push(cat); }
-            item = { title: m[1].trim(), paras: [[]] }; cat.items.push(item); return;
-          }
-          if (item) item.paras[item.paras.length-1].push(t);
-          else if (!cat) intro[intro.length-1].push(t);
-        });
-        const total = cats.reduce((n, c) => n + c.items.length, 0);
-        if (!total) return;
-        const para = p => `<p>${bold(esc(p.join("\n"))).replace(/\n/g, "<br />")}</p>`;
-        const introHtml = intro.filter(p => p.length).map(para).join("");
-        document.getElementById("columnList").innerHTML = (introHtml ? `<div class="col-intro">${introHtml}</div>` : "") + cats.map(c =>
-          `<div class="col-group">${c.name ? `<h3 class="col-cat">${esc(c.name)}</h3>` : ""}${
-            c.items.map(it => `<details class="faq-item"><summary>${bold(esc(it.title))}</summary><div class="faq-body">${
-              it.paras.filter(p => p.length).map(para).join("")
-            }</div></details>`).join("")
-          }</div>`).join("");
-    });
-  </script>
-  <script>
-    (() => {
-      const tabs = document.querySelectorAll(".install-tab");
-      const panels = document.querySelectorAll(".install-steps");
-      if (!tabs.length) return;
-      const pick = (os) => {
-        tabs.forEach(t => t.classList.toggle("on", t.dataset.os === os));
-        panels.forEach(p => p.classList.toggle("on", p.dataset.panel === os));
-      };
-      tabs.forEach(t => t.addEventListener("click", () => pick(t.dataset.os)));
-      pick(/iphone|ipad|ipod|macintosh/i.test(navigator.userAgent) ? "ios" : "android");
-    })();
-  </script>
-
-  <script>
-    /* 홈 화면 앱(standalone)은 나갔다 들어와도 페이지를 새로 열지 않아서 옛 화면이 그대로 남는다.
-       화면이 다시 보일 때 최신 내용을 가져오게 한다. */
-    (() => {
-      const STALE_MS = 60 * 1000;   // 1분 이상 나가 있었으면 오래된 것으로 본다
-      let hiddenAt = 0;
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) { hiddenAt = Date.now(); return; }
-        if (!hiddenAt || Date.now() - hiddenAt < STALE_MS) return;
-        hiddenAt = 0;
-        try { if (window.__refreshContent) { window.__refreshContent(); return; } } catch (e) {}
-        location.reload();
-      });
-    })();
-  </script>
+<body class="home-page">
+<a class="skip-link" href="#home">본문 바로가기</a>
+<main id="home" tabindex="-1">
+<header class="site-header">
+<div class="wrap header-inner">
+<a class="wordmark" href="#">조한서<i>.</i>
+<small>KOREAN</small>
+</a>
+<nav class="mainnav" aria-label="주요 메뉴">
+<a class="secondary" href="#teacher">선생님 소개</a>
+<a class="secondary" href="#column">칼럼</a>
+<a class="secondary" href="#lessons" id="navLessons" hidden>수업 안내</a>
+<a href="#contact">상담 문의</a>
+<a class="nav-cta" href="homework.html">과제 채점 ↗</a>
+</nav>
+</div>
+<nav class="mobile-nav" aria-label="홈 화면 둘러보기">
+<a href="#curriculum">수업</a>
+<a href="#teacher">선생님 소개</a>
+<a href="#column">칼럼</a>
+<a href="notebox.html">보관함</a>
+</nav>
+</header>
+<section class="hero">
+<div class="wrap">
+<div class="hero-main">
+<div class="hero-copy">
+<p class="eyebrow" id="satTag">JO HAN SEO · 수능 국어</p>
+<h1 id="heroH1">사고과정의<br>
+<em>
+<b>완전한</b> 교정</em>
+</h1>
+<p class="hero-lead" id="heroLead">
+<strong>고1 노베이스에서 출발하여 2026 불국어 만점까지.</strong>
+<br>그 길을 직접 걸어봤기에,<br>어느 단계에 있든 다음 한 걸음을 정확히 짚습니다.</p>
+<div class="hero-actions">
+<a class="btn" href="#contact">상담 문의 <span class="arrow">↗</span>
+</a>
+<a class="btn outline" href="homework.html">과제 채점 <span class="arrow">→</span>
+</a>
+</div>
+</div>
+<div class="hero-art" aria-hidden="true">
+<svg viewBox="0 0 620 550" fill="none">
+<defs>
+<linearGradient id="metal" x1="125" y1="75" x2="428" y2="490" gradientUnits="userSpaceOnUse">
+<stop stop-color="#fcfdff"/>
+<stop offset=".18" stop-color="#c5cfe5"/>
+<stop offset=".32" stop-color="#64718f"/>
+<stop offset=".45" stop-color="#edf3ff"/>
+<stop offset=".59" stop-color="#96a8d8"/>
+<stop offset=".74" stop-color="#293c73"/>
+<stop offset="1" stop-color="#0b1638"/>
+</linearGradient>
+<linearGradient id="electric" x1="141" y1="175" x2="435" y2="444" gradientUnits="userSpaceOnUse">
+<stop stop-color="#c0d3ff"/>
+<stop offset=".32" stop-color="#748fff"/>
+<stop offset=".55" stop-color="#4260f5"/>
+<stop offset="1" stop-color="#182a9c"/>
+</linearGradient>
+<linearGradient id="edge" x1="240" y1="86" x2="430" y2="431">
+<stop stop-color="#e8efff"/>
+<stop offset="1" stop-color="#617bcd" stop-opacity=".2"/>
+</linearGradient>
+<filter id="shadow">
+<feDropShadow dx="-10" dy="22" stdDeviation="21" flood-color="#050813" flood-opacity=".6"/>
+</filter>
+</defs>
+<ellipse cx="338" cy="282" rx="248" ry="200" stroke="#64749c" stroke-opacity=".18" stroke-dasharray="3 7" transform="rotate(-30 338 282)"/>
+<path d="M91 401L507 158M111 454L527 211" stroke="#687daa" stroke-opacity=".18"/>
+<path d="M467 46V499M101 124H534" stroke="#687daa" stroke-opacity=".12"/>
+<g filter="url(#shadow)">
+<path d="M355 77L464 138L373 189L296 143L192 204L272 252L189 302L28 205L355 77Z" fill="url(#metal)"/>
+<path d="M28 205V242L189 339V302L28 205Z" fill="#384666"/>
+<path d="M189 302L272 252V289L189 339V302Z" fill="#7186b4"/>
+<path d="M296 143V178L342 207L373 189L296 143Z" fill="#172445"/>
+<path d="M464 138V174L373 226V189L464 138Z" fill="#3d507b"/>
+<path d="M355 77L464 138L373 189L296 143L192 204L272 252" stroke="url(#edge)" stroke-width="1.5"/>
+<path d="M329 223L491 318L164 507L56 445L146 394L224 439L329 378L249 332L329 223Z" fill="url(#electric)"/>
+<path d="M56 445V476L164 538V507L56 445Z" fill="#1f338e"/>
+<path d="M164 507L491 318V350L164 538V507Z" fill="#273fbe"/>
+<path d="M249 332V364L300 395L329 378L249 332Z" fill="#0f246e"/>
+<path d="M329 223L491 318L164 507L56 445L146 394" stroke="#95b4ff" stroke-opacity=".8" stroke-width="1.5"/>
+</g>
+<circle cx="467" cy="124" r="4" fill="#aec5ff"/>
+<path d="M456 124H478M467 113V135" stroke="#aec5ff" stroke-width=".7"/>
+<text x="79" y="108" fill="#7081a9" font-size="10" letter-spacing="2">READ. THINK. CORRECT.</text>
+</svg>
+<div class="art-label">
+<span>JOHANSEO / KOREAN</span>
+<b>사고의 방향을 바꾸다 ↗</b>
+</div>
+</div>
+</div>
+<div class="hero-foot" id="heroFoot">
+<span id="heroCredentialGroup">
+<i>
+</i>
+<strong id="heroCredential">2026학년도 수능 국어 100점</strong>
+</span>
+<span id="heroUniversityGroup">
+<span id="heroUniversity">중앙대학교 국어국문학과</span>
+<i>
+</i> 수능 · 내신 국어</span>
+</div>
+</div>
+</section>
+<div class="quick-strip">
+<div class="wrap quick-row">
+<a class="quick-item" href="homework.html">
+<div>
+<small>FOR STUDENTS</small>
+<p>오늘 푼 과제, 바로 채점하기</p>
+</div>
+<span class="quick-icon">↗</span>
+</a>
+<a class="quick-item" href="notebox.html">
+<div>
+<small>MY REVIEW</small>
+<p>다시 볼 문제 모아보기</p>
+</div>
+<span class="quick-icon">↗</span>
+</a>
+</div>
+</div>
+<section class="section" id="curriculum">
+<div class="wrap">
+<div class="section-top">
+<div>
+<p class="eyebrow">THE CLASS</p>
+<h2>수능부터 내신까지.</h2>
+</div>
+<a class="link" href="#contact">수업 상담 <span class="arrow">↗</span>
+</a>
+</div>
+<div class="course-grid" id="courseGrid">
+<article class="course dark">
+<span class="course-number" aria-hidden="true">01</span>
+<p class="eyebrow" id="satCourseTag">수능 국어</p>
+<h3 id="satCourseTitle">사고과정의<br>
+<b>완전한</b> 교정</h3>
+<p id="satCourseLead">노베이스·중하위권은 <b>중상위권으로</b>,<br>상위권은 <b>만점에 가까운 최상위권으로</b>.</p>
+</article>
+<article class="course" id="naesinBlock">
+<span class="course-number" aria-hidden="true">02</span>
+<p class="eyebrow" id="naesinTag">내신 국어</p>
+<h3 id="naesinTitle">모든 경우의 수의<br>
+<b>완벽한</b> 대비</h3>
+<p id="naesinLead">프린트&amp;필기 완벽 분석,<br>실전 대비 모의고사로 마무리.</p>
+</article>
+</div>
+</div>
+</section>
+<section class="section teacher-section" id="teacher">
+<div class="wrap teacher-grid">
+<div class="portrait">
+<img src="profile.jpg" alt="조한서 선생님 프로필 사진" loading="lazy">
+<p class="portrait-name">JO HAN SEO / 국어</p>
+</div>
+<div class="teacher-copy" id="teacherInfo">
+<p class="eyebrow">YOUR TEACHER</p>
+<h2>문법과 문학,<br>
+<b>전공자</b>에게 배우면<br>다릅니다.</h2>
+<ul class="credentials">
+<li>
+<strong>조한서 · 2026학년도 수능 국어 100점</strong>
+</li>
+<li>중앙대학교 국어국문학과</li>
+<li>누적 지도 학생 100명+, 국어 1등급 · 만점 학생 다수</li>
+</ul>
+<div class="teacher-points">
+<div>
+<b>문학</b>
+<p>작가와 작품을 둘러싼<br>폭넓은 배경지식까지 함께.</p>
+</div>
+<div>
+<b>문법</b>
+<p>수많은 예외가 '왜' 그렇게 되는지,<br>단순 암기가 아닌 이해로.</p>
+</div>
+<div>
+<b>독서</b>
+<p>잡다한 방법론을 지양하고,<br>본질적 피지컬 훈련 중심.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="section lessons-section" id="lessons" hidden>
+<div class="wrap">
+<p class="eyebrow">THE CLASS</p>
+<h2 id="lessonsTitle">
+</h2>
+<div class="lessons-body" id="lessonsBody">
+</div>
+</div>
+</section>
+<section class="section" id="column">
+<div class="wrap columns">
+<div class="section-top">
+<div>
+<p class="eyebrow">READ &amp; THINK</p>
+<h2>대표 칼럼.</h2>
+</div>
+<span class="muted eyebrow" id="featuredCount">01 — 03</span>
+</div>
+<div class="column-intro" id="columnIntro">
+<p>여기 있는 글들은 수능 국어 1등급 이상이라면 대체로 공감할, <b>정도(正道)</b>라고 부를 만한 내용들이야.</p>
+<p>몰랐던 건 알아가고, 이미 아는 건 네 생각과 비교해봐.<br>분명 도움이 될 거야.</p>
+<p>문학에서 〈보기〉를 먼저 읽느냐 마느냐 같은 사소한 데선 의견이 갈릴 수 있어. 그래도 전체적인 골자는 믿어도 돼.</p>
+</div>
+<div id="featuredColumns">
+<details class="column-row" id="featured-1">
+<summary>
+<span class="num">01</span>
+<h3>사설 모의고사</h3>
+</summary>
+<div class="article-body">
+<p>파이널은 <b>D-100</b>쯤 시작해야 해. 단, 오해하지 마 — 이게 '파이널'이라는 이름이 붙은 거대한 볼륨의 비싼 강의를 들으라는 뜻은 절대 아니야. <b>D-100이면 이미 약점을 찾아 제거하는 마무리 단계에 들어가야 한다는 뜻이야.</b> 100일은 생각보다 짧으니까. '파이널'이라는 말이 주는 긴장감도 지금부터 느껴야 하고.</p>
+<p>슬슬 다들 사설 모의고사를 쌓아놓고 풀기 시작하는데, 먼저 분명히 하자. <b>사설을 주구장창 푼다고 실력이 느는 게 아니야.</b> 사설은 고점 향상보다 저점 향상에 가까워. 사설 모의고사를 푼다고 해서 본질적인 독해력이나 고난도 문제해결력이 상승하는 것은 기대하기 어렵고, 사설로 성적이 오른 사람은 대개 원래 잘하던 사람이야. 다만 <b>시간 운영 훈련, EBS 연계 대비, 멘탈 훈련</b> 정도는 확실히 도움이 돼. 그러니까 사설은 하되, 기본기를 키우는 공부는 따로 해야 해. 그게 기출이고. <b>성적이 들쭉날쭉한 3~4등급이 마지막에 사설만 붙잡는 게 최악이야.</b> 마지막 말이 내가 전하고 싶은 핵심.</p>
+<p>푸는 방법도 정해줄게. <b>시험 본 날은 스스로 분석하고, 해설 강의는 듣더라도 다음 날.</b> 풀고, 채점하고, 조금 생각해보다가 바로 해설 강의를 트는 것 — 못하는 학생들을 보면 과장해서 90%가 이래. 스스로 더 생각해봐야 해.</p>
+<p>참고로, 사설 답이 이상하다고 화내면서 시간 쓰고 문제 퀄리티 평가하고 있는 건 진짜 시간 버리는 일이니까 아예 신경 꺼. 퀄리티를 따질 게 아니라 <b>약점 진단에 쓰는 거야.</b> 그리고 어떤 선지가 '사설틱'하다고 느껴지면, 기출과 어디가 달라서 그렇게 느꼈는지 논리적으로 나한테 설명해봐. 그게 바로 공부야.</p>
+<p>cf. 사설 모의고사를 풀 때는 '실감'과 같은 수능시계앱을 활용하는 것을 추천해!</p>
+</div>
+</details>
+<details class="column-row" id="featured-2">
+<summary>
+<span class="num">02</span>
+<h3>무너짐은 이상과 현실의 괴리에서</h3>
+</summary>
+<div class="article-body">
+<p>멘탈은 <b>내가 세운 기대와 실제 시험 사이의 간격</b>에서 무너져. 그래서 기대를 어디에 두는지가 그날의 점수를 좌우해.</p>
+<p>첫째, <b>파트별 목표 시간을 세우지 마.</b> 독서론 4분 컷, 화작 10분 컷, 문학 20분 컷 — 이런 거. 도움이 안 되는 정도가 아니라 멘탈을 갉아먹어. '독서론은 반드시 5분 안에 푼다'고 생각하던 학생이 5분을 넘기는 순간, 시험은 한참 남았는데 마음이 먼저 무너져. '몇 분 컷'을 약속하는 광고성 영상들은 걸러도 돼. 그렇게 푸는 사람이 실제로 있을 수는 있어. 하지만 너를 포함해 절대다수는 입시 기간 안에 그 경지에 도달하지 못해. 글을 읽고 이해하는 데는 물리적인 시간이 필요해. 허황된 목표를 꿈꾸지 마. 애초에 문학 20분 컷이 가능한 학생은, 자기가 노력하면 가능하다는 것을 스스로 알아.</p>
+<p>둘째, <b>난이도는 최악으로 상정해.</b> 네가 치를 수능은 불국어로 이미 정해져 있다고 생각하고 1년을 보내. 1등급 컷 80점대 중반을 상상하며 공부하는 거야. 수능은 늘 상상보다 어렵고, 국어가 끝나면 대부분 멘탈이 흔들려. 그때 필요한 건 이런 혼잣말이야 — &quot;어차피 내가 틀린 건 남들도 틀렸을 거야. 괜찮아. 이제 수학 생각하자.&quot;</p>
+<p>목표 시간은 버리고, 예상 난도는 올려 두는 것. 이게 시험장에서 흔들리더라도 무너지지 않는 준비야.</p>
+</div>
+</details>
+<details class="column-row" id="featured-3">
+<summary>
+<span class="num">03</span>
+<h3>모의고사 직후 15분</h3>
+</summary>
+<div class="article-body">
+<p>국어 모의고사가 끝나면 대부분은 친구들과 답을 맞춰 보거나 잡담으로 쉬는 시간을 보내. 조금 더 훌륭한 학생은 쉬거나 수학을 준비하지. 그런데 그 15분 동안 해야 할 일은 따로 있어. <b>방금 친 시험의 복기.</b>
+</p>
+<p>이번 시험의 체감 난이도, 어디서 막혔는지, 어떤 판단이 아쉬웠는지, 뭘 보강해야 하는지를 시험지 여백에 최대한 많이 적어 둬. 물론 아직 답은 몰라. 그래도 &quot;이랬다면 더 좋았겠다&quot;, &quot;이렇게 할걸&quot; 하고 후회가 남는 부분이 반드시 있었을 거야. 집에 가서 채점하며 떠올리려 하면 정말 하나도 기억 안 나. <b>시험 직후만큼 자기 약점이 선명하게 보이는 시간은 없어.</b>
+</p>
+<p>특히 <b>고3 6월·9월 모의평가 뒤에는 반드시</b> 해. 평가원이 직접 출제하는 시험이라, 여기서 남긴 메모는 수능까지 그대로 유효하거든.</p>
+<p>복기할 때 하나만 더. 그냥 풀지 말고 <b>파트별로 걸린 시간을 체크해 두고</b>, 그걸 같이 되짚어. 이 파트는 왜 이만큼 걸렸지? 다시 푼다면 어떻게 풀까? 여기서 손절했어야 했나? <b>(2등급 이상이라면) 항상 시간을 재고 풀어.</b>
+</p>
+<p>모든 문제를 훑어보며 바로 시험지 뒷장에 메모해. 그 메모가 나중에 사고과정 피드백 노트의 재료가 되고, 쌓이면 수능 당일의 네 운영 전략이 되는 거야.</p>
+</div>
+</details>
+</div>
+<details class="all-columns" id="all-columns">
+<summary>전체 칼럼 보기 <span class="column-count" id="allColumnCount">15</span>
+<span aria-hidden="true">↓</span>
+</summary>
+<div class="all-column-list" id="allColumnList">
+<div class="column-category">
+<h3 class="column-category-title">Ⅰ. 시험장에서 — 80분을 운영하는 법</h3>
+<details class="column-row" id="article-1">
+<summary>
+<span class="num">01</span>
+<h3>1. 시간이 부족한 이유</h3>
+</summary>
+<div class="article-body">
+<p>
+<b>시간 부족은 사실 실력 부족이야.</b>
+</p>
+<p>&quot;아니 쌤, 당연한 말을 뭘 그렇게까지…&quot; 싶겠지만 들어봐. 시간이 모자란다는 학생한테 내가 항상 물어보는 게 있어. <b>&quot;그럼 못 푼 비문학 지문 하나 빼고, 나머지는 거의 다 맞혔어?&quot;</b> 이 질문에 그렇다고 답하는 애가 거의 없어.</p>
+<p>생각해봐. 비문학 한 지문을 통째로 날려서 다 틀려도 9점이야. 91점이면 보통 언매 기준 1등급이고. 그런데 시간 부족을 호소하는 학생 대부분은 3~4등급이잖아. 2등급이라 해도 비슷한 경우가 많고. 그럼 결론은 하나야. 시간이 없어서 등급이 안 나오는 게 아니라, <b>푼 문제를 다 맞힐 실력이 아직 안 된 거야.</b> 푼 걸 다 맞힐 정도가 되면 애초에 시간이 모자랄 일도 없어. 그러니까 시간 문제로 고민하기 전에 기본기부터 쌓자.</p>
+<p>그걸 전제로 깔고, 그래도 당장 시간을 줄일 수 있는 방법들을 이어지는 글에서 하나씩 알려줄게. 그 전에 3~4등급이라면 이것부터.</p>
+<p>
+<b>가장 어려워 보이는 비문학 한 지문은 없다고 생각하고 풀어.</b>
+</p>
+<p>웬만한 물수능이 아닌 이상 너는 모든 문제를 다 건드리지 못해. 차라리 비문학 한 지문을 버리고 나머지를 거의 다 맞히면 2등급은 무조건 나와. 마음 편히 먹고, 차근차근 침착하게 풀어.</p>
+</div>
+</details>
+<details class="column-row" id="article-2">
+<summary>
+<span class="num">02</span>
+<h3>2. 푸는 순서는 '쉬운·잘하는 것부터'</h3>
+</summary>
+<div class="article-body">
+<p>나는 <b>독서론 → 선택 → 문학 → 독서</b> 순으로 풀어.<br>문학 안에서는 <b>수필 없는 시가 → 수필 있는 시가 → 고전소설 → 현대소설</b> 순.</p>
+<p>현대소설을 맨 뒤로 빼는 이유는 두 가지야. 문학에서 가장 어렵게 나올 확률이 높고, 비연계라 체감 난도가 한 번 더 올라가. 반대로 수필 없는 시가를 제일 먼저 푸는 이유는 가장 가볍기 때문이야 — 시 두세 편이 전부라 텍스트 양 자체가 적어. 수필은 「잊음을 논함」처럼 얼마든지 어렵게 나올 수 있으니 뒤로 빼.</p>
+<p>정해진 순서가 없다면 이 순서를 그대로 써 봐. 다만 외울 것은 순서가 아니라 원칙이야. <b>쉬운 것, 잘하는 것을 먼저 풀어내.</b>
+</p>
+<p>순서는 심리와 직결돼. &quot;5분 만에 문학의 4분의 1을 끝냈네&quot;라는 상태로 다음 지문에 들어가는 것과, 10분이 지났는데 아직 첫 지문에 붙들려 있는 것 — 실력이 같아도 남은 시간의 운영이 완전히 달라져.</p>
+<p>원칙을 잡았으면 더 쪼갤 수 있어. 큰 순서만이 아니라 <b>과목 안에서도 어려운 건 뒤로</b> 미루는 거야.</p>
+<p>
+<b>화작</b>이면 1번, 3번 세트를 먼저 풀고 중간의 복합 지문을 나중에.<br>
+<b>언매</b>면 지문형을 빼고 나머지부터 푼 다음, 지문형을 마지막에.<br>
+<b>문학</b>은 본인만의 고정된 순서로.<br>
+<b>비문학</b>은 가장 쉬워 보이는 지문 → (가)(나) 지문 → 마지막 지문.</p>
+<p>(가)(나) 지문은 보통 어렵지만 최소 중간에는 풀어야 해. 버리면 점수 손실이 너무 크거든.</p>
+<p>이렇게 가면 최소한 네 실력만큼 온전히 풀 수 있어.</p>
+</div>
+</details>
+<details class="column-row" id="article-3">
+<summary>
+<span class="num">03</span>
+<h3>3. 안 풀리는 문제는</h3>
+</summary>
+<div class="article-body">
+<p>푸는 순서보다 중요한 게 있어. <b>안 풀리는 문제를 빠르게 놓아주는 것.</b>
+</p>
+<p>지금 당장 안 풀리는 문제를 붙들고 있는 건 이중 손해야. 특히 문학에서. 그 문제도 못 풀면서, 다른 문제를 풀 시간까지 같이 버리고 있으니까. 이미 뇌가 어딘가에서 사고를 잘못했거나 무언가를 놓친 상태라면, 오히려 다른 문제를 풀고 돌아와 <b>반쯤 까먹은 뇌와 눈으로 새로 보는 편</b>이 잘 보여. 별표 치고 넘어가.</p>
+<p>손절 기준은 하나만 기억해. <b>두 번까지만 고민해.</b> 한 번 고민했는데 애매해. 다시 봐도 애매해. 그러면 그냥 못 풀었다는 걸 인정하고 별표를 쳐. <b>더 붙들고 있으면 절대로 안 돼.</b>
+</p>
+<p>문제는 시험장에서 이게 훨씬 어려워진다는 거야. 6평·9평도 그렇지만 수능은 상상을 초월하는 압박감이 너를 짓눌러 와. 평소엔 빠르게 넘겼을 독서론·화작·매체에서도 '아, 여기서 틀리면 진짜 안 되는데' 하면서 시간을 땅에 버려.</p>
+<p>&quot;화작은 절대 틀리면 안 돼&quot;, &quot;매체는 무조건 맞혀야 해.&quot; 이런 마음가짐이 오히려 발목을 잡아. 왜 그렇게 생각하겠어? 문학과 독서는 완벽하지 못할 것 같으니까 앞에서라도 완벽하려는 거잖아. 그 불안이 시간을 잡아먹는 거야. 3~4등급이 가장 많이 빠지는 악순환이야. 공부해서 실력은 분명 올랐어. 그런데 시험장에 들어가면 자기 실력을 못 믿어.</p>
+<p>답이 3번인 걸 알겠어. 근데 머릿속에서 자꾸 이래. &quot;3번 아니면 어쩌지?&quot; 그래서 1번 보고, 2번 보고, 4번도 보고, 5번까지 다시 봐. 이게 한 문제가 아니라 시험 내내 쌓이는 거야. 실력은 올랐는데 등급은 그대로인 이유가 여기 있어.</p>
+<p>매체 하나 틀리고 비문학을 다 맞을 수도 있어. 화작 하나 틀리고 문학을 다 맞을 수도 있고. 그러니 확실한 근거 위에서 답을 골랐으면 일단 넘어가. 불안하면 별표 쳐두고 마킹할 때 한 번 더 체크해.</p>
+<p>
+<b>확신이 섰으면 그냥 고르는 거야.</b> 대충 찍으라는 말이 절대 아니야. 근거를 잡고 판단했으면, 그 판단을 믿고 넘어가라는 거야.</p>
+</div>
+</details>
+<details class="column-row" id="article-4">
+<summary>
+<span class="num">04</span>
+<h3>4. 손가락 걸기</h3>
+</summary>
+<div class="article-body">
+<p>앞의 글이 '확신을 믿는 마음'이었다면, 이번엔 그걸 더 적극적으로 하자는 거야. <b>너무 잘 풀리는 문제</b>에서 시간을 아끼는 방법. 1번 선지를 읽었는데 &quot;이건 답이 1번일 수밖에 없는데?&quot; 싶을 때, 나머지 선지를 읽지 않고 답을 표시한 뒤 다음 문제로 넘어가는 거야.</p>
+<p>전제부터 분명히 하자. <b>애매하면 절대 걸면 안 돼.</b> '확실한 것 같은데?'가 아니라 '확실하다'일 때만 걸어. 그래서 이 방법은 <b>2등급 이상</b>부터 권해. 그 아래라면 '확실하다'는 판단 자체가 아직 미덥지 못해. 손가락을 걸 실력이 되기 전에 필요한 건 선지 판단력이고, 그건 기출로 쌓아야 해.</p>
+<p>특히 <b>1번이나 2번이 답인 문제는 시간을 버는 기회야.</b> 확신이 들면 나머지를 안 보고 넘어가. 이런 문제 두 개만 살려도 경쟁자보다 훨씬 앞서 나가.</p>
+<p>이 기술이 필요한 이유는 단순해. 물수능이 아닌 이상 대부분의 학생은 시간이 모자라. 어차피 시간이 부족해 못 푸는 문제가 생길 사람이, 이미 답이 보이는 문제의 나머지 선지를 정독하며 시간을 쓰는 건 낭비야. 시험에서 우선할 일은 <b>모든 문제를 최소 한 번씩 건드리는 것.</b>
+</p>
+<p>&quot;걸었다가 틀리면 어떡하냐고?&quot; 안타까운 일이지. 다만 그 아낀 시간으로 다른 문제를 하나 더 풀었을 수 있다는 것까지 생각하면, 확실할 때 거는 쪽이 남는 선택이야. 특히 <b>비문학 3점 문제</b>에서 위력이 커. 문학은 '가장 틀린 것을 고르는' 상대 판단이라 확신이 서는 문제가 드물지만, 비문학은 초반 1-2번 선지에서 명백한 정답이 보이는 경우가 있고, 거기서 3~5번을 전부 검증하고 앉아 있으면 몇 분이 증발해.</p>
+<p>연습법도 알려줄게. 평소 기출을 풀 때 답이 바로 보이면 &quot;실전이었으면 여기서 걸었겠다&quot;를 표시한 뒤, 나머지 선지를 이어서 검증해. 이 감각은 항상 연습해야 실전에서 나와. 그리고 실전에서 손가락 건 문제는 버리는 게 아니야. 표시해 뒀다가, 모든 문제를 다 건드린 뒤에 돌아와 나머지 선지를 확인하면 돼.</p>
+</div>
+</details>
+<details class="column-row" id="article-5">
+<summary>
+<span class="num">05</span>
+<h3>5. 문학 시간 단축</h3>
+</summary>
+<div class="article-body">
+<p>시간 단축은 사실 비문학보다 문학에서 하기가 더 쉬워. 그런데 학생마다 막히는 지점이 달라.</p>
+<p>
+<b>문학을 진짜 못하는 학생:</b> 오답을 걸러내는 필터가 너무 널널해서 5번까지 읽어도 답을 못 골라내. 애초에 이해도 잘 안 되고.<br>
+<b>문학을 조금은 하는 학생:</b> 대부분이 여기에 해당하는데, 최초 풀이부터 모든 선지를 100% 꼼꼼히 판단하려고 들어. 그럴 필요 없어.<br>
+<b>문학을 진짜 잘하는 학생:</b> 발문에 따라 유연하게 가.</p>
+<p>&quot;적절하지 않은 것&quot;을 고르라는 건 나머지 네 개는 다 맞다는 뜻이니까, 딱히 이상하지 않으면 허용하고 넘어가. 작품으로 다시 돌아가지 않아도, 읽었을 때 크게 이상하지 않으면 그냥 통과시켜.</p>
+<p>반대로 &quot;적절한 것&quot;을 고르라는 건 조금만 이상해도 넘기는 거야. 판단이 애매한 선지는 과감하게 패스해. 보통 무조건 적절한 말, 즉 <b>핵심</b>을 묻거든.</p>
+<p>중요한 건 <b>5번 선지까지 한 사이클을 빠르게 돌리는 것</b>이야. 판단, 판단, 판단, 한 바퀴 쭉 돌려. 수상한 선지가 없나 보는 거야. 물론 그렇게 5번까지 다 봤는데도 답이 안 보인다면, 그때는 단어 하나하나 의심하면서 봐야지.</p>
+</div>
+</details>
+<details class="column-row" id="article-6">
+<summary>
+<span class="num">06</span>
+<h3>6. 〈보기〉먼저</h3>
+</summary>
+<div class="article-body">
+<p>작품 감상 전에 〈보기〉를 읽을 것인가 — 나는 읽어. 안 읽을 이유가 없거든. 목적은 항상 하나야. <b>작품 감상에 도움이 되는 정보만 최대한 건져 가기.</b>
+</p>
+<p>물론 읽어도 별 도움이 안 되는 〈보기〉도 있어. 하지만 그 판단에 드는 시간이 10~20초를 안 넘어. 시도해서 손해 볼 작업이 아니라는 뜻이야. 반대로 2026 수능 현대시의 〈보기〉처럼, 암울한 현실이 '밤'으로 표현됐고 빛이 회복되는 미래를 지향하는 시라는 걸 알고 읽으면 감상의 질이 완전히 달라지는 경우가 있어. 크게 도움이 될지도 모르는 정보를 20초가 아까워서 버릴 이유가 없잖아.</p>
+<p>덧붙여서, 고1·고2 학력평가는 학생 수준을 고려해서 〈보기〉가 작품 정보를 아주 친절하게 줘. 고1·고2라면 예외 없이 〈보기〉부터 읽어.</p>
+</div>
+</details>
+</div>
+<div class="column-category">
+<h3 class="column-category-title">Ⅱ. 평소에 무엇을 공부할까</h3>
+<details class="column-row" id="article-7">
+<summary>
+<span class="num">07</span>
+<h3>7. 불수능은 독서론·화작·언매부터 까다로워</h3>
+</summary>
+<div class="article-body">
+<p>불수능이 오면 늘 나오는 말이 &quot;비문학이 고등학생 수준에 맞느냐&quot;야. 심하면 뉴스에도 나오지. 그런데 3등급 이하 학생은 그 어려운 비문학을 제대로 건드려 보지도 못해. 독서론이 5분 안에 안 끝나고, 9시 5분에는 끝났어야 할 화작을 9시 10분까지 붙들고 있고 — 여기서 이미 시간과 멘탈이 무너진 채 시험이 끝나 있는 거야.</p>
+<p>그래서 불수능 대비의 핵심은 어려운 비문학을 파는 게 아니라, <b>독서론과 선택과목처럼 비교적 쉬운 파트에서 흔들리지 않는 실력을 확보하는 것</b>이야. 기출은 기본이고, 사설 자료로도 충분히 연습해 둬.</p>
+<p>2026 수능 독서론은 역대 기출 중 가장 어려웠어. 나는 전년도 수능 독서론을 현장에서 2분 만에 풀었고, 이번에도 한 번도 막히지 않고 술술 풀었는데 — 시계를 보니 4분 30초가 지나 있었어. 막히지 않았는데 오래 걸렸다는 건 지문의 체급 자체가 높았다는 뜻이야.</p>
+<p>이제 독서론이 어려울 수도 있다는 가능성을 열어 둬. 독서론뿐 아니라 화작과 매체도 마인드 전환이 필요해. 예전에 <b>수학 2~3점짜리를 풀듯</b> 가볍게 넘겼다면, 이제는 <b>4점짜리를 푼다는 생각으로</b> 접근해야 해.</p>
+</div>
+</details>
+<details class="column-row" id="article-8">
+<summary>
+<span class="num">08</span>
+<h3>8. ebs 연계</h3>
+</summary>
+<div class="article-body">
+<p>2026 수능의 「북새곡」은 파본 검사에서 제목을 보는 순간 반가웠어야 하는 작품이야. 수능완성에 실린 부분이 그대로 나왔고, 대부분의 강사가 비중 있게 다뤘고, 사설 모의고사에도 자주 등장했으니까.</p>
+<p>연계 공부의 목표 수준은 이래. 「북새곡」이라면 핵심이 <b>암행어사로서의 고초와 애민 정신</b>이라는 것, 중략 이전은 고초의 여정이고 중략 이후는 사또가 화자에게 청탁하는 장면이라는 것까지 머리에 들어 있어야 해.</p>
+<p>실제로 그해 〈보기〉는 작품 정보를 거의 주지 않았어. 수험생이 연계 학습을 하고 왔다는 전제로 출제된 걸로 보여. 그 세트 네 문제 중 세 문제에서 연계 학습이 판단 속도를 벌어 줬어. 연계를 아는 학생과 모르는 학생이 같은 문제를 다른 난이도로 푼 셈이지.</p>
+<p>다만 오해는 하지 마. 연계는 시간을 벌어 주지만, <b>정답을 결정하는 것은 결국 기출로 단련한 선지 판단력</b>이야. 그 위에 연계를 얹어. 고전시가 연계 대비는 특히 꼼꼼히 해 둬.</p>
+</div>
+</details>
+<details class="column-row" id="article-9">
+<summary>
+<span class="num">09</span>
+<h3>9. '감'</h3>
+</summary>
+<div class="article-body">
+<p>어떤 날은 1등급, 어떤 날은 3등급 — 성적 편차가 크다면 대개 문제를 <b>'감'으로 풀고 있기 때문</b>이야. '이게 제일 답 같은데?', '나머지는 다 맞는 말이니까 얘가 답'(소거법은 최후의 보루로는 괜찮아), '잘 모르겠지만 2번 같다' — 고1·2 때는 흔히 이렇게 풀어. 이 습관이 교정되지 않으면 수능에서 높은 등급을 받기 어려워. 반드시 '수능 국어적 논리'에 의거해서, 즉 <b>근거를 가지고 푸는 연습</b>을 해야 해.</p>
+<p>그렇지만 수능 당일, 시험장에서는 '감'도 물론 중요해. '저 선지가 수상하다', '이 선지 틀린 것 같다' 같은 감은 기출을 통해 쌓이고, 문제 풀이에 분명히 기여해. 차이는 이거야 — 하위권은 잘못된 감으로 틀리고, <b>상위권은 감으로 의심하되 선택은 확실한 근거 위에서</b> 해.</p>
+</div>
+</details>
+<details class="column-row" id="article-10">
+<summary>
+<span class="num">10</span>
+<h3>10. 국어공부, 아침에 해야하나요?</h3>
+</summary>
+<div class="article-body">
+<p>
+<b>매일, 가능하면 아침에</b> 하기를 권해. 먼저 '매일'부터. 매일 3시간씩 할 수 있는데 굳이 이틀에 한 번 6시간을 할 이유가 없어. 학습의 질만 떨어져. 여기에 국어만의 이유가 더해져. 읽기는 지식이 아니라 <b>'기능'</b>에 가까워. 운동이나 악기처럼 매일 하던 사람이 잘할 수밖에 없고, 며칠 쉬면 글을 받아들이는 속도부터 무뎌져. 물론 다른 과목이 급해서 잠시 격일로 돌릴 수는 있겠지만, 국어 성적 상승을 원한다면 매일 해야 해.</p>
+<p>'매일'만큼 중요한 게 '무엇을 매일'이야. 웬만하면 <b>평가원 기출문제</b>를 매일 봐야 해. EBS나 사설 콘텐츠는 어쩔 수 없이 평가원의 논리와 크고 작게 궤를 달리해. 나쁜 쪽으로. 우리는 결국 수능날 평가원이 출제한 문제를 풀게 되니까, 다른 기관의 문제보다 평가원 기출을 최대한 가까이하며 '감'을 유지해야 해.</p>
+<p>아침을 권하는 이유는 단순해. 수능 국어는 <b>아침 8시 40분</b>, 하루 중 머리가 가장 덜 깨어 있는 시간에 쳐. 평소 밤에만 국어를 하던 학생은 수능장에서 처음으로 '아침의 뇌'로 국어를 풀게 돼. 그 상태를 미리 훈련해 두는 것 자체가 실전 대비야. 그래서 실전 모의고사도 바로 이 시간에 맞춰 푸는 게 훈련의 목적에 가장 부합해.</p>
+<p>다만 아침에는 어쩔 수 없이 뇌가 몽롱한 학생이 있어. 나도 그랬어. 아무리 휴대폰을 끄고 침대에 누워도 새벽 한두 시가 되어서야 잠들었고, 아침엔 늘 비몽사몽이었지. 그런 학생이라면 <b>오전에 두 시간, 나머지 두 시간은 집중이 잘되는 저녁에</b> 몰입감 있게 공부하기를 추천해. 결국은 <b>양보다 질</b>이라, 몰입한 상태의 공부도 반드시 필요하거든.</p>
+<p>그래도 수능 시간표에 몸을 맞추는 노력은 포기하면 안 돼. 사실 나는 다른 방법으로 이 수면 리듬을 고치는 데 성공했는데 — 궁금하면 본수업 때 물어봐.</p>
+</div>
+</details>
+<details class="column-row" id="article-11">
+<summary>
+<span class="num">11</span>
+<h3>11. 사설 모의고사</h3>
+</summary>
+<div class="article-body">
+<p>파이널은 <b>D-100</b>쯤 시작해야 해. 단, 오해하지 마 — 이게 '파이널'이라는 이름이 붙은 거대한 볼륨의 비싼 강의를 들으라는 뜻은 절대 아니야. <b>D-100이면 이미 약점을 찾아 제거하는 마무리 단계에 들어가야 한다는 뜻이야.</b> 100일은 생각보다 짧으니까. '파이널'이라는 말이 주는 긴장감도 지금부터 느껴야 하고.</p>
+<p>슬슬 다들 사설 모의고사를 쌓아놓고 풀기 시작하는데, 먼저 분명히 하자. <b>사설을 주구장창 푼다고 실력이 느는 게 아니야.</b> 사설은 고점 향상보다 저점 향상에 가까워. 사설 모의고사를 푼다고 해서 본질적인 독해력이나 고난도 문제해결력이 상승하는 것은 기대하기 어렵고, 사설로 성적이 오른 사람은 대개 원래 잘하던 사람이야. 다만 <b>시간 운영 훈련, EBS 연계 대비, 멘탈 훈련</b> 정도는 확실히 도움이 돼. 그러니까 사설은 하되, 기본기를 키우는 공부는 따로 해야 해. 그게 기출이고. <b>성적이 들쭉날쭉한 3~4등급이 마지막에 사설만 붙잡는 게 최악이야.</b> 마지막 말이 내가 전하고 싶은 핵심.</p>
+<p>푸는 방법도 정해줄게. <b>시험 본 날은 스스로 분석하고, 해설 강의는 듣더라도 다음 날.</b> 풀고, 채점하고, 조금 생각해보다가 바로 해설 강의를 트는 것 — 못하는 학생들을 보면 과장해서 90%가 이래. 스스로 더 생각해봐야 해.</p>
+<p>참고로, 사설 답이 이상하다고 화내면서 시간 쓰고 문제 퀄리티 평가하고 있는 건 진짜 시간 버리는 일이니까 아예 신경 꺼. 퀄리티를 따질 게 아니라 <b>약점 진단에 쓰는 거야.</b> 그리고 어떤 선지가 '사설틱'하다고 느껴지면, 기출과 어디가 달라서 그렇게 느꼈는지 논리적으로 나한테 설명해봐. 그게 바로 공부야.</p>
+<p>cf. 사설 모의고사를 풀 때는 '실감'과 같은 수능시계앱을 활용하는 것을 추천해!</p>
+</div>
+</details>
+</div>
+<div class="column-category">
+<h3 class="column-category-title">Ⅲ. 무너지지 않는 마음</h3>
+<details class="column-row" id="article-12">
+<summary>
+<span class="num">12</span>
+<h3>12. 무너짐은 이상과 현실의 괴리에서</h3>
+</summary>
+<div class="article-body">
+<p>멘탈은 <b>내가 세운 기대와 실제 시험 사이의 간격</b>에서 무너져. 그래서 기대를 어디에 두는지가 그날의 점수를 좌우해.</p>
+<p>첫째, <b>파트별 목표 시간을 세우지 마.</b> 독서론 4분 컷, 화작 10분 컷, 문학 20분 컷 — 이런 거. 도움이 안 되는 정도가 아니라 멘탈을 갉아먹어. '독서론은 반드시 5분 안에 푼다'고 생각하던 학생이 5분을 넘기는 순간, 시험은 한참 남았는데 마음이 먼저 무너져. '몇 분 컷'을 약속하는 광고성 영상들은 걸러도 돼. 그렇게 푸는 사람이 실제로 있을 수는 있어. 하지만 너를 포함해 절대다수는 입시 기간 안에 그 경지에 도달하지 못해. 글을 읽고 이해하는 데는 물리적인 시간이 필요해. 허황된 목표를 꿈꾸지 마. 애초에 문학 20분 컷이 가능한 학생은, 자기가 노력하면 가능하다는 것을 스스로 알아.</p>
+<p>둘째, <b>난이도는 최악으로 상정해.</b> 네가 치를 수능은 불국어로 이미 정해져 있다고 생각하고 1년을 보내. 1등급 컷 80점대 중반을 상상하며 공부하는 거야. 수능은 늘 상상보다 어렵고, 국어가 끝나면 대부분 멘탈이 흔들려. 그때 필요한 건 이런 혼잣말이야 — &quot;어차피 내가 틀린 건 남들도 틀렸을 거야. 괜찮아. 이제 수학 생각하자.&quot;</p>
+<p>목표 시간은 버리고, 예상 난도는 올려 두는 것. 이게 시험장에서 흔들리더라도 무너지지 않는 준비야.</p>
+</div>
+</details>
+<details class="column-row" id="article-13">
+<summary>
+<span class="num">13</span>
+<h3>13. 컨디션도 실력</h3>
+</summary>
+<div class="article-body">
+<p>푸는 순서니 보기 먼저 보고 풀기니, 이런 기술에는 집착하면서 정작 몸 상태는 신경 안 쓰는 경우가 많아.</p>
+<p>시험 전날 스트레칭으로 어깨랑 목 풀어주는 것, 평소에 컨디션 관리하는 것. 별거 아닌 것 같지? 아침에 일어났는데 몸이 가볍고 머리가 팽팽 돌아가는 느낌, 받아본 적 있어? 대부분 없을 거야. 다들 에너지 음료 옆에 끼고 다크서클 내려앉은 채로 시험 보는 걸 당연하게 여기잖아.</p>
+<p>
+<b>국어는 컨디션이 좋으면 뇌 회전이 빨라져서 시간이 확 단축돼.</b> 이것도 실력의 일부야.</p>
+</div>
+</details>
+<details class="column-row" id="article-14">
+<summary>
+<span class="num">14</span>
+<h3>14. 모의고사 직후 15분</h3>
+</summary>
+<div class="article-body">
+<p>국어 모의고사가 끝나면 대부분은 친구들과 답을 맞춰 보거나 잡담으로 쉬는 시간을 보내. 조금 더 훌륭한 학생은 쉬거나 수학을 준비하지. 그런데 그 15분 동안 해야 할 일은 따로 있어. <b>방금 친 시험의 복기.</b>
+</p>
+<p>이번 시험의 체감 난이도, 어디서 막혔는지, 어떤 판단이 아쉬웠는지, 뭘 보강해야 하는지를 시험지 여백에 최대한 많이 적어 둬. 물론 아직 답은 몰라. 그래도 &quot;이랬다면 더 좋았겠다&quot;, &quot;이렇게 할걸&quot; 하고 후회가 남는 부분이 반드시 있었을 거야. 집에 가서 채점하며 떠올리려 하면 정말 하나도 기억 안 나. <b>시험 직후만큼 자기 약점이 선명하게 보이는 시간은 없어.</b>
+</p>
+<p>특히 <b>고3 6월·9월 모의평가 뒤에는 반드시</b> 해. 평가원이 직접 출제하는 시험이라, 여기서 남긴 메모는 수능까지 그대로 유효하거든.</p>
+<p>복기할 때 하나만 더. 그냥 풀지 말고 <b>파트별로 걸린 시간을 체크해 두고</b>, 그걸 같이 되짚어. 이 파트는 왜 이만큼 걸렸지? 다시 푼다면 어떻게 풀까? 여기서 손절했어야 했나? <b>(2등급 이상이라면) 항상 시간을 재고 풀어.</b>
+</p>
+<p>모든 문제를 훑어보며 바로 시험지 뒷장에 메모해. 그 메모가 나중에 사고과정 피드백 노트의 재료가 되고, 쌓이면 수능 당일의 네 운영 전략이 되는 거야.</p>
+</div>
+</details>
+<details class="column-row" id="article-15">
+<summary>
+<span class="num">15</span>
+<h3>15. 수능 국어, 재능인가요?</h3>
+</summary>
+<div class="article-body">
+<p>이건 보통 국어 3~4등급 나오는 친구들이 질문해.</p>
+<p>
+<b>당연히 재능이지.</b> 이건 더 상세히 설명할 필요도 없어. 다만 내 경험상, 열심히 노력하면 <b>2등급 중반까지는 누구나 도달하더라.</b> 그러니까 포기하지 마. 목표가 1등급이라면 뼈를 깎는 노력과 함께 내가 알려줄 수 있는 모든 꿀팁을 알려줄 테니, 1등급 컷에라도 걸쳐보자.</p>
+</div>
+</details>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="install">
+<div class="wrap" >
+<details class="install-fold">
+<summary>채점 페이지를 폰 홈 화면에 추가하는 방법 (앱처럼 쓰기)</summary>
+<div class="install-card">
+<p class="install-lead">채점 페이지를 폰 <b>홈 화면에 아이콘으로 추가</b>해 두면, 앱처럼 한 번에 열 수 있습니다. 따로 설치할 것은 없습니다.</p>
+<div class="install-tabs">
+<button type="button" class="install-tab" data-os="ios">아이폰</button>
+<button type="button" class="install-tab" data-os="android">안드로이드</button>
+</div>
+<ol class="install-steps" data-panel="ios">
+<li>
+<b>사파리(Safari)</b>로 <b>johanseo.com/homework</b> 를 엽니다. (크롬 등 다른 브라우저에서는 이 기능이 없을 수 있어요)</li>
+<li>화면 아래 가운데 <b>공유 버튼</b>(사각형에서 화살표가 위로 나가는 모양)을 누릅니다.</li>
+<li>목록을 아래로 넘겨 <b>'홈 화면에 추가'</b>를 선택합니다.</li>
+<li>오른쪽 위 <b>'추가'</b>를 누르면 끝. 홈 화면에 조한서 국어 아이콘이 생깁니다.</li>
+</ol>
+<ol class="install-steps" data-panel="android">
+<li>
+<b>크롬(Chrome)</b>으로 <b>johanseo.com/homework</b> 를 엽니다.</li>
+<li>오른쪽 위 <b>점 세 개(⋮)</b> 메뉴를 누릅니다.</li>
+<li>
+<b>'홈 화면에 추가'</b> 또는 <b>'앱 설치'</b>를 선택합니다.</li>
+<li>
+<b>'추가'</b>를 누르면 끝. 홈 화면에 조한서 국어 아이콘이 생깁니다.</li>
+</ol>
+<p class="install-note">추가한 아이콘을 누르면 <b>과제 채점 화면이 바로</b> 열립니다. 기종·브라우저에 따라 메뉴 이름이 조금씩 다를 수 있어요.</p>
+</div>
+</details>
+</div>
+</section>
+<section class="contact" id="contact">
+<div class="wrap contact-inner">
+<div>
+<p class="eyebrow">LET’S TALK</p>
+<h2>국어 관련 고민, 무엇이든.</h2>
+<p>상담 문의</p>
+</div>
+<a class="btn light" href="https://pf.kakao.com/_xfxbxgfX/chat" target="_blank" rel="noopener">카카오톡 채널로 문의하기 <span class="arrow">↗</span>
+</a>
+</div>
+</section>
+<footer class="site-footer">
+<div class="wrap footer-inner">
+<a class="wordmark" href="#">조한서<i>.</i>
+</a>
+<span id="heroEyebrow">조한서 수능 · 내신 국어</span>
+<span>JOHANSEO.COM</span>
+</div>
+</footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script>
+<script src="config.js">
+</script>
+<script src="home.js?v=20260919">
+</script>
 </body>
 </html>
-
