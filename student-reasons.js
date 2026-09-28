@@ -56,7 +56,7 @@
       form.draftKey = JSON.stringify([retry ? (last?.id || 'missing') : 'first',rows.map(row => row.querySelector('.qno')?.textContent)]);
     }
     help.hidden = false;
-    help.textContent = retry ? '처음 쓴 이유를 보고, 처음 잘못 생각한 점과 지금 답이라고 보는 근거를 각각 짧게 적어 주세요.' : '정답을 확인하기 전에, 각 문항에서 그 선지를 고른 이유를 한마디만 적어 주세요.';
+    help.textContent = retry ? '처음엔 무엇을 잘못 생각해서 틀렸는지 쓰고, 지금은 왜 이 선지가 정답이라고 생각하는지 쓰시오.' : '이 선지가 정답이라고 생각하는 이유를 한 마디만 쓰시오.';
     const draft = state(ctx.key).drafts[form.draftKey] || {};
     const draftKey = form.draftKey;
     rows.forEach((row, i) => {
@@ -83,8 +83,8 @@
         });
         fields.append(lab,input);
       }
-      if (retry) field('mistake','처음엔 무엇을 잘못 생각해서 틀렸나요?');
-      field('reason',retry ? '지금은 왜 이게 답이라고 생각하나요?' : '그 선지를 고른 이유를 한 마디만 쓰시오.');
+      if (retry) field('mistake','처음엔 무엇을 잘못 생각해서 틀렸는지 쓰고,');
+      field('reason',retry ? '지금은 왜 이 선지가 정답이라고 생각하는지 쓰시오.' : '이 선지가 정답이라고 생각하는 이유를 한 마디만 쓰시오.');
       row.append(fields);
     });
   }
