@@ -75,3 +75,18 @@
     document.getElementById(id)?.setAttribute('aria-label', label);
   });
 })();
+
+/* Read-only reasoning review; existing admin handlers remain unchanged. */
+(() => {
+  if (!document.getElementById('adminTools')) return;
+  const script = document.createElement('script');
+  script.src = '/admin-reasons.js?v=ppajak-reasons-1';
+  script.async = false;
+  script.onerror = () => {
+    const note = document.createElement('p');
+    note.textContent = '풀이 근거 확인 기능을 불러오지 못했습니다. 새로고침해 주세요.';
+    note.setAttribute('role', 'alert');
+    document.getElementById('adminTools').prepend(note);
+  };
+  document.head.append(script);
+})();

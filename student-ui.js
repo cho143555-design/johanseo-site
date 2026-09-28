@@ -73,3 +73,25 @@
     refreshNotes();
   }
 })();
+
+/* Scoped reasoning fields: fail closed for the two books if the module is unavailable. */
+(() => {
+  const submit = document.getElementById('submitBtn');
+  if (!submit) return;
+  const books = ['2027 빠작 중학 문학 독해 2', '2027 빠작 중학 비문학 독해 2'];
+  submit.addEventListener('click', event => {
+    const setView = document.getElementById('setView');
+    const material = setView && setView.style.display !== 'none'
+      ? document.getElementById('setSelect')?.selectedOptions[0]?.dataset.mat
+      : document.getElementById('mSel')?.value;
+    if (!books.includes(material) || window.PpajakReasonsReady) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    const error = document.getElementById('err');
+    error.textContent = '풀이 근거 입력칸을 아직 불러오지 못했습니다. 새로고침한 뒤 다시 시도해 주세요.';
+    error.style.display = 'block';
+  }, true);
+  const script = document.createElement('script');
+  script.src = '/student-reasons.js?v=ppajak-reasons-1';
+  script.async = false;
+  document.head.append(script);
+})();
