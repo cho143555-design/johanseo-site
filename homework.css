@@ -1,0 +1,232 @@
+.hint { font-size:13px; color:var(--ink-soft); margin-top:-12px; margin-bottom:18px; }
+/* 교재·단원 — 좁은 화면에서는 세로로 (교재 이름이 잘려 서로 구분이 안 되는 것 방지) */
+.pick-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:520px) { .pick-grid { grid-template-columns:1fr; gap:0; } }
+#matScope a { color:var(--jumuk); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+/* 파트별 걸린 시간 (실전 모의고사에서만) */
+.part-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px 14px; }
+@media (max-width:330px) { .part-grid { grid-template-columns:1fr; } }
+.part-row { display:flex; align-items:center; gap:6px; }
+.part-row span.nm { flex:1; font-size:14px; color:var(--ink); white-space:nowrap; }
+.part-row input { width:52px; flex:none; text-align:center; padding:7px 2px; font-size:15px; }
+.part-row span.un { font-size:12.5px; color:var(--ink-soft); }
+/* 소감 우수 예시 카드 */
+.ex-fold { margin:2px 0 14px; }
+.ex-fold > summary { cursor:pointer; font-size:13.5px; font-weight:600; color:var(--jumuk);
+  list-style:none; padding:9px 0; border-top:1px dashed var(--line); border-bottom:1px dashed var(--line); }
+.ex-fold > summary::-webkit-details-marker { display:none; }
+.ex-fold > summary::before { content:"▸ "; }
+.ex-fold[open] > summary::before { content:"▾ "; }
+.ex-cards { padding-top:12px; }
+.ex-card { background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--jumuk);
+  border-radius:var(--radius); padding:13px 15px; margin-bottom:10px; }
+.ex-card .ex-h { font-family:var(--serif); font-weight:800; font-size:14px; color:var(--jumuk);
+  margin-bottom:8px; }
+.ex-card .ex-b { font-size:13.5px; line-height:1.75; color:var(--ink); white-space:pre-wrap;
+  word-break:keep-all; }
+.fb { margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); }
+.fb h4 { font-family:var(--serif); font-size:17px; font-weight:800; margin-bottom:12px; }
+.fb ol { padding-left:20px; }
+.fb li { font-size:14px; color:var(--ink-soft); margin-bottom:9px; line-height:1.65; }
+.fb li b { color:var(--ink); }
+.fb-tip { margin-top:24px; padding-top:18px; border-top:1px dashed var(--line); }
+.fb p, .fb-tip p { font-size:14px; color:var(--ink-soft); line-height:1.75; margin-bottom:13px; }
+.fb p b, .fb-tip p b { color:var(--ink); }
+.note-card { background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--jumuk);
+  border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
+  font-size:14px; line-height:1.7; color:var(--ink); }
+.note-card .no { font-family:var(--serif); font-weight:800; color:var(--jumuk); margin-right:8px; }
+.note-card .aside { display:block; margin-top:8px; font-size:13px; color:var(--ink-soft); }
+/* 채점 전 접이식 질문 칸: 상자 속 상자가 되지 않게 껍데기 제거 */
+#askFoldBody .ask-box { margin-top:0; padding:0; border:none; background:none; }
+#askFoldBody .ask-box h4 { display:none; }
+/* 결과 화면 정리: 담기도 다른 카드와 같은 상자, 카드 간격 통일 */
+.keep-box { margin-top:22px; padding:16px 18px 15px; border:1px solid var(--line);
+  border-radius:var(--radius); background:rgba(255,255,255,0.4); }
+#result .faq-item { margin:22px 0 0; }
+/* 짧은 안내문 줄바꿈 원칙: 단어 단위 + 괄호는 통째로 */
+.ask-lead, .keep-lead, .keep-extra summary { word-break:keep-all; overflow-wrap:break-word; }
+.nw { white-space:nowrap; }
+
+/* 과제 채점 전용 화면 */
+.page-homework {
+  --ink: #172638;
+  --ink-soft: #57667a;
+  --line: #dbe2e9;
+  --paper: #f5f7fa;
+  --blue: #3159bf;
+  --blue-hover: #2447a0;
+  --jumuk: var(--blue);
+  background: var(--paper);
+}
+.page-homework .topbar { background: #fff; }
+.page-homework .topbar .wrap { min-height: 4rem; }
+.page-homework .student-wordmark {
+  gap: .28em;
+  color: var(--ink);
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -.035em;
+}
+.page-homework .student-wordmark .brand-subject {
+  margin: 0;
+  color: #384c66;
+  font-weight: 500;
+}
+.page-homework .nav { font-size: .875rem; font-weight: 500; }
+.page-homework .nav a { position: relative; padding: 1.25rem 0; }
+.page-homework .nav a[aria-current="page"] { color: var(--ink); font-weight: 700; }
+.page-homework .nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: var(--blue);
+}
+.page-homework .student-main { padding: clamp(1.75rem, 4vw, 3.25rem) 0 4.5rem; }
+.page-homework .student-shell { max-width: 50rem; }
+.page-homework .hw-title {
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.75rem, 3vw, 2.125rem);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.3;
+}
+.page-homework .student-work-card {
+  --card-inset: clamp(1rem, 4vw, 2rem);
+  padding: 0 var(--card-inset) var(--card-inset);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: 0 2px 5px rgb(27 46 68 / 4%), 0 12px 32px -12px rgb(27 46 68 / 16%);
+}
+.page-homework .student-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0 0 1.5rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.page-homework .student-steps li {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: .5rem;
+  padding: 0;
+  border: 0;
+  color: var(--ink-soft);
+  font-size: .875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.page-homework .student-steps li:last-child { flex: none; }
+.page-homework .student-steps li:not(:last-child)::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  margin: 0 clamp(.4rem, 2vw, 1.4rem) 0 clamp(0rem, 1vw, .9rem);
+  background: var(--line);
+}
+.page-homework .student-steps li span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
+  border-radius: 50%;
+  background: #edf1f5;
+  font-size: .8125rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.page-homework .student-steps li[aria-current="step"] { color: var(--blue); font-weight: 700; }
+.page-homework .student-steps li[aria-current="step"] span { color: #fff; background: var(--blue); }
+.page-homework .field { min-width: 0; }
+.page-homework .field label { font-size: .875rem; font-weight: 600; }
+.page-homework .field input,
+.page-homework .field select {
+  border-color: #cbd4df;
+  border-radius: .5rem;
+  background-color: #fff;
+  font-size: 1rem;
+}
+.page-homework .field input::placeholder { color: #687789; }
+.page-homework .field select {
+  appearance: none;
+  padding-right: 2.35rem;
+  background-image: linear-gradient(45deg, transparent 50%, #58687b 50%), linear-gradient(135deg, #58687b 50%, transparent 50%);
+  background-position: right 1.125rem center, right .875rem center;
+  background-size: .25rem .25rem;
+  background-repeat: no-repeat;
+}
+.page-homework .field select:focus { background-color: #fff; }
+.page-homework .tabs { margin-bottom: 1.4rem; background: #edf1f5; }
+.page-homework .tabs .tab { font-size: .875rem; font-weight: 500; color: var(--ink-soft); }
+.page-homework .tabs .tab.on { color: var(--ink); font-weight: 700; box-shadow: 0 1px 4px rgb(27 46 68 / 12%); }
+.page-homework .hint,
+.page-homework .student-answer-help,
+.page-homework .student-selection { font-size: .875rem; }
+.page-homework .hint:empty { display: none; }
+.page-homework #loadBtn,
+.page-homework #submitBtn {
+  min-height: 3rem;
+  border-radius: .5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.page-homework #loadBtn { background: #203652; border-color: #203652; }
+.page-homework #loadBtn:hover { background: #192b42; border-color: #192b42; }
+.page-homework .student-answer-heading h2 { font-size: 1.25rem; font-weight: 650; }
+.page-homework #studentAnswerCount { font-size: .875rem; font-weight: 600; }
+.page-homework .bubble { font-weight: 600; }
+.page-homework .result { background: #f4f7fc; border-color: #d6e1f0; }
+.page-homework .student-result-label { font-size: .875rem; font-weight: 650; letter-spacing: 0; }
+.page-homework .result #scoreLabel { font-size: clamp(2.5rem, 6vw, 3rem); font-weight: 700; letter-spacing: -.035em; }
+.page-homework .tool-stack {
+  display: grid;
+  gap: 0;
+  margin-top: 1.5rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: .875rem;
+}
+.page-homework .tool-stack > .faq-item { margin: 0; border: 0; border-radius: 0; background: transparent; }
+.page-homework .tool-stack > .faq-item + .faq-item { border-top: 1px solid var(--line); }
+.page-homework .tool-link,
+.page-homework .tool-stack > .faq-item > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: 1rem var(--tool-inset, 1.4rem);
+  font-size: .9375rem;
+  font-weight: 600;
+}
+.page-homework .tool-chevron {
+  width: .45rem;
+  height: .45rem;
+  margin-right: .25rem;
+  border: solid var(--ink-soft);
+  border-width: 1.5px 1.5px 0 0;
+  transform: rotate(45deg);
+}
+.page-homework .tool-stack > .faq-item > summary::after { color: var(--ink-soft); font-weight: 500; }
+.page-homework .tool-stack > .faq-item > summary:focus-visible,
+.page-homework .tool-stack .tool-link:focus-visible { outline-offset: -4px; }
+
+@media (max-width: 640px) {
+  .page-homework .topbar .wrap { min-height: 3.5rem; padding-block: 0; }
+  .page-homework .student-wordmark { font-size: 1.1875rem; }
+  .page-homework .nav { gap: .875rem; font-size: .8125rem; }
+  .page-homework .nav a { padding-block: 1rem; }
+  .page-homework .student-shell { padding-inline: 1rem; }
+  .page-homework .hw-title { margin-bottom: 1rem; }
+  .page-homework .student-steps { margin-bottom: 1.25rem; padding-block: 1rem; }
+  .page-homework .student-steps li { gap: .3rem; font-size: .8125rem; }
+  .page-homework .student-steps li span { width: 1.25rem; height: 1.25rem; font-size: .75rem; }
+  .page-homework .tool-stack { --tool-inset: 1rem; }
+}
+@media (forced-colors: active) {
+  .page-homework .field select { appearance: auto; background-image: none; }
+  .page-homework .student-steps li[aria-current="step"] span { outline: 1px solid; }
+}

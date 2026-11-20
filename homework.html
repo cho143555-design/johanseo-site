@@ -29,72 +29,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="brand.css?v=20260919-brand2" />
   <link rel="stylesheet" href="student.css?v=20260919-brand2" />
-  <style>
-    .tabs { display:flex; gap:8px; margin-bottom:22px; }
-    .tab {
-      padding:9px 16px; border:1.5px solid var(--line); background:var(--paper);
-      cursor:pointer; font-weight:600; font-size:14px; border-radius:var(--radius);
-      color:var(--ink-soft); font-family:var(--sans);
-    }
-    .tab.on { background:var(--ink); color:var(--paper); border-color:var(--ink); }
-    .hint { font-size:13px; color:var(--ink-soft); margin-top:-12px; margin-bottom:18px; }
-    /* 교재·단원 — 좁은 화면에서는 세로로 (교재 이름이 잘려 서로 구분이 안 되는 것 방지) */
-    .pick-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    @media (max-width:520px) { .pick-grid { grid-template-columns:1fr; gap:0; } }
-    #matScope a { color:var(--jumuk); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
-    /* 파트별 걸린 시간 (실전 모의고사에서만) */
-    .part-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px 14px; }
-    @media (max-width:330px) { .part-grid { grid-template-columns:1fr; } }
-    .part-row { display:flex; align-items:center; gap:6px; }
-    .part-row span.nm { flex:1; font-size:14px; color:var(--ink); white-space:nowrap; }
-    .part-row input { width:52px; flex:none; text-align:center; padding:7px 2px; font-size:15px; }
-    .part-row span.un { font-size:12.5px; color:var(--ink-soft); }
-    /* 소감 우수 예시 카드 */
-    .ex-fold { margin:2px 0 14px; }
-    .ex-fold > summary { cursor:pointer; font-size:13.5px; font-weight:600; color:var(--jumuk);
-      list-style:none; padding:9px 0; border-top:1px dashed var(--line); border-bottom:1px dashed var(--line); }
-    .ex-fold > summary::-webkit-details-marker { display:none; }
-    .ex-fold > summary::before { content:"▸ "; }
-    .ex-fold[open] > summary::before { content:"▾ "; }
-    .ex-cards { padding-top:12px; }
-    .ex-card { background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--jumuk);
-      border-radius:var(--radius); padding:13px 15px; margin-bottom:10px; }
-    .ex-card .ex-h { font-family:var(--serif); font-weight:800; font-size:14px; color:var(--jumuk);
-      margin-bottom:8px; }
-    .ex-card .ex-b { font-size:13.5px; line-height:1.75; color:var(--ink); white-space:pre-wrap;
-      word-break:keep-all; }
-    .fb { margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); }
-    .fb h4 { font-family:var(--serif); font-size:17px; font-weight:800; margin-bottom:12px; }
-    .fb ol { padding-left:20px; }
-    .fb li { font-size:14px; color:var(--ink-soft); margin-bottom:9px; line-height:1.65; }
-    .fb li b { color:var(--ink); }
-    .fb-tip { margin-top:24px; padding-top:18px; border-top:1px dashed var(--line); }
-    .fb p, .fb-tip p { font-size:14px; color:var(--ink-soft); line-height:1.75; margin-bottom:13px; }
-    .fb p b, .fb-tip p b { color:var(--ink); }
-    .note-card { background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--jumuk);
-      border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
-      font-size:14px; line-height:1.7; color:var(--ink); }
-    .note-card .no { font-family:var(--serif); font-weight:800; color:var(--jumuk); margin-right:8px; }
-    .note-card .aside { display:block; margin-top:8px; font-size:13px; color:var(--ink-soft); }
-    /* 채점 전 접이식 질문 칸: 상자 속 상자가 되지 않게 껍데기 제거 */
-    #askFoldBody .ask-box { margin-top:0; padding:0; border:none; background:none; }
-    #askFoldBody .ask-box h4 { display:none; }
-    /* 결과 화면 정리: 담기도 다른 카드와 같은 상자, 카드 간격 통일 */
-    .keep-box { margin-top:22px; padding:16px 18px 15px; border:1px solid var(--line);
-      border-radius:var(--radius); background:rgba(255,255,255,0.4); }
-    #result .faq-item { margin:22px 0 0; }
-    /* 짧은 안내문 줄바꿈 원칙: 단어 단위 + 괄호는 통째로 */
-    .ask-lead, .keep-lead, .keep-extra summary { word-break:keep-all; overflow-wrap:break-word; }
-    .nw { white-space:nowrap; }
-    /* 채점기 아래 습관 핵심 + 도구 묶음 */
-    #habitWrap { margin-top:26px; }
-    .tool-stack { display:grid; gap:10px; margin-top:26px; }
-    .tool-stack .faq-item { margin-bottom:0; }
-    .tool-link { display:flex; justify-content:space-between; align-items:center; gap:12px;
-      padding:16px 18px; font-weight:700; font-size:15.5px; color:var(--ink); text-decoration:none; }
-    .tool-link .arrow { color:var(--jumuk); font-weight:800; font-size:17px; }
-
-  </style>
+  <link rel="stylesheet" href="homework.css?v=20261120" />
 </head>
 <body class="student-page page-homework">
   <div class="topbar">
@@ -110,23 +45,18 @@
 
   <main class="student-main">
     <div class="wrap student-shell">
-      <div class="student-heading">
-        <div><p class="student-eyebrow">오늘의 공부</p><h1 class="hw-title">오늘의 과제</h1><p class="student-intro">풀고, 확인하고, 내 것으로.</p></div>
-        <a class="student-shortcut" href="notebox.html">보관함 <span aria-hidden="true">↗</span></a>
-      </div>
-      <ol class="student-steps" aria-label="채점 순서">
-        <li data-student-step="1" aria-current="step"><span>01</span> 과제 선택</li>
-        <li data-student-step="2"><span>02</span> 답안 입력</li>
-        <li data-student-step="3"><span>03</span> 결과 확인</li>
-      </ol>
+      <h1 class="hw-title">과제 채점</h1>
 
       <div class="panel student-work-card">
-        <div class="student-card-heading"><h2>과제 선택</h2><p>이름과 교재를 확인해 주세요.</p></div>
+        <ol class="student-steps" aria-label="채점 순서">
+          <li data-student-step="1" aria-current="step"><span aria-hidden="true">1</span>과제 선택</li>
+          <li data-student-step="2"><span aria-hidden="true">2</span>답안 입력</li>
+          <li data-student-step="3"><span aria-hidden="true">3</span>결과 확인</li>
+        </ol>
         <div class="field">
           <label for="name">이름</label>
-          <input id="name" type="text" placeholder="예: 조한서" autocomplete="off" list="nameList" />
+          <input id="name" type="text" placeholder="이름 세 글자" autocomplete="off" list="nameList" />
           <datalist id="nameList"></datalist>
-          <p class="hint" style="margin:8px 0 0">이름은 세 글자 정자로 기입해 주세요.</p>
         </div>
 
         <div class="tabs" id="tabs" style="display:none">
@@ -147,7 +77,7 @@
               <div class="field"><label for="endNo">끝 번호</label><input id="endNo" type="number" min="1" inputmode="numeric" /></div>
             </div>
             <p class="hint" id="rangeHint"></p>
-            <button class="btn ghost" id="loadBtn" style="width:100%">문제 불러오기</button>
+            <button class="btn" id="loadBtn" style="width:100%">문제 불러오기</button>
           </div>
           <div id="sectionPick" style="display:none">
             <div class="field"><label for="secSel">지문 세트</label><select id="secSel"></select></div>
@@ -247,7 +177,7 @@
 
       <!-- 채점 도구 묶음: 보관함 → 질문 → 채점 습관 → 피드백 → 앱 안내 -->
       <div class="tool-stack">
-        <a class="faq-item tool-link" href="notebox.html"><span>기억해둘 문제 보관함</span><span class="arrow">→</span></a>
+        <a class="faq-item tool-link" href="notebox.html"><span>기억해둘 문제 보관함</span><span class="tool-chevron" aria-hidden="true"></span></a>
         <details class="faq-item" id="habitDetails" style="display:none">
           <summary id="habitTitle"></summary>
           <div class="faq-body">
