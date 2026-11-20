@@ -127,7 +127,7 @@
     setHtml('satCourseTitle', titleHtml(fields['수능제목'] || []));
     byId('satCourseTitle').hidden = !fields['수능제목']?.length;
     const lead = fields['리드'] || [];
-    setHtml('heroLead', lead.map((line, i) => i === 0 ? `<strong>${format(line)}</strong>` : format(line)).join('<br>'));
+    setHtml('heroLead', lead.map(line => `<span>${format(line)}</span>`).join('\n'));
     byId('heroLead').hidden = !lead.length;
     const hasNaesin = !!(fields['내신제목']?.length || fields['내신리드']?.length);
     byId('naesinBlock').hidden = !hasNaesin;

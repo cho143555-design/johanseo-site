@@ -116,8 +116,18 @@ html { scroll-padding-top: 1rem; }
 }
 .home-page .hero h1 em { color: #a3b8ff; font-style: normal; }
 .home-page .hero h1 b, .home-page .course h3 b { font-weight: inherit; }
-.home-page .hero-lead { max-width: 32em; margin: 1.45rem 0 0; color: var(--light-muted); font-size: 1rem; line-height: 1.85; }
-.home-page .hero-lead strong { color: var(--light-ink); font-weight: 550; }
+.home-page .hero-lead {
+  max-width: 32em;
+  margin: clamp(1.25rem, 2vw, 1.75rem) 0 0;
+  color: #d8e1ed;
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+  font-weight: 500;
+  letter-spacing: -.02em;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+.home-page .hero-lead > span { display: block; }
+.home-page .hero-lead b { font-weight: 650; }
 .home-page .hero-actions { margin-top: 1.6rem; }
 .home-page .hero-art { display: grid; place-items: center; min-width: 0; pointer-events: none; }
 .home-page .hero-art svg { display: block; width: min(100%, 28rem); height: auto; }
@@ -253,7 +263,7 @@ html { scroll-padding-top: 1rem; }
   .home-page .hero .eyebrow { grid-area: tag; margin-bottom: .4rem; }
   .home-page .hero h1 { grid-area: title; font-size: clamp(1.85rem, 8.1vw, 3.55rem); line-height: 1.19; }
   .home-page .hero-art { grid-area: art; justify-self: end; width: 100%; max-width: 12.75rem; }
-  .home-page .hero-lead { grid-area: lead; margin-top: 1rem; }
+  .home-page .hero-lead { grid-area: lead; margin-top: 1.2rem; }
   .home-page .hero-actions { grid-area: actions; margin-top: 1.15rem; }
   .home-page .quick-item { min-height: 3.8rem; gap: .5rem; font-size: .9375rem; }
   .home-page .quick-item:first-child { margin-right: 1rem; }
