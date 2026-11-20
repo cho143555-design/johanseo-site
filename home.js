@@ -84,12 +84,11 @@
     const name = fields['이름'][0];
     const catches = fields['캐치'] || [];
     const catchHtml = catches.map(line => lineBreaks(line).replace(/(<\/b>에게 배우면)\s+(다릅니다\.)/, '$1<br>$2')).join('<br>');
-    const credentials = (fields['이력'] || []).map((line, i) => `<li>${i === 0 ? '<strong>' + format(line) + '</strong>' : format(line)}</li>`).join('');
     const points = (fields['설명'] || []).map(line => {
       const split = line.match(/^\*\*(.+?)\*\*\s*[—–-]\s*(.*)$/);
       return split ? `<div><b>${escape(split[1])}</b><p>${lineBreaks(split[2])}</p></div>` : `<div><p>${lineBreaks(line)}</p></div>`;
     }).join('');
-    return `<p class="eyebrow">${escape(name)} 선생님</p><h2>${catchHtml || escape(name)}</h2><ul class="credentials">${credentials}</ul>${points ? `<div class="teacher-points">${points}</div>` : ''}`;
+    return `<p class="eyebrow">${escape(name)} 선생님</p><h2>${catchHtml || escape(name)}</h2>${points ? `<div class="teacher-points">${points}</div>` : ''}`;
   }
 
   function lessonsHtml(content) {
@@ -142,6 +141,12 @@
     if (!html) return;
     setHtml('teacherInfo', html);
     const fields = readFields(content);
+    const credentials = fields['이력'] || [];
+    setHtml('heroCredentials', credentials.map((line, i) => {
+      const text = format(line);
+      return i === 0 ? `<li><strong>${text}</strong></li>` : `<li>${text}</li>`;
+    }).join(''));
+    byId('heroCredentials').hidden = !credentials.length;
     setHtml('satCourseLead', (fields['강점'] || []).map(lineBreaks).join('<br>'));
   }
 

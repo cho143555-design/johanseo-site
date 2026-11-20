@@ -128,6 +128,20 @@ html { scroll-padding-top: 1rem; }
 }
 .home-page .hero-lead > span { display: block; }
 .home-page .hero-lead b { font-weight: 650; }
+.home-page .hero-credentials {
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.5rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid #ffffff32;
+  list-style: none;
+  color: #c3d0e0;
+  font-size: .9375rem;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+.home-page .hero-credentials li + li { margin-top: .2rem; }
+.home-page .hero-credentials strong { color: #f0f4fb; font-weight: 650; }
 .home-page .hero-actions { margin-top: 1.6rem; }
 .home-page .hero-art { display: grid; place-items: center; min-width: 0; pointer-events: none; }
 .home-page .hero-art svg { display: block; width: min(100%, 28rem); height: auto; }
@@ -185,8 +199,6 @@ html { scroll-padding-top: 1rem; }
 .home-page .portrait img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .home-page .teacher-copy h2 { margin: .75rem 0 1.2rem; }
 .home-page .teacher-copy h2 b { color: var(--blue); font-weight: inherit; }
-.home-page .credentials { padding: 0; margin: 0 0 1.5rem; list-style: none; color: var(--ink-soft); font-size: 1rem; line-height: 1.8; }
-.home-page .credentials strong { color: var(--ink); font-weight: 650; }
 .home-page .teacher-points > div { display: flex; gap: 1.5rem; padding: .9rem 0; border-top: 1px solid #d6dfe9; color: var(--ink-soft); font-size: 1rem; line-height: 1.7; }
 .home-page .teacher-points > div > b { color: var(--ink); flex: 0 0 auto; }
 
@@ -254,7 +266,7 @@ html { scroll-padding-top: 1rem; }
   .home-page .mainnav .nav-cta { min-height: 2.25rem; padding: .25rem .65rem; }
   .home-page .mobile-nav { display: flex; justify-content: space-between; gap: .5rem; padding-inline: var(--gutter); border-top: 1px solid #ffffff17; color: #d0d9e8; font-size: .875rem; }
   .home-page .hero .wrap > .hero-main {
-    grid-template-areas: "tag tag" "title art" "lead lead" "actions actions";
+    grid-template-areas: "tag tag" "title art" "lead lead" "credentials credentials" "actions actions";
     grid-template-columns: minmax(0, 1.28fr) minmax(0, 1fr);
     gap: 0 .3rem;
     padding: 2rem 0 1.7rem;
@@ -264,6 +276,7 @@ html { scroll-padding-top: 1rem; }
   .home-page .hero h1 { grid-area: title; font-size: clamp(1.85rem, 8.1vw, 3.55rem); line-height: 1.19; }
   .home-page .hero-art { grid-area: art; justify-self: end; width: 100%; max-width: 12.75rem; }
   .home-page .hero-lead { grid-area: lead; margin-top: 1.2rem; }
+  .home-page .hero-credentials { grid-area: credentials; margin-top: 1.1rem; padding-top: .85rem; }
   .home-page .hero-actions { grid-area: actions; margin-top: 1.15rem; }
   .home-page .quick-item { min-height: 3.8rem; gap: .5rem; font-size: .9375rem; }
   .home-page .quick-item:first-child { margin-right: 1rem; }
