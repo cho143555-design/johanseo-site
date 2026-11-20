@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="brand.css?v=20260919-brand2" />
-  <link rel="stylesheet" href="admin-study.css" />
+  <link rel="stylesheet" href="admin-study.css?v=20261120" />
   <style>
     textarea { width:100%; min-height:220px; font-family:ui-monospace,Consolas,monospace; font-size:13px;
       padding:12px 14px; border:1.5px solid var(--line); border-radius:var(--radius); background:var(--paper); color:var(--ink); }
@@ -33,14 +33,14 @@
     .note-card .no { font-family:var(--serif); font-weight:800; color:var(--jumuk); margin-right:8px; }
     .note-card .aside { display:block; margin-top:8px; font-size:13px; color:var(--ink-soft); }
   </style>
-  <link rel="stylesheet" href="admin-page.css?v=20260919-brand2" />
+  <link rel="stylesheet" href="admin-page.css?v=20261120" />
 </head>
 <body class="admin-page">
   <a class="admin-skip-link" href="#adminMain">본문으로 이동</a>
   <div class="topbar">
     <div class="wrap">
       <a class="brand-line" href="index.html" aria-label="조한서 국어 홈">조한서 <span class="brand-subject">국어</span></a>
-      <nav class="nav" aria-label="관리자 메뉴"><span class="admin-current">관리자</span><a href="index.html">사이트 보기 ↗</a><a href="#" id="logoutLink" style="display:none">로그아웃</a></nav>
+      <nav class="nav" aria-label="관리자 메뉴"><span class="admin-current" aria-current="page">관리자</span><a href="index.html">홈</a><a href="#" id="logoutLink" style="display:none">로그아웃</a></nav>
     </div>
   </div>
 
@@ -49,26 +49,28 @@
 
       <!-- 로그인 -->
       <div id="loginView">
-        <p class="section-label">선생님 작업 공간</p>
-        <h1 class="section-title">관리자 로그인</h1>
-        <p class="admin-login-lead">수업 준비와 학생 관리를 한곳에서.</p>
         <div class="panel">
+          <h1 class="section-title">관리자 로그인</h1>
           <div class="field"><label for="email">이메일</label><input id="email" type="email" autocomplete="username" /></div>
           <div class="field"><label for="pw">비밀번호</label><input id="pw" type="password" autocomplete="current-password" /></div>
           <button class="btn" id="loginBtn" style="width:100%">로그인</button>
-          <p class="msg err" id="loginErr" style="display:none"></p>
+          <p class="msg err" id="loginErr" role="alert" style="display:none"></p>
         </div>
       </div>
 
       <!-- 관리 -->
       <div id="adminView" style="display:none">
-        <div class="admin-page-heading"><div><p class="admin-eyebrow">선생님 작업 공간</p><p class="admin-page-title">수업을 준비하는 공간.</p></div><a class="admin-student-link" href="homework.html">학생 채점 화면 ↗</a></div>
+        <div class="admin-page-heading">
+          <h1 class="admin-page-title">수업 관리</h1>
+          <a class="admin-student-link" href="homework.html">학생 채점 화면</a>
+        </div>
+        <div class="admin-layout">
         <nav id="adminQuickNav" class="admin-quick-nav" aria-label="관리 도구 바로가기" hidden></nav>
         <div class="admin-grid" id="adminTools">
 
           <div id="studyDashboard" class="study-dashboard" aria-labelledby="studyTitle">
             <div class="study-heading">
-              <div><p class="study-eyebrow">수업 준비 · 학생별 숙제 확인</p><h1 id="studyTitle">이번 숙제, 어디서 틀렸을까?</h1></div>
+              <h2 id="studyTitle">학생별 숙제 확인</h2>
               <span class="study-zone">한국 시간 기준</span>
             </div>
             <form id="studyForm" class="study-controls">
@@ -83,7 +85,6 @@
                 <button type="button" data-period="lastWeek" aria-pressed="false">지난주</button>
                 <button type="button" data-period="month" aria-pressed="false">이번 달</button>
                 <button type="button" data-period="last30" aria-pressed="false">최근 30일</button>
-                <span>날짜를 직접 지정할 수도 있어요.</span>
               </div>
             </form>
             <p id="studyStatus" class="study-status" role="status" aria-live="polite">학생을 선택하면 기간별 학습 기록을 볼 수 있어요.</p>
@@ -92,7 +93,7 @@
 
           <!-- 제출 기록 (평소 접힘) -->
           <details class="faq-item" id="subFold">
-            <summary>채점 결과 — 제출 기록</summary>
+            <summary>채점 제출 기록</summary>
             <div class="faq-body" style="padding-top:6px">
               <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
                 <div class="field" style="margin-bottom:0"><input id="subFilter" placeholder="학생 이름으로 검색" /></div>
@@ -106,7 +107,7 @@
 
           <!-- 교재 현황 (평소 접힘) -->
           <details class="faq-item" id="matFold">
-            <summary>교재 현황 — 교재 목록</summary>
+            <summary>교재 목록</summary>
             <div class="faq-body" style="padding-top:6px">
               <div id="matList" class="admin-grid"></div>
             </div>
@@ -114,7 +115,7 @@
 
           <!-- 대량 등록 -->
           <details class="faq-item">
-            <summary>교재 등록 — 붙여넣기 대량 등록</summary>
+            <summary>교재 대량 등록</summary>
             <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
@@ -151,7 +152,7 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
 
           <!-- 정답 수정 -->
           <details class="faq-item">
-            <summary>정답 수정 — 문항 정답 고치기</summary>
+            <summary>문항 정답 수정</summary>
             <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -169,7 +170,7 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
 
           <!-- 결과 화면 안내문 편집 -->
           <details class="faq-item">
-            <summary>안내문 편집 — 사고과정 피드백</summary>
+            <summary>사고과정 피드백 안내문</summary>
             <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
@@ -192,7 +193,7 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
 
           <!-- 메인 문구 편집 -->
           <details class="faq-item">
-            <summary>메인 문구 편집 — 홈 첫 화면</summary>
+            <summary>홈 첫 화면 문구</summary>
             <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
@@ -214,7 +215,7 @@ DAY 01                 ← 콜론 없는 줄 = 세트 이름
 
           <!-- 홈 소개 편집 -->
           <details class="faq-item">
-            <summary>소개 편집 — 선생님 소개</summary>
+            <summary>선생님 소개</summary>
             <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
@@ -255,7 +256,7 @@ Q: 다음 질문
 
           <!-- 칼럼 편집 -->
           <details class="faq-item">
-            <summary>칼럼 편집 — 글 고치기 · 추가</summary>
+            <summary>칼럼 편집</summary>
             <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field">
@@ -602,7 +603,7 @@ Q: 다음 질문
 
           <!-- 학생별 리포트 -->
           <details class="faq-item">
-            <summary>학생별 리포트 — 성적 추이</summary>
+            <summary>학생별 성적 리포트</summary>
             <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div style="display:grid;grid-template-columns:1fr auto;gap:14px">
@@ -616,7 +617,7 @@ Q: 다음 질문
 
           <!-- 오답 통계 -->
           <details class="faq-item">
-            <summary>오답 통계 — 많이 틀리는 문항</summary>
+            <summary>문항별 오답 통계</summary>
             <div class="faq-body" style="padding-top:6px">
             <div class="panel">
               <div class="field"><label for="stSel">과제/세트 선택 <span class="mini">— 제출이 있는 것만 표시</span></label>
@@ -648,6 +649,7 @@ Q: 다음 질문
             </div>
           </details>
 
+        </div>
         </div>
       </div>
     </div>

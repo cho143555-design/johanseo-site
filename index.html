@@ -20,7 +20,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260919-brand2" />
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
 <link rel="manifest" href="/manifest.json?v=20260919-brand2" />
-<meta name="theme-color" content="#101115" />
+<meta name="theme-color" content="#131d30" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="조한서 국어" />
@@ -28,29 +28,29 @@
 <link rel="apple-touch-icon" href="/brand/apple-touch-icon-20260919.png" />
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="brand.css?v=20260919-brand2" />
-<link rel="stylesheet" href="home.css?v=20260919-brand2" />
+<link rel="stylesheet" href="home.css?v=20261120" />
 </head>
 <body class="home-page">
 <a class="skip-link" href="#home">본문 바로가기</a>
-<main id="home" tabindex="-1">
 <header class="site-header">
 <div class="wrap header-inner">
 <a class="wordmark" href="#">조한서 <span class="brand-subject">국어</span></a>
 <nav class="mainnav" aria-label="주요 메뉴">
+<a class="secondary" href="#curriculum">수업 안내</a>
 <a class="secondary" href="#teacher">선생님 소개</a>
 <a class="secondary" href="#column">칼럼</a>
-<a class="secondary" href="#lessons" id="navLessons" hidden>수업 안내</a>
 <a href="#contact">상담 문의</a>
-<a class="nav-cta" href="homework.html">과제 채점 ↗</a>
+<a class="nav-cta" href="homework.html">과제 채점</a>
 </nav>
 </div>
 <nav class="mobile-nav" aria-label="홈 화면 둘러보기">
-<a href="#curriculum">수업</a>
+<a href="#curriculum">수업 안내</a>
 <a href="#teacher">선생님 소개</a>
 <a href="#column">칼럼</a>
 <a href="notebox.html">보관함</a>
 </nav>
 </header>
+<main id="home" tabindex="-1">
 <section class="hero">
 <div class="wrap">
 <div class="hero-main">
@@ -64,10 +64,7 @@
 <strong>고1 노베이스에서 출발하여 2026 불국어 만점까지.</strong>
 <br>그 길을 직접 걸어봤기에,<br>어느 단계에 있든 다음 한 걸음을 정확히 짚습니다.</p>
 <div class="hero-actions">
-<a class="btn" href="#contact">상담 문의 <span class="arrow">↗</span>
-</a>
-<a class="btn outline" href="homework.html">과제 채점 <span class="arrow">→</span>
-</a>
+<a class="btn" href="#contact">수업 상담</a>
 </div>
 </div>
 <div class="hero-art" aria-hidden="true">
@@ -114,65 +111,51 @@
 </g>
 <circle cx="467" cy="124" r="4" fill="#aec5ff"/>
 <path d="M456 124H478M467 113V135" stroke="#aec5ff" stroke-width=".7"/>
-<text x="79" y="108" fill="#7081a9" font-size="10" letter-spacing="2">읽고, 생각하고, 바로잡다.</text>
 </svg>
-<div class="art-label">
-<span>조한서 국어</span>
-<b>사고의 방향을 바꾸다 ↗</b>
-</div>
 </div>
 </div>
 <div class="hero-foot" id="heroFoot">
 <span id="heroCredentialGroup">
-<i>
-</i>
 <strong id="heroCredential">2026학년도 수능 국어 100점</strong>
 </span>
 <span id="heroUniversityGroup">
 <span id="heroUniversity">중앙대학교 국어국문학부 전공</span>
-<i>
-</i> 수능 · 내신 국어</span>
+</span>
 </div>
 </div>
 </section>
 <div class="quick-strip">
-<div class="wrap quick-row">
+<nav class="wrap quick-row" aria-label="학생 도구">
 <a class="quick-item" href="homework.html">
 <div>
-<small>FOR STUDENTS</small>
-<p>오늘 푼 과제, 바로 채점하기</p>
+<p>과제 채점</p>
 </div>
-<span class="quick-icon">↗</span>
+<span class="quick-icon" aria-hidden="true"></span>
 </a>
 <a class="quick-item" href="notebox.html">
 <div>
-<small>MY REVIEW</small>
-<p>다시 볼 문제 모아보기</p>
+<p>기억해둘 문제 보관함</p>
 </div>
-<span class="quick-icon">↗</span>
+<span class="quick-icon" aria-hidden="true"></span>
 </a>
-</div>
+</nav>
 </div>
 <section class="section" id="curriculum">
 <div class="wrap">
 <div class="section-top">
 <div>
-<p class="eyebrow">수업 안내</p>
-<h2>수능부터 내신까지.</h2>
+<h2>수업 안내</h2>
 </div>
-<a class="link" href="#contact">수업 상담 <span class="arrow">↗</span>
-</a>
+<a class="link" href="#lessons" id="navLessons" hidden>수업 상세 안내</a>
 </div>
 <div class="course-grid" id="courseGrid">
 <article class="course dark">
-<span class="course-number" aria-hidden="true">01</span>
 <p class="eyebrow" id="satCourseTag">수능 국어</p>
 <h3 id="satCourseTitle">사고과정의<br>
 <b>완전한</b> 교정</h3>
 <p id="satCourseLead">노베이스·중하위권은 <b>중상위권으로</b>,<br>상위권은 <b>만점에 가까운 최상위권으로</b>.</p>
 </article>
 <article class="course" id="naesinBlock">
-<span class="course-number" aria-hidden="true">02</span>
 <p class="eyebrow" id="naesinTag">내신 국어</p>
 <h3 id="naesinTitle">모든 경우의 수의<br>
 <b>완벽한</b> 대비</h3>
@@ -185,7 +168,6 @@
 <div class="wrap teacher-grid">
 <div class="portrait">
 <img src="profile.jpg?v=17b95057f537" style="object-position:50% 10%" alt="조한서 선생님 프로필 사진" loading="lazy">
-<p class="portrait-name">조한서 국어</p>
 </div>
 <div class="teacher-copy" id="teacherInfo">
 <p class="eyebrow">조한서 선생님</p>
@@ -228,10 +210,9 @@
 <div class="wrap columns">
 <div class="section-top">
 <div>
-<p class="eyebrow">국어를 읽는 생각</p>
 <h2>수능 국어 칼럼</h2>
 </div>
-<span class="muted eyebrow" id="featuredCount">01 — 03</span>
+<span id="featuredCount" hidden></span>
 </div>
 <div class="column-intro" id="columnIntro">
 <p>여기 있는 글들은 수능 국어 1등급 이상이라면 대체로 공감할, <b>정도(正道)</b>라고 부를 만한 내용들이야.</p>
@@ -282,8 +263,8 @@
 </details>
 </div>
 <details class="all-columns" id="all-columns">
-<summary>전체 칼럼 보기 <span class="column-count" id="allColumnCount">15</span>
-<span aria-hidden="true">↓</span>
+<summary>전체 칼럼 <span class="column-count" id="allColumnCount">15</span>
+<span class="disclosure-indicator" aria-hidden="true"></span>
 </summary>
 <div class="all-column-list" id="allColumnList">
 <div class="column-category">
@@ -515,7 +496,7 @@
 <section id="install">
 <div class="wrap" >
 <details class="install-fold">
-<summary>채점 페이지를 폰 홈 화면에 추가하는 방법 (앱처럼 쓰기)</summary>
+<summary>휴대폰 홈 화면에 채점 페이지 추가하기</summary>
 <div class="install-card">
 <p class="install-lead">채점 페이지를 폰 <b>홈 화면에 아이콘으로 추가</b>해 두면, 앱처럼 한 번에 열 수 있습니다. 따로 설치할 것은 없습니다.</p>
 <div class="install-tabs">
@@ -546,22 +527,18 @@
 <section class="contact" id="contact">
 <div class="wrap contact-inner">
 <div>
-<p class="eyebrow">상담 문의</p>
-<h2>국어 관련 고민, 무엇이든.</h2>
-<p>상담 문의</p>
+<h2>상담 문의</h2>
 </div>
-<a class="btn light" href="https://pf.kakao.com/_xfxbxgfX/chat" target="_blank" rel="noopener">카카오톡 채널로 문의하기 <span class="arrow">↗</span>
-</a>
+<a class="btn light" href="https://pf.kakao.com/_xfxbxgfX/chat" target="_blank" rel="noopener">카카오톡 채널로 문의하기</a>
 </div>
 </section>
+</main>
 <footer class="site-footer">
 <div class="wrap footer-inner">
 <a class="wordmark" href="#">조한서 <span class="brand-subject">국어</span></a>
 <span id="heroEyebrow">조한서 수능 · 내신 국어</span>
-<span>JOHANSEO.COM</span>
 </div>
 </footer>
-</main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
 </script>
 <script src="config.js">

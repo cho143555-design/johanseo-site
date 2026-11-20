@@ -1,22 +1,5 @@
 /* Student screens share the brand palette; grading and note data stay in the existing app. */
-.student-page { background:var(--paper,#f4f5f8); }
 .student-page [hidden] { display:none !important; }
-.student-page .topbar { background:rgba(255,255,255,.96); }
-.student-page .topbar .wrap { max-width:1180px; min-height:76px; height:auto; gap:22px; }
-.student-page .student-wordmark { display:inline-flex; align-items:baseline; flex-shrink:0; gap:0; font:800 27px/1 var(--sans); letter-spacing:-1.6px; }
-.student-wordmark > .brand-subject { color:var(--jumuk,#4260f5);font:inherit;letter-spacing:inherit;margin-left:7px; }
-.student-wordmark small { font-size:9px; font-weight:700; letter-spacing:1.6px; margin-left:10px; }
-.student-page .nav { display:flex; gap:28px; font-size:14px; font-weight:650; }
-.student-page .nav a { padding:26px 0; white-space:nowrap; }
-.student-page .nav a[aria-current="page"] { color:var(--jumuk,#4260f5); }
-.student-main { padding:52px 0 80px; }
-.student-page .student-shell { max-width:840px; }
-.student-heading { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:30px; }
-.student-eyebrow { font-size:11px; font-weight:750; letter-spacing:.7px; color:var(--jumuk,#4260f5); margin:0 0 10px; }
-.student-page .hw-title { font-family:var(--sans); font-size:clamp(30px,4.5vw,40px); line-height:1.22; letter-spacing:-1.4px; margin:0 0 10px; }
-.student-intro { font-size:15px; color:var(--ink-soft); line-height:1.6; }
-.student-shortcut { font-size:13px; font-weight:650; white-space:nowrap; padding:8px 0; }
-.student-shortcut span { margin-left:8px; color:var(--jumuk,#4260f5); }
 .student-steps { list-style:none; display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin:0 0 24px; }
 .student-steps li { padding-bottom:13px; border-bottom:2px solid var(--line); color:#757a87; font-size:13px; font-weight:650; }
 .student-steps li span { margin-right:8px; font-variant-numeric:tabular-nums; }
@@ -104,18 +87,6 @@
 .student-page .nb-acts .act-del { color:#777e8c; }
 .student-page .nb-empty { background:#fff; border:1px solid var(--line); border-radius:14px; padding:40px 22px; line-height:1.8; }
 @media (max-width:640px) {
-  .student-page .topbar .wrap { min-height:68px; padding:0 20px; gap:14px; }
-  .student-page .student-wordmark { font-size:24px; }
-  .student-wordmark small { display:none; }
-  .student-page .nav { gap:17px; font-size:12px; }
-  .student-page .nav a { padding:23px 0; }
-  .student-main { padding:30px 0 54px; }
-  .student-page .student-shell { padding:0 20px; }
-  .student-heading { margin-bottom:26px; gap:12px; }
-  .student-page .hw-title { font-size:31px; }
-  .student-intro { font-size:13px; }
-  .student-shortcut { font-size:12px; }
-  .student-shortcut span { margin-left:3px; }
   .student-steps { gap:10px; margin-bottom:20px; }
   .student-steps li { font-size:11px; padding-bottom:10px; }
   .student-steps li span { margin-right:4px; }
@@ -141,16 +112,8 @@
   .student-page .nb-acts .act-msg { flex-basis:100%; }
 }
 @media (max-width:360px) {
-  .student-page .topbar .wrap,.student-page .student-shell { padding-left:16px; padding-right:16px; }
-  .student-page .nav { gap:14px; }
-  .student-heading { align-items:flex-start; }
-  .student-shortcut { margin-top:31px; }
   .student-page .student-work-card,.student-page .nb-gate { padding:20px 15px; }
   .student-page .bubbles { gap:5px; }
 }
 
 .student-page .footer-wordmark { font-size:20px;font-weight:800;letter-spacing:-.8px; }
-@media(max-width:380px) {
-  .student-page .student-wordmark { font-size:22px;letter-spacing:-1.2px; }
-  .student-page .nav { gap:13px; }
-}

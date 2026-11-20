@@ -49,49 +49,6 @@
 .nw { white-space:nowrap; }
 
 /* 과제 채점 전용 화면 */
-.page-homework {
-  --ink: #172638;
-  --ink-soft: #57667a;
-  --line: #dbe2e9;
-  --paper: #f5f7fa;
-  --blue: #3159bf;
-  --blue-hover: #2447a0;
-  --jumuk: var(--blue);
-  background: var(--paper);
-}
-.page-homework .topbar { background: #fff; }
-.page-homework .topbar .wrap { min-height: 4rem; }
-.page-homework .student-wordmark {
-  gap: .28em;
-  color: var(--ink);
-  font-size: 1.375rem;
-  font-weight: 700;
-  letter-spacing: -.035em;
-}
-.page-homework .student-wordmark .brand-subject {
-  margin: 0;
-  color: #384c66;
-  font-weight: 500;
-}
-.page-homework .nav { font-size: .875rem; font-weight: 500; }
-.page-homework .nav a { position: relative; padding: 1.25rem 0; }
-.page-homework .nav a[aria-current="page"] { color: var(--ink); font-weight: 700; }
-.page-homework .nav a[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 2px;
-  background: var(--blue);
-}
-.page-homework .student-main { padding: clamp(1.75rem, 4vw, 3.25rem) 0 4.5rem; }
-.page-homework .student-shell { max-width: 50rem; }
-.page-homework .hw-title {
-  margin: 0 0 1.25rem;
-  font-size: clamp(1.75rem, 3vw, 2.125rem);
-  font-weight: 700;
-  letter-spacing: -.035em;
-  line-height: 1.3;
-}
 .page-homework .student-work-card {
   --card-inset: clamp(1rem, 4vw, 2rem);
   padding: 0 var(--card-inset) var(--card-inset);
@@ -215,12 +172,6 @@
 .page-homework .tool-stack .tool-link:focus-visible { outline-offset: -4px; }
 
 @media (max-width: 640px) {
-  .page-homework .topbar .wrap { min-height: 3.5rem; padding-block: 0; }
-  .page-homework .student-wordmark { font-size: 1.1875rem; }
-  .page-homework .nav { gap: .875rem; font-size: .8125rem; }
-  .page-homework .nav a { padding-block: 1rem; }
-  .page-homework .student-shell { padding-inline: 1rem; }
-  .page-homework .hw-title { margin-bottom: 1rem; }
   .page-homework .student-steps { margin-bottom: 1.25rem; padding-block: 1rem; }
   .page-homework .student-steps li { gap: .3rem; font-size: .8125rem; }
   .page-homework .student-steps li span { width: 1.25rem; height: 1.25rem; font-size: .75rem; }
