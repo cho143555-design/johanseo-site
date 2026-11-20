@@ -84,7 +84,7 @@
     const name = fields['이름'][0];
     const catches = fields['캐치'] || [];
     const catchHtml = catches.map(line => lineBreaks(line).replace(/(<\/b>에게 배우면)\s+(다릅니다\.)/, '$1<br>$2')).join('<br>');
-    const credentials = (fields['이력'] || []).map((line, i) => `<li>${i === 0 ? '<strong>' + escape(name) + ' · ' + format(line) + '</strong>' : format(line)}</li>`).join('');
+    const credentials = (fields['이력'] || []).map((line, i) => `<li>${i === 0 ? '<strong>' + format(line) + '</strong>' : format(line)}</li>`).join('');
     const points = (fields['설명'] || []).map(line => {
       const split = line.match(/^\*\*(.+?)\*\*\s*[—–-]\s*(.*)$/);
       return split ? `<div><b>${escape(split[1])}</b><p>${lineBreaks(split[2])}</p></div>` : `<div><p>${lineBreaks(line)}</p></div>`;
@@ -119,16 +119,16 @@
 
   function renderHero(content) {
     const fields = readFields(content);
-    if (fields['윗줄']) byId('heroEyebrow').textContent = fields['윗줄'][0];
-    if (fields['수능라벨']) {
-      byId('satTag').textContent = '조한서 · ' + fields['수능라벨'][0];
-      byId('satCourseTag').textContent = fields['수능라벨'][0];
-    }
-    if (fields['제목']) {
-      setHtml('heroH1', titleHtml(fields['제목'], true));
-      setHtml('satCourseTitle', titleHtml(fields['제목']));
-    }
-    if (fields['리드']) setHtml('heroLead', fields['리드'].map((line, i) => i === 0 ? `<strong>${format(line)}</strong>` : format(line)).join('<br>'));
+    const eyebrow = byId('heroEyebrow');
+    eyebrow.textContent = fields['윗줄']?.[0] || '';
+    eyebrow.hidden = !eyebrow.textContent;
+    if (fields['수능라벨']) byId('satCourseTag').textContent = fields['수능라벨'][0];
+    if (fields['제목']) setHtml('heroH1', titleHtml(fields['제목'], true));
+    setHtml('satCourseTitle', titleHtml(fields['수능제목'] || []));
+    byId('satCourseTitle').hidden = !fields['수능제목']?.length;
+    const lead = fields['리드'] || [];
+    setHtml('heroLead', lead.map((line, i) => i === 0 ? `<strong>${format(line)}</strong>` : format(line)).join('<br>'));
+    byId('heroLead').hidden = !lead.length;
     const hasNaesin = !!(fields['내신제목']?.length || fields['내신리드']?.length);
     byId('naesinBlock').hidden = !hasNaesin;
     byId('courseGrid').classList.toggle('single-course', !hasNaesin);
@@ -142,13 +142,6 @@
     if (!html) return;
     setHtml('teacherInfo', html);
     const fields = readFields(content);
-    const credentials = fields['이력'] || [];
-    ['heroCredential', 'heroUniversity'].forEach((id, index) => {
-      const text = (credentials[index] || '').replace(/\*\*/g, '');
-      byId(id).textContent = text;
-      byId(id + 'Group').hidden = !text;
-    });
-    byId('heroFoot').hidden = !credentials.length;
     setHtml('satCourseLead', (fields['강점'] || []).map(lineBreaks).join('<br>'));
   }
 
